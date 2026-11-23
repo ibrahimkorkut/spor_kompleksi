@@ -26,13 +26,7 @@ $mode_label = $ai_mode === 'gemini-live' ? 'Gemini LLM · Canlı WP DB' : ( $ai_
     </header>
 
     <div class="apex-ai-messages" id="apex-ai-messages" aria-live="polite">
-        <div class="apex-msg apex-msg-bot">
-            Merhaba, ben <strong>Apex AI Spor Koçu</strong>.<br><br>
-            Canlı tesis veritabanımıza bağlı olarak sana şunlarda anında yardımcı olabilirim:<br>
-            • Basketbol (2 adet) ve Voleybol salonu müsaitliği ile <strong>hakem hizmeti</strong><br>
-            • Bireysel / Grupsal PT paketleri ve antrenör önerisi<br>
-            • Boy/kilo yazarak anlık <strong>VKİ analizi</strong> (örn. <code>180 cm 82 kg</code>)
-        </div>
+        <div class="apex-msg apex-msg-bot" style="white-space:normal;">Merhaba, ben <strong>Apex AI Spor Koçu</strong>.<br><br>Canlı tesis veritabanımıza bağlı olarak sana şunlarda anında yardımcı olabilirim:<br>• Basketbol (2 adet) ve Voleybol salonu müsaitliği ile <strong>hakem hizmeti</strong><br>• Bireysel / Grupsal PT paketleri ve antrenör önerisi<br>• Boy/kilo yazarak anlık <strong>VKİ analizi</strong> (örn. <code>180 cm 82 kg</code>)</div>
     </div>
 
     <div class="apex-ai-chips" id="apex-ai-chips" aria-label="Hızlı sorular">
