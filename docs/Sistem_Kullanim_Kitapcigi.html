@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APEX ARENA — Sistem Kullanım Kitapçığı (WordPress Özel Tema)</title>
+<style>
+  :root {
+    --ink: #0F172A; --muted: #475569; --accent: #E31837; --dark: #0A0B0E;
+    --border: #E2E8F0; --bg: #F8FAFC; --volt: #0B7A3B;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; color: var(--ink); background: #EEF2F6; line-height: 1.65; }
+  .toolbar { position: sticky; top: 0; z-index: 100; background: var(--dark); color: #fff; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .toolbar button { background: var(--accent); color: #fff; border: 0; padding: 10px 20px; border-radius: 999px; font-weight: 700; cursor: pointer; }
+  .doc { max-width: 960px; margin: 28px auto 60px; background: #fff; border-radius: 14px; box-shadow: 0 20px 60px rgba(15,23,42,0.1); overflow: hidden; }
+  .cover { background: linear-gradient(135deg, #0A0B0E 0%, #161A24 60%, #4A0B18 100%); color: #fff; padding: 64px 52px; }
+  .cover-tag { display: inline-block; background: rgba(184,255,0,0.15); border: 1px solid #B8FF00; color: #B8FF00; font-size: 12px; font-weight: 800; letter-spacing: 0.1em; padding: 5px 14px; border-radius: 999px; text-transform: uppercase; }
+  .cover h1 { font-size: 42px; margin: 18px 0 8px; line-height: 1.08; letter-spacing: -0.02em; }
+  .cover p { color: #CBD5E1; font-size: 17px; max-width: 680px; margin: 0 0 28px; }
+  .meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin-top: 28px; }
+  .meta-box { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 10px; padding: 14px 16px; font-size: 13px; }
+  .meta-box strong { display: block; color: #B8FF00; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 3px; }
+  .content { padding: 44px 52px; }
+  h2 { font-size: 24px; color: var(--ink); border-bottom: 3px solid var(--accent); padding-bottom: 8px; margin: 40px 0 16px; }
+  h2:first-child { margin-top: 0; }
+  h3 { font-size: 17px; color: var(--ink); margin: 22px 0 8px; }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0 24px; font-size: 14px; }
+  th, td { border: 1px solid var(--border); padding: 10px 12px; text-align: left; vertical-align: top; }
+  th { background: #0F172A; color: #fff; font-weight: 700; }
+  tr:nth-child(even) td { background: var(--bg); }
+  .badge { display: inline-block; background: #DCFCE7; color: #166534; font-weight: 700; padding: 2px 9px; border-radius: 999px; font-size: 12px; }
+  .callout { background: #FFF5F6; border-left: 4px solid var(--accent); padding: 16px 20px; border-radius: 8px; margin: 18px 0; }
+  .callout-ok { background: #F0FDF4; border-left-color: var(--volt); }
+  code { background: #F1F5F9; padding: 2px 6px; border-radius: 4px; font-size: 13px; color: #B91C1C; }
+  pre { background: #0F172A; color: #E2E8F0; padding: 16px 20px; border-radius: 10px; overflow-x: auto; font-size: 13px; }
+  figure { margin: 22px 0; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: #0A0B0E; }
+  figure img { width: 100%; display: block; }
+  figcaption { background: #F8FAFC; color: var(--muted); padding: 10px 14px; font-size: 13px; font-weight: 600; border-top: 1px solid var(--border); }
+  .shots-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+  @media (max-width: 720px) { .content, .cover { padding: 28px 20px; } .shots-2 { grid-template-columns: 1fr; } }
+  @media print {
+    body { background: #fff; }
+    .toolbar { display: none; }
+    .doc { margin: 0; box-shadow: none; border-radius: 0; }
+    h2 { page-break-after: avoid; }
+    figure, table { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <div><strong>APEX ARENA</strong> · Sistem Kullanım Kitapçığı (v1.0.1)</div>
+  <button onclick="window.print()">🖨️ PDF Olarak Kaydet / Yazdır</button>
+</div>
+
+<div class="doc">
+  <header class="cover">
+    <span class="cover-tag">WORDPRESS ÖZEL TEMA · SİSTEM KULLANIM KİTAPÇIĞI</span>
+    <h1>APEX ARENA<br>SPOR VE PERFORMANS KOMPLEKSİ</h1>
+    <p>Sıfır eklenti bağımlılığı, Envato/ThemeForest standartlarında modüler PHP/MySQL mimarisi, hakemli Basketbol &amp; Voleybol salon kiralama, sertifikalı PT takvim sistemi, Dijital QR Üye Paneli, WCAG 2.2 AA Erişilebilirlik Merkezi ve Hibrit AI Spor Koçu.</p>
+    <div class="meta-grid">
+      <div class="meta-box"><strong>Canlı Yerel Adres</strong>http://localhost/spor_kompleksi/wordpress/</div>
+      <div class="meta-box"><strong>Tema Adı &amp; Sürüm</strong>apex-arena (v1.0.1 · PHP 8.2+)</div>
+      <div class="meta-box"><strong>Veritabanı</strong>spor_kompleksi_wp (UTF8MB4)</div>
+      <div class="meta-box"><strong>Figma Tasarım</strong>3 Sayfa (DS + 1440px + 390px)</div>
+    </div>
+  </header>
+
+  <main class="content">
+    <h2>1. Proje Özeti ve Değerlendirme Kriterleri Karşılama Tablosu (100 Puan)</h2>
+    <p>Bu proje, spor sitesi değerlendirme yönergesindeki tüm belge ve yazılım kriterlerini %100 eksiksiz karşılayacak şekilde sıfırdan geliştirilmiştir. Harici ücretli veya bozulabilecek eklenti bağımlılığı olmadan tüm rezervasyon, üyelik, erişilebilirlik, KVKK/çerez ve AI chatbot modülleri doğrudan <code>apex-arena</code> özel WordPress temasına entegre edilmiştir.</p>
+
+    <table>
+      <thead><tr><th>Değerlendirme Kriteri</th><th>Puan</th><th>Sistemdeki Karşılığı &amp; Dosya / URL</th><th>Durum</th></tr></thead>
+      <tbody>
+        <tr><td>WordPress Klasörü</td><td>2,5</td><td><code>C:\xampp\htdocs\spor_kompleksi\wordpress\</code></td><td><span class="badge">HAZIR</span></td></tr>
+        <tr><td>Database Dosyası (.sql)</td><td>2,5</td><td><code>teslim_belgeleri/spor_kompleksi_wp.sql</code> (Tüm WP + 5 özel tablo)</td><td><span class="badge">HAZIR</span></td></tr>
+        <tr><td>WordPress Dışarı Aktar (.xml)</td><td>5</td><td><code>teslim_belgeleri/apex-arena-wordpress-export.xml</code> (40 WXR öğesi)</td><td><span class="badge">HAZIR</span></td></tr>
+        <tr><td>Sistem Kullanım Kitapçığı</td><td>15</td><td>Bu doküman (<code>Sistem_Kullanim_Kitapcigi.html</code> &amp; <code>.md</code>)</td><td><span class="badge">HAZIR</span></td></tr>
+        <tr><td>PT Eğitmenler (Bireysel, Grupsal, Paketler, Ücretler, Detay/Günler, Antrenör Seçimi, Online Randevu)</td><td>30</td><td><code>/pt-egitmenler/</code> — 6 PT Paketi, haftalık ders tablosu, antrenör kart seçimi ve canlı MySQL randevu</td><td><span class="badge">TAMAMLANDI</span></td></tr>
+        <tr><td>Antrenör (Kim, Fotoğraf, Uzmanlık, Özgeçmiş, Sertifika/Belgeler, Online Takvim)</td><td>5</td><td><code>/antrenorler/</code> ve <code>/antrenor/{slug}/</code> — 4 sertifikalı antrenör, belge doğrulama modalı, canlı takvim</td><td><span class="badge">TAMAMLANDI</span></td></tr>
+        <tr><td>Salon ve Kiralama (2 Basketbol + 1 Voleybol + Hakem Ayarlama, Fotoğraf, Rezervasyon)</td><td>5</td><td><code>/salon-kiralama/</code> — Lightbox galeri, +₺450 hakem opsiyonu, çakışma korumalı canlı saat slotları</td><td><span class="badge">TAMAMLANDI</span></td></tr>
+        <tr><td>Tesis Olanakları (Soyunma Odası/Duş, Otopark, Kafe)</td><td>5</td><td><code>/tesis-olanaklari/</code> — 240 dolap/duş/sauna, canlı doluluklu 180 araçlık otopark + EV şarj, makro hesaplı kafe menüsü</td><td><span class="badge">TAMAMLANDI</span></td></tr>
+        <tr><td>Üyelik İşlemleri</td><td>10</td><td><code>/uyelik/</code> — Aylık/Yıllık planlar, online kayıt/giriş, Dijital QR Kartlı Üye Paneli, rezervasyon iptali, VKİ hesaplayıcı</td><td><span class="badge">TAMAMLANDI</span></td></tr>
+        <tr><td>Erişilebilirlik İşlemleri (WCAG 2.2 AA)</td><td>10</td><td>10 özellikli yüzen Erişilebilirlik Merkezi (Font, Yüksek Kontrast, Aydınlık Mod, Disleksi Lexend, Sesli Okuma vb.) + Beyan sayfası</td><td><span class="badge">TAMAMLANDI</span></td></tr>
+        <tr><td>Envato Market / Git Hesabı</td><td>10</td><td><code>apex-arena-git-repo/</code> (GitHub hazır depo) + <code>apex-arena-envato-theme.zip</code> + <code>screenshot.png</code> + <code>.pot</code></td><td><span class="badge">HAZIR</span></td></tr>
+        <tr><td><strong>Ekstralar: Hibrit AI Chatbot, KVKK/Çerez Politikası, Duyurular</strong></td><td><strong>+Fark</strong></td><td>7/24 Hibrit AI Spor Koçu (Gemini/OpenAI + Offline WP DB), Çerez Tercih Banner &amp; Modalı, KVKK/Gizlilik/Sözleşme, Duyurular</td><td><span class="badge">AKTİF</span></td></tr>
+      </tbody>
+    </table>
+
+    <h2>2. Sistem Kurulum ve Taşıma Rehberi (XAMPP / Localhost)</h2>
+    <h3>2.1. Hızlı Kurulum Adımları</h3>
+    <ol>
+      <li>XAMPP Kontrol Panelinden <strong>Apache</strong> ve <strong>MySQL</strong> servislerini başlatın.</li>
+      <li>Teslim edilen <code>wordpress</code> klasörünü <code>C:\xampp\htdocs\spor_kompleksi\wordpress\</code> dizinine yerleştirin.</li>
+      <li>phpMyAdmin (<code>http://localhost/phpmyadmin</code>) üzerinden <code>utf8mb4_unicode_ci</code> karakter setiyle <code>spor_kompleksi_wp</code> veritabanını oluşturun ve <code>teslim_belgeleri/spor_kompleksi_wp.sql</code> dosyasını İçe Aktar (Import) ile yükleyin.</li>
+      <li>Tarayıcıdan <code>http://localhost/spor_kompleksi/wordpress/</code> adresini açın.</li>
+    </ol>
+
+    <h3>2.2. Alternatif Kurulum (WXR XML + Tema ZIP)</h3>
+    <p>Mevcut temiz bir WordPress kurulumuna aktarmak için: <strong>Görünüm → Temalar → Yeni Ekle → Tema Yükle</strong> menüsünden <code>apex-arena-envato-theme.zip</code> paketini yükleyip etkinleştirin; ardından <strong>Araçlar → İçe Aktar → WordPress</strong> üzerinden <code>apex-arena-wordpress-export.xml</code> dosyasını içe aktarın.</p>
+
+    <div class="callout callout-ok">
+      <strong>Hazır Test &amp; Yönetim Hesapları:</strong><br>
+      • <strong>WordPress Yönetici (WP Admin):</strong> <code>http://localhost/spor_kompleksi/wordpress/wp-admin/</code> → Kullanıcı: <code>apexadmin</code> | Şifre: <code>ApexArena2026!</code><br>
+      • <strong>Hazır Demo Üye (Üye Paneli &amp; QR Kart):</strong> <code>/uyelik/#giris</code> → Kullanıcı: <code>uye_demo</code> | Şifre: <code>ApexUye2026!</code> *(Tek tıkla "DEMO ÜYE DOLDUR" butonu mevcuttur.)*
+    </div>
+
+    <h2>3. Arayüz Ekran Görüntüleri ve Modül Kullanım Kılavuzu</h2>
+    <h3>3.1. Ana Sayfa ve MACFit Esintili Koyu Atletik Tasarım</h3>
+    <p>Ana sayfa; üstte canlı tesis yoğunluğu (%34 Sakin) ve boş otopark bilgisini gösteren durum şeridi, yapışkan (sticky) navigasyon, tam ekran koyu atletik hero, KPI özet kartları, 3 profesyonel maç salonu, bireysel/grupsal filtreli PT paketleri, sertifikalı antrenör vitrini, tesis olanakları, üyelik paketleri ve güncel salon duyurularından oluşur.</p>
+    <figure>
+      <img src="ekran_goruntuleri/01-masaustu-anasayfa.png" alt="APEX ARENA Masaüstü Ana Sayfa">
+      <figcaption>Şekil 1: APEX ARENA Masaüstü (1440×900) Ana Sayfa — Canlı yoğunluk göstergesi, hero alanı ve yüzen Erişilebilirlik / AI Koç butonları.</figcaption>
+    </figure>
+
+    <h3>3.2. Salon ve Kiralama Sistemi (2 Basketbol + 1 Voleybol + Hakem Hizmeti)</h3>
+    <p><code>/salon-kiralama/</code> sayfasında <strong>Arena Basketbol 1 (FIBA Parke — ₺1.850/saat)</strong>, <strong>Arena Basketbol 2 (Performans — ₺1.550/saat)</strong> ve <strong>Arena Voleybol Pro (CEV Taraflex — ₺1.450/saat)</strong> salonları teknik özellikleri ve büyütülebilir fotoğraf lightbox galerisiyle listelenir.</p>
+    <ul>
+      <li><strong>Canlı Çakışma Koruması:</strong> Seçilen salon ve tarih için REST API (<code>/wp-json/apex/v1/availability</code>) MySQL veritabanını sorgular; dolu saatler otomatik olarak <em>DOLU</em> etiketiyle kilitlenir.</li>
+      <li><strong>Lisanslı Hakem Ayarlama Hizmeti:</strong> Formdaki hakem onay kutusu işaretlendiğinde TBF/TVF hakem bedeli (<strong>+₺450</strong>) sağdaki özet karta anlık yansıtılır ve veritabanına <code>needs_referee = 1</code> olarak kaydedilir.</li>
+      <li>Onay sonrası sistem benzersiz bir rezervasyon kodu (örn. <code>APX-SLN-16FDE2</code>) üretir ve ilgili saati anında kilitler.</li>
+    </ul>
+    <figure>
+      <img src="ekran_goruntuleri/04-salon-kiralama-hakem-onay.png" alt="Salon Kiralama ve Hakem Onayı">
+      <figcaption>Şekil 2: Hakem opsiyonlu canlı salon rezervasyon onayı ve anlık fiyat özeti (₺1.850 + ₺450 = ₺2.300).</figcaption>
+    </figure>
+
+    <h3>3.3. PT Eğitmenler &amp; Sertifikalı Antrenör Kadrosu</h3>
+    <ul>
+      <li><strong>PT Eğitmenler (<code>/pt-egitmenler/</code>):</strong> Bireysel PT ve Grupsal Antrenman karşılaştırması, sekmeli 6 paket (seans sayısı, seans başı ücret, toplam ücret, kapsam, günler), haftalık ders programı tablosu, antrenör kart seçimi ve canlı randevu formu yer alır.</li>
+      <li><strong>Antrenörler (<code>/antrenorler/</code> &amp; <code>/antrenor/{slug}/</code>):</strong> 4 uzman antrenörün (Kerem Alkan, Selin Yılmaz, Mert Demir, Elif Karaca) fotoğrafları, özgeçmişleri, tıklanınca doğrulama penceresi açılan uluslararası sertifikaları (NSCA-CSCS, TBF, TVF, Balanced Body, CrossFit L2) ve 7 günlük canlı online müsaitlik takvimleri bulunur.</li>
+    </ul>
+
+    <h3>3.4. Tesis Olanakları &amp; Üyelik İşlemleri (Dijital QR Kartlı Panel)</h3>
+    <ul>
+      <li><strong>Tesis Olanakları (<code>/tesis-olanaklari/</code>):</strong> 240 RFID akıllı dolaplı Soyunma Odası &amp; Yağmur Duş &amp; Fin Saunası, anlık doluluk çubuklu 180 araçlık Kapalı Otopark + 6 EV Şarj Ünitesi ve kategori filtreli, kalori/protein makrolu <strong>Apex Protein Kafe Menüsü</strong>.</li>
+      <li><strong>Üyelik İşlemleri (<code>/uyelik/</code>):</strong> Aylık/Yıllık (%20 indirimli) fiyat geçişli 3 paket (Classic, Pro, Elite + PT), KVKK &amp; sözleşme onaylı online kayıt formu, Üye Girişi ve giriş yapan üyeler için <strong>Dijital Turnike/Otopark QR Kartı</strong>, aktif salon/PT rezervasyonlarını tek tıkla iptal etme ve VKİ/Kalori hesaplayıcı.</li>
+    </ul>
+    <figure>
+      <img src="ekran_goruntuleri/05-uye-paneli-dijital-qr.png" alt="Üye Paneli ve Dijital QR Üyelik Kartı">
+      <figcaption>Şekil 3: Giriş yapmış üye için kişiselleştirilmiş Dijital QR Üyelik Kartı (APX-2026-0418) ve rezervasyon yönetim paneli.</figcaption>
+    </figure>
+
+    <h2>4. Hibrit AI Spor Koçu (Yapay Zeka Chatbot) Kullanımı ve API Ayarları</h2>
+    <p>Sağ alt köşedeki <strong>APEX AI KOÇ</strong> butonu her sayfada erişilebilirdir ve iki katmanlı <strong>Hibrit Mimari</strong> ile çalışır:</p>
+    <ol>
+      <li><strong>Canlı LLM + RAG Modu:</strong> WP Yönetim Paneli → <strong>APEX ARENA → AI &amp; Ayarlar</strong> ekranından Google Gemini veya OpenAI API anahtarı girildiğinde, sistem canlı WordPress veritabanındaki tüm salonları, antrenörleri, fiyatları ve dolulukları sistem bağlamına ekleyerek gerçek yapay zeka yanıtları üretir.</li>
+      <li><strong>Anahtarsız / Offline Yerel Hibrit Motor (Varsayılan Güvenli Mod):</strong> API anahtarı girilmediğinde veya internet kesildiğinde chatbot <strong>asla hata vermez</strong>; doğrudan WordPress MySQL veritabanından canlı boş salon saatlerini, hakem ücretlerini, PT paketlerini ve kullanıcının yazdığı boy/kilo verisinden (örn. <code>180 cm 82 kg analiz et</code>) anlık VKİ ve antrenör tavsiyesini hesaplar.</li>
+    </ol>
+    <figure>
+      <img src="ekran_goruntuleri/02-hibrit-ai-spor-kocu.png" alt="Hibrit AI Spor Koçu Sohbet Penceresi">
+      <figcaption>Şekil 4: APEX AI Spor Koçu — Canlı salon/hakem sorgusu ve 180 cm / 82 kg anlık VKİ analizi ile aksiyon butonları.</figcaption>
+    </figure>
+
+    <h2>5. WCAG 2.2 AA Erişilebilirlik Merkezi ve KVKK / Çerez Yönetimi</h2>
+    <p>Sol alt köşedeki <strong>♿ ERİŞİLEBİLİRLİK</strong> butonu ile açılan panel tüm kullanıcı tercihlerini tarayıcıda (<code>localStorage</code>) kalıcı olarak saklar:</p>
+    <ul>
+      <li>Yazı Boyutu Ölçekleme (%85 – %145), <strong>Yüksek Kontrast (WCAG AAA)</strong>, <strong>Aydınlık Okuma Modu</strong>, <strong>Disleksi Dostu Lexend Yazı Tipi</strong>, Bağlantıları Vurgula, Animasyonları Durdur, Gri Tonlama, Fare Takipli Okuma Kılavuzu, Büyük İmleç ve <strong>Web Speech API Türkçe Sesli Okuma</strong>.</li>
+      <li><strong>KVKK &amp; Çerez Uyumu:</strong> İlk ziyarette açılan Çerez Bildirim Şeridi ve footer’dan her zaman yeniden açılabilen granüler Çerez Tercihleri Modalı (Zorunlu, Tercih/Erişilebilirlik, Analitik, Kampanya) ile <code>/cerez-politikasi/</code>, <code>/kvkk-aydinlatma-metni/</code>, <code>/gizlilik-politikasi/</code> ve <code>/uyelik-sozlesmesi/</code> sayfaları tam kapsamlıdır.</li>
+    </ul>
+    <figure>
+      <img src="ekran_goruntuleri/03-erisilebilirlik-aydinlik-mod.png" alt="WCAG 2.2 Erişilebilirlik Merkezi ve Aydınlık Mod">
+      <figcaption>Şekil 5: WCAG 2.2 AA Erişilebilirlik Merkezi açıkken Aydınlık Okuma Modu görünümü.</figcaption>
+    </figure>
+
+    <h2>6. Mobil Uyumluluk (Responsive Doğrulama — 390px)</h2>
+    <p>Tema <code>1440px</code>, <code>1200px</code>, <code>960px</code>, <code>768px</code> ve <code>390px</code> kırılımlarında sıfır yatay taşma ile test edilmiştir. Mobilde tam ekran navigasyon çekmecesi, tek sütunlu kart/form dizilimi ve 44px+ dokunma hedefleri sağlanmıştır.</p>
+    <div class="shots-2">
+      <figure>
+        <img src="ekran_goruntuleri/07-mobil-menu-drawer-390px.png" alt="Mobil Tam Ekran Menü Çekmecesi">
+        <figcaption>Şekil 6: Mobil (390px) tam ekran navigasyon çekmecesi.</figcaption>
+      </figure>
+      <figure>
+        <img src="ekran_goruntuleri/08-mobil-salon-rezervasyon-390px.png" alt="Mobil Salon Rezervasyon Sistemi">
+        <figcaption>Şekil 7: Mobil (390px) canlı dolu/boş saatler ve hakemli rezervasyon formu.</figcaption>
+      </figure>
+    </div>
+
+    <h2>7. WordPress Yönetim Paneli, Veritabanı ve REST API Mimarisi</h2>
+    <p>Yönetici hesabıyla giriş yaptığınızda sol menüde yer alan <strong>APEX ARENA</strong> sekmesi üzerinden; Genel İstatistikler, Salon Rezervasyonları (Onayla / İptal Et + Hakem rozetleri), PT Randevuları, Üyelik Başvuruları, İletişim Mesajları ve AI Chatbot API ayarları yönetilebilir.</p>
+    <table>
+      <thead><tr><th>Özel MySQL Tablosu</th><th>Kullanım Amacı</th></tr></thead>
+      <tbody>
+        <tr><td><code>apex_apex_court_bookings</code></td><td>Basketbol (2) ve Voleybol (1) salon rezervasyonları, saat çakışma kontrolü ve hakem opsiyonu</td></tr>
+        <tr><td><code>apex_apex_pt_appointments</code></td><td>Bireysel/Grupsal PT eğitmen randevuları ve canlı takvim doluluğu</td></tr>
+        <tr><td><code>apex_apex_membership_applications</code></td><td>Üyelik kayıtları, paket seçimleri, KVKK/sözleşme onay kayıtları ve QR üye kodları</td></tr>
+        <tr><td><code>apex_apex_chatbot_logs</code></td><td>APEX AI Spor Koçu sohbet kayıtları ve kullanılan yapay zeka modu</td></tr>
+        <tr><td><code>apex_apex_contact_messages</code></td><td>İletişim sayfasından gelen KVKK onaylı ziyaretçi mesajları</td></tr>
+      </tbody>
+    </table>
+
+    <h2>8. GitHub &amp; Envato Market Dağıtım Talimatı</h2>
+    <p><code>apex-arena-git-repo/</code> klasörü Envato/ThemeForest dosya yapısına uygun şekilde (<code>style.css</code>, <code>theme.json</code>, <code>screenshot.png</code>, <code>readme.txt</code>, <code>languages/apex-arena.pot</code>, <code>LICENSE</code>, <code>CHANGELOG.md</code>) hazırlanmış ve Git commit geçmişiyle başlatılmıştır. Kendi GitHub hesabınıza yüklemek için:</p>
+<pre>cd C:\xampp\htdocs\spor_kompleksi\apex-arena-git-repo
+git remote add origin https://github.com/KULLANICI_ADIN/apex-arena-wordpress-theme.git
+git push -u origin main</pre>
+  </main>
+</div>
+</body>
+</html>

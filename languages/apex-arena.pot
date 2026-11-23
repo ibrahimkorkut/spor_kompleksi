@@ -1,0 +1,31 @@
+# Copyright (C) 2026 İbrahim Korkut
+# This file is distributed under the GNU General Public License v2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: APEX ARENA 1.0.0\n"
+"POT-Creation-Date: 2026-11-23 22:00+0300\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Domain: apex-arena\n"
+
+msgid "Ana Üst Menü"
+msgstr ""
+
+msgid "Footer Hizmetler Menüsü"
+msgstr ""
+
+msgid "Footer Kurumsal & Yasal Menü"
+msgstr ""
+
+msgid "Antrenörler"
+msgstr ""
+
+msgid "PT Paketleri"
+msgstr ""
+
+msgid "Salonlar"
+msgstr ""
+
+msgid "Salon Duyuruları"
+msgstr ""

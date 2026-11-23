@@ -1,0 +1,226 @@
+/* ==========================================================================
+   WCAG 2.2 AA / AAA Erişilebilirlik Merkezi & Mod Stilleri (10 Puan Modülü)
+   ========================================================================== */
+
+.apex-a11y-launcher {
+  position: fixed;
+  left: 20px;
+  bottom: 20px;
+  z-index: 9100;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--apex-surface-2);
+  color: var(--apex-text);
+  border: 2px solid var(--apex-volt);
+  border-radius: var(--apex-radius-pill);
+  padding: 11px 18px;
+  min-height: 50px;
+  font-family: var(--apex-font-display);
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+}
+.apex-a11y-launcher:hover {
+  background: var(--apex-volt);
+  color: #0A0B0E;
+}
+
+.apex-a11y-panel {
+  position: fixed;
+  left: 20px;
+  bottom: 82px;
+  z-index: 9300;
+  width: min(370px, calc(100vw - 24px));
+  max-height: calc(100vh - 110px);
+  overflow-y: auto;
+  background: var(--apex-surface);
+  border: 2px solid var(--apex-volt);
+  border-radius: var(--apex-radius-lg);
+  padding: 20px;
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.7);
+}
+.apex-a11y-panel[hidden] { display: none !important; }
+
+.apex-a11y-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 12px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--apex-border);
+}
+.apex-a11y-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.apex-a11y-opt {
+  background: var(--apex-bg);
+  color: var(--apex-text);
+  border: 1px solid var(--apex-border-strong);
+  border-radius: var(--apex-radius-sm);
+  padding: 12px 10px;
+  min-height: 56px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.apex-a11y-opt.is-active {
+  background: rgba(184, 255, 0, 0.16);
+  border-color: var(--apex-volt);
+  color: var(--apex-volt);
+}
+.apex-a11y-font-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: var(--apex-bg);
+  border: 1px solid var(--apex-border-strong);
+  border-radius: var(--apex-radius-sm);
+  padding: 10px 12px;
+  margin-bottom: 14px;
+}
+.apex-a11y-font-btns { display: flex; gap: 6px; }
+.apex-a11y-font-btns button {
+  min-width: 38px;
+  min-height: 36px;
+  border-radius: 6px;
+  border: 1px solid var(--apex-border-strong);
+  background: var(--apex-surface-2);
+  color: var(--apex-text);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+/* Okuma Kılavuzu */
+.apex-reading-guide {
+  display: none;
+  position: fixed;
+  left: 0;
+  right: 0;
+  height: 36px;
+  background: rgba(184, 255, 0, 0.14);
+  border-top: 2px solid var(--apex-volt);
+  border-bottom: 2px solid var(--apex-volt);
+  pointer-events: none;
+  z-index: 9999;
+  transform: translateY(-50%);
+}
+html.a11y-reading-guide .apex-reading-guide { display: block; }
+
+/* 1. Yüksek Kontrast Modu (WCAG AAA) */
+html.a11y-high-contrast {
+  --apex-bg: #000000;
+  --apex-surface: #000000;
+  --apex-surface-2: #111111;
+  --apex-text: #FFFFFF;
+  --apex-text-muted: #FFE600;
+  --apex-crimson: #FFE600;
+  --apex-crimson-hover: #FFF266;
+  --apex-volt: #00FFFF;
+  --apex-border: #FFE600;
+  --apex-border-strong: #FFFFFF;
+}
+html.a11y-high-contrast .apex-btn-primary { color: #000000 !important; }
+html.a11y-high-contrast .apex-card,
+html.a11y-high-contrast .apex-panel { border-width: 2px; }
+
+/* 2. Aydınlık Okuma Modu (Light Theme) */
+html.a11y-light-mode {
+  --apex-bg: #FFFFFF;
+  --apex-surface: #F4F5F7;
+  --apex-surface-2: #E8EBF0;
+  --apex-text: #0F172A;
+  --apex-text-muted: #475569;
+  --apex-volt: #0B7A3B;
+  --apex-border: rgba(15, 23, 42, 0.12);
+  --apex-border-strong: rgba(15, 23, 42, 0.25);
+}
+html.a11y-light-mode .apex-header { background: rgba(255, 255, 255, 0.95); }
+html.a11y-light-mode .apex-topbar { background: #0F172A; color: #FFFFFF; }
+html.a11y-light-mode .apex-topbar-meta,
+html.a11y-light-mode .apex-topbar-meta strong,
+html.a11y-light-mode .apex-topbar-link { color: #FFFFFF; }
+html.a11y-light-mode .apex-hero,
+html.a11y-light-mode .apex-prefooter,
+html.a11y-light-mode .apex-page-hero { color: #F8FAFC; }
+html.a11y-light-mode .apex-hero .apex-lead,
+html.a11y-light-mode .apex-prefooter .apex-lead,
+html.a11y-light-mode .apex-page-hero .apex-lead { color: #E2E8F0; }
+html.a11y-light-mode .apex-hero .apex-kpi-card { background: rgba(15, 23, 42, 0.9); border-color: rgba(255, 255, 255, 0.2); }
+html.a11y-light-mode .apex-hero .apex-kpi-val { color: #B8FF00; }
+html.a11y-light-mode .apex-hero .apex-kpi-label { color: #E2E8F0; }
+html.a11y-light-mode .apex-hero .apex-btn-outline,
+html.a11y-light-mode .apex-prefooter .apex-btn-outline { color: #FFFFFF; border-color: rgba(255, 255, 255, 0.65); }
+html.a11y-light-mode .apex-hero .apex-btn-ghost { background: rgba(15, 23, 42, 0.88); color: #FFFFFF; border-color: rgba(255, 255, 255, 0.35); }
+html.a11y-light-mode .apex-topbar .apex-live-pill,
+html.a11y-light-mode .apex-hero .apex-live-pill { color: #B8FF00; border-color: rgba(184, 255, 0, 0.6); }
+html.a11y-light-mode .apex-topbar .apex-live-dot,
+html.a11y-light-mode .apex-hero .apex-live-dot { background: #B8FF00; }
+html.a11y-light-mode .apex-topbar-a11y-btn { background: rgba(255,255,255,0.12); color: #B8FF00; border-color: rgba(184,255,0,0.6); }
+html.a11y-light-mode .apex-footer { background: #F1F5F9; }
+html.a11y-light-mode .apex-btn-volt { color: #FFFFFF; }
+html.a11y-light-mode .apex-card-featured { background: #FFFFFF; }
+html.a11y-light-mode .apex-member-card { color: #FFFFFF; }
+
+/* 3. Disleksi Dostu Yazı Tipi (Lexend + Geniş Aralık) */
+html.a11y-dyslexia body,
+html.a11y-dyslexia h1,
+html.a11y-dyslexia h2,
+html.a11y-dyslexia h3,
+html.a11y-dyslexia p,
+html.a11y-dyslexia a,
+html.a11y-dyslexia button {
+  font-family: 'Lexend', system-ui, sans-serif !important;
+  letter-spacing: 0.05em !important;
+  word-spacing: 0.14em !important;
+  line-height: 1.75 !important;
+}
+
+/* 4. Bağlantıları Vurgula */
+html.a11y-highlight-links a,
+html.a11y-highlight-links button {
+  text-decoration: underline !important;
+  text-underline-offset: 4px !important;
+}
+html.a11y-highlight-links a:not(.apex-btn) {
+  background: rgba(184, 255, 0, 0.18);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+/* 5. Animasyonları Durdur */
+html.a11y-reduce-motion *,
+html.a11y-reduce-motion *::before,
+html.a11y-reduce-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+}
+
+/* 6. Gri Tonlama */
+html.a11y-grayscale { filter: grayscale(100%); }
+
+/* 7. Büyük İmleç */
+html.a11y-large-cursor, html.a11y-large-cursor * {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 36 36'%3E%3Cpath d='M4 2 L4 30 L11 23 L17 34 L22 31 L16 20 L27 20 Z' fill='%23B8FF00' stroke='%23000000' stroke-width='2.5'/%3E%3C/svg%3E") 4 2, auto !important;
+}
+
+@media (max-width: 768px) {
+  .apex-a11y-launcher { left: 12px; bottom: 12px; padding: 10px 14px; font-size: 0.9rem; }
+  .apex-a11y-panel { left: 12px; bottom: 70px; }
+}
