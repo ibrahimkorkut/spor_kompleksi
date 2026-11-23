@@ -19,13 +19,21 @@ function apex_ai_build_live_context() {
     $settings = apex_get_settings();
 
     $courts = get_posts( [ 'post_type' => 'apex_court', 'numberposts' => 10, 'post_status' => 'publish', 'orderby' => 'menu_order', 'order' => 'ASC' ] );
+    $today = current_time( 'Y-m-d' );
+    $all_slots = [ '09:00', '10:00', '11:00', '14:00', '16:00', '18:00', '19:00', '20:00', '21:00' ];
     $court_lines = [];
     foreach ( $courts as $c ) {
         $sport = get_post_meta( $c->ID, '_apex_sport', true );
         $rate  = (int) get_post_meta( $c->ID, '_apex_hourly_rate', true );
         $ref   = (int) get_post_meta( $c->ID, '_apex_referee_fee', true );
         $dim   = get_post_meta( $c->ID, '_apex_dimensions', true );
-        $court_lines[] = sprintf( '- %s (%s, %s): Saatlik %s, Hakem Hizmeti +%s', $c->post_title, ucfirst( $sport ), $dim, apex_format_tl( $rate ), apex_format_tl( $ref ) );
+        $taken = $wpdb->get_col( $wpdb->prepare(
+            "SELECT time_slot FROM {$wpdb->prefix}apex_court_bookings WHERE court_id = %d AND booking_date = %s AND status != 'cancelled'",
+            $c->ID, $today
+        ) );
+        $free = array_values( array_diff( $all_slots, $taken ) );
+        $free_str = ! empty( $free ) ? implode( ', ', array_slice( $free, 0, 5 ) ) : 'Tamamı dolu';
+        $court_lines[] = sprintf( '- %s (%s, %s): Saatlik %s, Hakem Hizmeti +%s | Bugün boş saatler: %s', $c->post_title, ucfirst( $sport ), $dim, apex_format_tl( $rate ), apex_format_tl( $ref ), $free_str );
     }
 
     $trainers = get_posts( [ 'post_type' => 'apex_trainer', 'numberposts' => 10, 'post_status' => 'publish', 'orderby' => 'menu_order', 'order' => 'ASC' ] );
@@ -54,19 +62,24 @@ function apex_ai_build_live_context() {
         $plan_lines[] = sprintf( '- %s: Aylık %s / Yıllık taahhütle aylık %s', $pl['name'], apex_format_tl( $pl['monthly_price'] ), apex_format_tl( $pl['annual_price'] ) );
     }
 
-    $today = current_time( 'Y-m-d' );
     $today_count = (int) $wpdb->get_var( $wpdb->prepare(
         "SELECT COUNT(*) FROM {$wpdb->prefix}apex_court_bookings WHERE booking_date = %s AND status != 'cancelled'",
         $today
     ) );
 
-    return "Sen APEX ARENA Spor ve Performans Kompleksi'nin 7/24 çalışan profesyonel Türkçe AI Spor Koçu ve Müşteri Asistanısın.\n"
-        . "Kısa, samimi, enerjik, doğru ve aksiyon odaklı Türkçe yanıtlar ver. Uydurma fiyat verme; sadece aşağıdaki canlı tesis verilerini kullan:\n\n"
-        . "TESİS BİLGİLERİ:\n"
+    return "Sen APEX ARENA Spor ve Performans Kompleksi'nin canlı yapay zeka asistanı ve samimi spor koçusun (adın Apex AI Koç).\n\n"
+        . "KONUŞMA TARZIN (ÇOK ÖNEMLİ):\n"
+        . "1. Karşında gerçek bir insan varmış gibi son derece doğal, samimi, akıcı, zeki ve empatik bir Türkçe ile sohbet et.\n"
+        . "2. Kullanıcı günlük konulardan konuşursa (ör. 'canım sıkıldı', 'nasılsın', 'moralim bozuk', espri, sohbet, motivasyon, genel soru, ders/iş stresi, beslenme, antrenman tavsiyesi) ASLA hazır menü veya reklam listesi yapıştırma! Gerçek bir arkadaş / koç gibi dinle, doğal cevap ver, sohbeti devam ettir.\n"
+        . "3. Gerektiğinde akıllıca ve zorlamadan spor/hareket önerisi veya sohbet konusu açabilirsin ama satışçı gibi davranma.\n"
+        . "4. Kullanıcı APEX ARENA salonları, saatleri, hakem hizmeti, PT paketleri, antrenörler, üyelik, otopark, kafe veya VKİ hakkında soru sorarsa aşağıdaki GERÇEK CANLI VERİTABANI bilgilerini kullan; asla uydurma fiyat veya olmayan antrenör yazma.\n"
+        . "5. Yanıtların gereksiz uzun olmasın; akıcı sohbet ritminde (genelde 2-4 cümle; kullanıcı detaylı program/liste isterse kapsamlı) yaz. Önceki mesajları mutlaka hatırla ve bağlamı koru.\n\n"
+        . "BUGÜNÜN TARİHİ: {$today}\n"
+        . "TESİS CANLI BİLGİLERİ:\n"
         . "- Adres: {$settings['address']} | Tel: {$settings['phone']} | E-posta: {$settings['email']}\n"
         . "- Çalışma Saatleri: Hafta içi {$settings['weekday_hours']}, Hafta sonu {$settings['weekend_hours']}\n"
         . "- Anlık Tesis Yoğunluğu: %{$settings['live_occupancy']} (Sakin) | Kapalı Otopark Boş Yer: {$settings['parking_free']}/{$settings['parking_total']} (6 EV şarj ünitesi)\n"
-        . "- Tesis Olanakları: 240 dijital dolaplı Soyunma Odası & Yağmur Duş & Fin Saunası, 180 araçlık Kapalı Otopark (üyelere ilk 3 saat ücretsiz), Apex Protein Kafe.\n"
+        . "- Tesis Olanakları: 240 dijital dolaplı Soyunma Odası & Yağmur Duş & Fin Saunası, 180 araçlık Kapalı Otopark (üyelere ilk 3 saat ücretsiz), Apex Protein Kafe (protein shake, fit bowl, cold brew).\n"
         . "- Bugünkü Salon Rezervasyon Sayısı: {$today_count}\n\n"
         . "SALONLAR (2 Basketbol + 1 Voleybol + Hakem Ayarlama Hizmeti):\n" . implode( "\n", $court_lines ) . "\n\n"
         . "ANTRENÖRLER:\n" . implode( "\n", $trainer_lines ) . "\n\n"
@@ -75,44 +88,99 @@ function apex_ai_build_live_context() {
 }
 
 /**
- * Google Gemini API çağrısı
+ * Google Gemini API çağrısı (Gemini 2.5 Flash · Hızlı & Kesintisiz Doğal Sohbet)
  */
 function apex_ai_call_gemini( $message, $history, $system_prompt, $settings ) {
     $model = ! empty( $settings['gemini_model'] ) ? $settings['gemini_model'] : 'gemini-2.5-flash';
-    $url   = 'https://generativelanguage.googleapis.com/v1beta/models/' . rawurlencode( $model ) . ':generateContent?key=' . rawurlencode( $settings['gemini_api_key'] );
+    $url   = 'https://generativelanguage.googleapis.com/v1beta/models/' . rawurlencode( $model ) . ':generateContent?key=' . rawurlencode( trim( $settings['gemini_api_key'] ) );
 
     $contents = [];
-    if ( is_array( $history ) ) {
-        foreach ( array_slice( $history, -6 ) as $h ) {
+    if ( is_array( $history ) && ! empty( $history ) ) {
+        $recent = array_slice( $history, -14 );
+        // İstemci mevcut kullanıcı mesajını geçmişin sonuna zaten eklediyse çift göndermeyi önle
+        $last = end( $recent );
+        if ( is_array( $last ) && ( $last['role'] ?? '' ) === 'user' && trim( (string) ( $last['text'] ?? '' ) ) === trim( $message ) ) {
+            array_pop( $recent );
+        }
+        foreach ( $recent as $h ) {
             if ( empty( $h['text'] ) ) {
                 continue;
             }
-            $contents[] = [
-                'role'  => ( isset( $h['role'] ) && $h['role'] === 'bot' ) ? 'model' : 'user',
-                'parts' => [ [ 'text' => sanitize_text_field( $h['text'] ) ] ],
-            ];
+            $role = ( isset( $h['role'] ) && $h['role'] === 'bot' ) ? 'model' : 'user';
+            $text = wp_strip_all_tags( (string) $h['text'] );
+            if ( '' === trim( $text ) ) {
+                continue;
+            }
+            // Gemini ardışık aynı rolü sevmez; aynı rol üst üste gelirse birleştir
+            $count = count( $contents );
+            if ( $count > 0 && $contents[ $count - 1 ]['role'] === $role ) {
+                $contents[ $count - 1 ]['parts'][0]['text'] .= "\n" . $text;
+            } else {
+                $contents[] = [
+                    'role'  => $role,
+                    'parts' => [ [ 'text' => $text ] ],
+                ];
+            }
         }
     }
-    $contents[] = [
-        'role'  => 'user',
-        'parts' => [ [ 'text' => $message ] ],
+
+    // İlk tur 'model' ile başlıyorsa temizle (Gemini user ile başlamayı tercih eder)
+    while ( ! empty( $contents ) && $contents[0]['role'] !== 'user' ) {
+        array_shift( $contents );
+    }
+
+    $count = count( $contents );
+    if ( $count > 0 && $contents[ $count - 1 ]['role'] === 'user' ) {
+        $contents[ $count - 1 ]['parts'][0]['text'] .= "\n" . $message;
+    } else {
+        $contents[] = [
+            'role'  => 'user',
+            'parts' => [ [ 'text' => $message ] ],
+        ];
+    }
+
+    $gen_config = [
+        'temperature'     => 0.85,
+        'topP'            => 0.95,
+        'maxOutputTokens' => 900,
+    ];
+    if ( strpos( $model, '2.5' ) !== false ) {
+        $gen_config['thinkingConfig'] = [ 'thinkingBudget' => 0 ];
+    }
+
+    $payload = [
+        'systemInstruction' => [ 'parts' => [ [ 'text' => $system_prompt ] ] ],
+        'contents'          => $contents,
+        'generationConfig'  => $gen_config,
     ];
 
     $response = wp_remote_post( $url, [
-        'timeout' => 15,
-        'headers' => [ 'Content-Type' => 'application/json' ],
-        'body'    => wp_json_encode( [
-            'systemInstruction' => [ 'parts' => [ [ 'text' => $system_prompt ] ] ],
-            'contents'          => $contents,
-            'generationConfig'  => [ 'temperature' => 0.6, 'maxOutputTokens' => 450 ],
-        ] ),
+        'timeout' => 25,
+        'headers' => [ 'Content-Type' => 'application/json; charset=utf-8' ],
+        'body'    => wp_json_encode( $payload, JSON_UNESCAPED_UNICODE ),
     ] );
 
-    if ( is_wp_error( $response ) || wp_remote_retrieve_response_code( $response ) !== 200 ) {
+    if ( is_wp_error( $response ) ) {
         return false;
     }
+    $code = (int) wp_remote_retrieve_response_code( $response );
+    if ( $code !== 200 ) {
+        return false;
+    }
+
     $data = json_decode( wp_remote_retrieve_body( $response ), true );
-    return $data['candidates'][0]['content']['parts'][0]['text'] ?? false;
+    if ( empty( $data['candidates'][0]['content']['parts'] ) ) {
+        return false;
+    }
+
+    $out_parts = [];
+    foreach ( $data['candidates'][0]['content']['parts'] as $part ) {
+        if ( ! empty( $part['text'] ) && empty( $part['thought'] ) ) {
+            $out_parts[] = $part['text'];
+        }
+    }
+    $final_text = trim( implode( "\n", $out_parts ) );
+    return '' !== $final_text ? $final_text : false;
 }
 
 /**
@@ -363,6 +431,22 @@ function apex_ai_handle_message( $message, $history = [], $session_id = '' ) {
             if ( $reply ) {
                 $used = 'openai-live';
             }
+        }
+    }
+
+    // Canlı LLM yanıt verdiyse sadece ilgili tesis konusundan bahsedildiyse bağlamsal aksiyon butonu ekle
+    if ( $reply && $used !== 'local-hybrid' ) {
+        $q_a = str_replace( [ 'ç', 'ğ', 'ı', 'İ', 'ö', 'ş', 'ü' ], [ 'c', 'g', 'i', 'i', 'o', 's', 'u' ], mb_strtolower( $message, 'UTF-8' ) );
+        if ( preg_match( '/(salon|basketbol|voleybol|hakem|saha|kirala|rezervasyon)/', $q_a ) ) {
+            $action = [ 'label' => 'Salon Kirala', 'url' => home_url( '/salon-kiralama/' ) ];
+        } elseif ( preg_match( '/(\bpt\b|paket|seans|bireysel|grupsal|program)/', $q_a ) ) {
+            $action = [ 'label' => 'PT Paketleri', 'url' => home_url( '/pt-egitmenler/' ) ];
+        } elseif ( preg_match( '/(antrenor|egitmen|hoca|takvim|randevu)/', $q_a ) ) {
+            $action = [ 'label' => 'Antrenörler & Takvim', 'url' => home_url( '/antrenorler/' ) ];
+        } elseif ( preg_match( '/(uyelik|katil|abonelik|fiyat)/', $q_a ) ) {
+            $action = [ 'label' => 'Üyelik Paketleri', 'url' => home_url( '/uyelik/' ) ];
+        } elseif ( preg_match( '/(otopark|kafe|cafe|soyunma|dus|sauna|tesis)/', $q_a ) ) {
+            $action = [ 'label' => 'Tesis Olanakları', 'url' => home_url( '/tesis-olanaklari/' ) ];
         }
     }
 

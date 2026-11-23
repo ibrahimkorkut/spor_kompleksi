@@ -20,7 +20,19 @@
     sessionId = 'sid_' + Math.random().toString(36).slice(2, 11);
     sessionStorage.setItem('apex_ai_sid', sessionId);
   }
-  const history = [];
+  let history = [];
+  try {
+    const saved = JSON.parse(sessionStorage.getItem('apex_ai_history') || '[]');
+    if (Array.isArray(saved)) history = saved.slice(-14);
+  } catch (_) {
+    history = [];
+  }
+
+  function saveHistory() {
+    try {
+      sessionStorage.setItem('apex_ai_history', JSON.stringify(history.slice(-14)));
+    } catch (_) {}
+  }
 
   function setOpen(open) {
     panel.hidden = !open;
@@ -39,8 +51,9 @@
   if (closeBtn) closeBtn.addEventListener('click', () => setOpen(false));
   if (clearBtn) {
     clearBtn.addEventListener('click', () => {
-      history.length = 0;
-      msgBox.innerHTML = '<div class="apex-msg apex-msg-bot">🔄 Sohbet temizlendi. Salon kiralama, hakem hizmeti, PT paketleri veya VKİ analizi hakkında ne sormak istersin?</div>';
+      history = [];
+      saveHistory();
+      msgBox.innerHTML = '<div class="apex-msg apex-msg-bot" style="white-space:normal;">Sohbet sıfırlandı. Yeni bir konuya geçelim, nasıl yardımcı olabilirim?</div>';
     });
   }
 
@@ -50,6 +63,7 @@
 
   function renderRichText(text) {
     return escapeHtml(text)
+      .replace(/^\s*[\*\-]\s+/gm, '• ')
       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
       .replace(/\*(.+?)\*/g, '<em>$1</em>')
       .replace(/`(.+?)`/g, '<code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:4px;">$1</code>');
@@ -89,22 +103,25 @@
     const clean = text.trim();
     if (!clean) return;
     appendMsg('user', clean);
+    const prevHistory = history.slice(-14);
     history.push({ role: 'user', text: clean });
+    saveHistory();
     input.value = '';
-    const typing = appendMsg('bot', '⏳ APEX AI yanıt hazırlıyor...');
+    const typing = appendMsg('bot', 'Apex AI yazıyor...');
 
     try {
       const res = await fetch(cfg.restUrl + 'chat', {
         method: 'POST',
         credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': cfg.nonce || '' },
-        body: JSON.stringify({ message: clean, history, session_id: sessionId }),
+        body: JSON.stringify({ message: clean, history: prevHistory, session_id: sessionId }),
       });
       const data = await res.json();
       typing.remove();
       if (data && data.reply) {
         appendMsg('bot', data.reply, data.action || null);
         history.push({ role: 'bot', text: data.reply });
+        saveHistory();
         if (data.suggestions) renderChips(data.suggestions);
       } else {
         appendMsg('bot', 'Şu an yanıt alınamadı, lütfen tekrar deneyin.');
@@ -113,6 +130,13 @@
       typing.remove();
       appendMsg('bot', 'Bağlantı sırasında geçici bir sorun oluştu. Lütfen tekrar deneyin.');
     }
+  }
+
+  // Sayfa geçişlerinde mevcut oturum sohbetini koru
+  if (history.length > 0) {
+    history.forEach((item) => {
+      if (item && item.text) appendMsg(item.role === 'user' ? 'user' : 'bot', item.text);
+    });
   }
 
   form.addEventListener('submit', (e) => {

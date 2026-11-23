@@ -5,7 +5,7 @@
  * @package ApexArena
  */
 $ai_mode = apex_get_effective_ai_mode();
-$mode_label = $ai_mode === 'gemini-live' ? 'Gemini LLM · Canlı WP DB' : ( $ai_mode === 'openai-live' ? 'OpenAI LLM · Canlı WP DB' : 'Hibrit WP Veritabanı Motoru' );
+$mode_label = $ai_mode === 'gemini-live' ? 'Gemini 2.5 Flash · Canlı AI' : ( $ai_mode === 'openai-live' ? 'OpenAI LLM · Canlı AI' : 'Hibrit WP Veritabanı Motoru' );
 ?>
 <button type="button" class="apex-ai-launcher" id="apex-ai-launcher" aria-label="APEX AI Spor Koçu sohbetini aç" aria-controls="apex-ai-panel" aria-expanded="false" data-open-ai>
     <span class="apex-ai-launcher-dot" aria-hidden="true"></span>
@@ -26,7 +26,7 @@ $mode_label = $ai_mode === 'gemini-live' ? 'Gemini LLM · Canlı WP DB' : ( $ai_
     </header>
 
     <div class="apex-ai-messages" id="apex-ai-messages" aria-live="polite">
-        <div class="apex-msg apex-msg-bot" style="white-space:normal;">Merhaba, ben <strong>Apex AI Spor Koçu</strong>.<br><br>Canlı tesis veritabanımıza bağlı olarak sana şunlarda anında yardımcı olabilirim:<br>• Basketbol (2 adet) ve Voleybol salonu müsaitliği ile <strong>hakem hizmeti</strong><br>• Bireysel / Grupsal PT paketleri ve antrenör önerisi<br>• Boy/kilo yazarak anlık <strong>VKİ analizi</strong> (örn. <code>180 cm 82 kg</code>)</div>
+        <div class="apex-msg apex-msg-bot" style="white-space:normal;">Selam, ben <strong>Apex AI Spor Koçu</strong>. Seninle her konuda doğal şekilde sohbet edebilir, antrenman ya da beslenme tavsiyesi verebilir veya salon müsaitliği, PT paketleri ve üyelikler hakkında canlı bilgi paylaşabilirim. Nasıl gidiyor, ne konuşalım?</div>
     </div>
 
     <div class="apex-ai-chips" id="apex-ai-chips" aria-label="Hızlı sorular">
