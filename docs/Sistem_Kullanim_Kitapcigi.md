@@ -15,7 +15,7 @@
 
 | Rol | Giriş URL | Kullanıcı Adı | Şifre |
 |---|---|---|---|
-| **WordPress Yönetici (Admin)** | `http://localhost/spor_kompleksi/wordpress/wp-admin/` | `apexadmin` | `ApexArena2026!` |
+| **WordPress Yönetici (Admin)** | `http://localhost/spor_kompleksi/wordpress/wp-admin/` | `root` | `korkut2006` |
 | **Hazır Demo Üye (Üye Paneli & QR)** | `http://localhost/spor_kompleksi/wordpress/uyelik/#giris` | `uye_demo` | `ApexUye2026!` |
 
 ---
