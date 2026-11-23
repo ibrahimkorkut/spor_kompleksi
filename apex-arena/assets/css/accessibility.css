@@ -198,6 +198,9 @@ html.a11y-light-mode .apex-cinema-stage .apex-btn-outline,
 html.a11y-light-mode .apex-prefooter .apex-btn-outline { color: #ffffff; border-color: rgba(255, 255, 255, 0.45); background: rgba(0, 0, 0, 0.35); }
 html.a11y-light-mode .apex-cinema-hud { background: rgba(20, 20, 24, 0.72); border-color: rgba(255, 255, 255, 0.22); color: #ffffff; }
 html.a11y-light-mode .apex-cinema-stage .apex-live-pill { background: rgba(20, 20, 24, 0.62); color: #ffffff; border-color: rgba(255, 255, 255, 0.24); }
+html.a11y-light-mode .apex-3d-monolith { color: #f4e268; }
+html.a11y-high-contrast .apex-3d-runway { background: #000000; }
+html.a11y-high-contrast .apex-3d-monolith { background: #000000; border: 2px solid #ffe600; }
 html.a11y-light-mode .apex-kpi-card { background: rgba(18, 18, 22, 0.72); }
 html.a11y-light-mode .apex-a11y-launcher,
 html.a11y-light-mode .apex-ai-launcher,

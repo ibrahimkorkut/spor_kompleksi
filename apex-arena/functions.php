@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'APEX_VERSION', '1.2.0' );
+define( 'APEX_VERSION', '1.3.1' );
 define( 'APEX_DIR', get_template_directory() );
 define( 'APEX_URI', get_template_directory_uri() );
 
@@ -113,6 +113,7 @@ function apex_enqueue_assets() {
     wp_enqueue_script( 'apex-chatbot', APEX_URI . '/assets/js/chatbot.js', [ 'apex-main' ], APEX_VERSION, true );
     if ( is_front_page() ) {
         wp_enqueue_script( 'apex-scroll-cinema', APEX_URI . '/assets/js/scroll-cinema.js', [], APEX_VERSION, true );
+        wp_enqueue_script( 'apex-motion-3d', APEX_URI . '/assets/js/motion-3d.js', [], APEX_VERSION, true );
     }
 
     $settings = apex_get_settings();
@@ -139,6 +140,16 @@ function apex_enqueue_assets() {
     ] );
 }
 add_action( 'wp_enqueue_scripts', 'apex_enqueue_assets' );
+
+/**
+ * ES Module desteği (Three.js 3D Kintsugi sahnesi için)
+ */
+add_filter( 'script_loader_tag', function( $tag, $handle, $src ) {
+    if ( 'apex-motion-3d' === $handle ) {
+        return '<script type="module" src="' . esc_url( $src ) . '" id="apex-motion-3d-js"></script>' . "\n";
+    }
+    return $tag;
+}, 10, 3 );
 
 /**
  * Schema.org JSON-LD Yapısal Veri (SEO)

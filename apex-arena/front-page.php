@@ -154,7 +154,46 @@ $hero_sub   = get_theme_mod( 'apex_hero_subtitle', 'İki FIBA basketbol salonu, 
     </div>
 </section>
 
-<!-- 2. SALON VE KİRALAMA -->
+<!-- 2. 3D PERSPEKTİF MONOLİT & KİNTSUGİ MERMER-ALTIN 3D BASKETBOL SAHNESİ (WebGL 60 FPS) -->
+<section id="apex-3d-runway" class="apex-3d-runway" aria-labelledby="motion-3d-title">
+    <div class="apex-3d-sticky">
+        <div class="apex-3d-monolith" data-3d-monolith>
+            <div class="apex-3d-top-bar">
+                <span class="apex-3d-prism-pill" aria-hidden="true">
+                    <span class="apex-3d-prism-core"></span>
+                    <span>3D · MOTION</span>
+                </span>
+                <span class="apex-3d-meta">KINTSUGI 3D · 60 FPS WEBGL</span>
+            </div>
+
+            <!-- Katman 1: Dev Kinetik Tipografi (3D Heykelin Arkasında) -->
+            <div class="apex-3d-typo-wrap">
+                <h2 id="motion-3d-title" class="apex-3d-headline">
+                    <span class="apex-3d-line" data-3d-line="top">3D PERFORMANS VE</span>
+                    <span class="apex-3d-line" data-3d-line="bottom">HAREKET ARENASI</span>
+                </h2>
+            </div>
+
+            <!-- Katman 2: Canlı Three.js WebGL Kintsugi Mermer & Altın 3D Basketbol (Harflerin Önünde!) -->
+            <canvas class="apex-3d-canvas" data-3d-canvas aria-hidden="true"></canvas>
+
+            <!-- Katman 3: Alt Köşe Kontrolleri -->
+            <div class="apex-3d-bottom-bar">
+                <button type="button" class="apex-3d-reel-btn" data-3d-replay>
+                    <span class="apex-3d-reel-dot" aria-hidden="true">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><polygon points="6,4 20,12 6,20"/></svg>
+                    </span>
+                    <span>Showreel’i Oynat</span>
+                </button>
+                <p class="apex-3d-manifesto">
+                    Spor bilimi, mimari hareket ve<br>performans teknolojisinin merkezi.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 3. SALON VE KİRALAMA -->
 <section class="apex-section" aria-labelledby="home-courts-title">
     <div class="apex-container">
         <div class="apex-section-head">
