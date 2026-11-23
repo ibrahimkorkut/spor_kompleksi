@@ -19,7 +19,9 @@ $nav_items = [
     <meta charset="<?php bloginfo( 'charset' ); ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#000000">
+    <?php if ( ! defined( 'WPSEO_VERSION' ) ) : ?>
     <meta name="description" content="<?php echo esc_attr( get_bloginfo( 'description' ) ); ?>">
+    <?php endif; ?>
     <?php wp_head(); ?>
 </head>
 <body <?php body_class( 'apex-body' ); ?>>

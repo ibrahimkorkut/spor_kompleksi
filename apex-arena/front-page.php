@@ -16,33 +16,34 @@ $hero_title = get_theme_mod( 'apex_hero_title', 'Sınırlarını Arenada Aş.' )
 $hero_sub   = get_theme_mod( 'apex_hero_subtitle', 'İki FIBA basketbol salonu, profesyonel voleybol sahası, lisanslı hakem hizmeti, sertifikalı PT kadrosu ve 7/24 AI Spor Koçu tek çatı altında.' );
 ?>
 
-<!-- 1. APPLE-TARZI SCROLL İLE OYNAYAN TAM EKRAN SİNEMATİK VİDEO HERO (119 HD WebP Kare · 60 FPS) -->
+<!-- 1. APPLE-TARZI 60 FPS SCROLL İLE OYNAYAN TAM EKRAN MİMARİ TUR VİDEOSU (240 HD WebP Kare · GPU ImageBitmap) -->
 <section
     id="apex-cinema-runway"
     class="apex-cinema-runway"
     aria-labelledby="hero-title"
     data-frame-base="<?php echo esc_url( APEX_URI . '/assets/video-frames/' ); ?>"
-    data-frame-count="119"
-    data-duration="7.9"
+    data-frame-ver="<?php echo esc_attr( APEX_VERSION ); ?>"
+    data-frame-count="240"
+    data-duration="20.0"
     data-pad="4"
 >
     <div class="apex-cinema-stage">
         <canvas
             id="apex-cinema-canvas"
             class="apex-cinema-canvas"
-            style="background-image:url('<?php echo esc_url( APEX_URI . '/assets/video-frames/frame_0001.webp' ); ?>');background-size:cover;background-position:center;"
+            style="background-image:url('<?php echo esc_url( APEX_URI . '/assets/video-frames/frame_0001.webp?v=' . APEX_VERSION ); ?>');background-size:cover;background-position:center;"
             aria-hidden="true"
         ></canvas>
         <div class="apex-cinema-vignette" aria-hidden="true"></div>
 
         <div class="apex-cinema-layers">
-            <!-- BÖLÜM 0: GİRİŞ HERO & CANLI TELEMETRİ -->
-            <div class="apex-cinema-chapter" data-cinema-chapter="0" data-start="0.00" data-end="0.25">
+            <!-- BÖLÜM 0: DIŞ MİMARİ & GİRİŞ HERO (0% - 37%) -->
+            <div class="apex-cinema-chapter" data-cinema-chapter="0" data-start="0.00" data-end="0.38">
                 <div class="apex-container">
                     <div class="apex-hero-content">
                         <span class="apex-live-pill">
                             <span class="apex-live-dot" aria-hidden="true"></span>
-                            Canlı Yoğunluk %<?php echo esc_html( $settings['live_occupancy'] ); ?> · Otopark <?php echo esc_html( $settings['parking_free'] ); ?>/<?php echo esc_html( $settings['parking_total'] ); ?> Boş · Aşağı Kaydırarak Videoyu Oynat
+                            Canlı Yoğunluk %<?php echo esc_html( $settings['live_occupancy'] ); ?> · Otopark <?php echo esc_html( $settings['parking_free'] ); ?>/<?php echo esc_html( $settings['parking_total'] ); ?> Boş · 60 FPS Mimari Tur
                         </span>
                         <h1 id="hero-title" class="apex-h1" style="margin-top:18px;">
                             <?php echo esc_html( $hero_title ); ?>
@@ -74,59 +75,73 @@ $hero_sub   = get_theme_mod( 'apex_hero_subtitle', 'İki FIBA basketbol salonu, 
                         </div>
                         <div class="apex-kpi-card">
                             <div class="apex-kpi-val">7/24 AI + WCAG</div>
-                            <div class="apex-kpi-label">Hibrit Asistan &amp; Erişilebilirlik Merkezi</div>
+                            <div class="apex-kpi-label">Gemini 2.5 AI &amp; Erişilebilirlik Merkezi</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- BÖLÜM 1: PERFORMANS & KONDİSYON ALANI -->
-            <div class="apex-cinema-chapter" data-cinema-chapter="1" data-start="0.22" data-end="0.49" aria-hidden="true">
+            <!-- BÖLÜM 1: GRAND MİMARİ LOBİ (37% - 56%) -->
+            <div class="apex-cinema-chapter" data-cinema-chapter="1" data-start="0.37" data-end="0.57" aria-hidden="true">
                 <div class="apex-container">
                     <div class="apex-cinema-story-card">
-                        <span class="apex-live-pill">01 / Performans &amp; Kondisyon Katı</span>
-                        <h2 class="apex-h1" style="margin-top:16px;">Her Adımda Maksimum Güç.</h2>
-                        <p class="apex-lead">Olimpik kaldırma platformları, fonksiyonel hız kulvarı ve akustik zemin kaplamasıyla kesintisiz performans odaklı antrenman deneyimi.</p>
+                        <span class="apex-live-pill">01 / Mimari Karşılama Lobisi</span>
+                        <h2 class="apex-h1" style="margin-top:16px;">Kapıdan İçeri, Yeni Bir Standart.</h2>
+                        <p class="apex-lead">Doğal mermer, sıcak lineer mimari aydınlatma ve QR dijital üyelik geçişiyle saniyeler içinde antrenmana başla.</p>
                         <div class="apex-hero-ctas">
-                            <a href="<?php echo esc_url( home_url( '/tesis-olanaklari/' ) ); ?>" class="apex-btn apex-btn-outline">Tesis Olanaklarını Keşfet →</a>
+                            <a href="<?php echo esc_url( home_url( '/uyelik/#paketler' ) ); ?>" class="apex-btn apex-btn-outline">Üyelik Avantajlarını Gör →</a>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- BÖLÜM 2: FIBA BASKETBOL & VOLEYBOL SALONLARI -->
-            <div class="apex-cinema-chapter" data-cinema-chapter="2" data-start="0.46" data-end="0.78" aria-hidden="true">
+            <!-- BÖLÜM 2: 180 ARAÇLIK AKILLI KAPALI OTOPARK & EV ŞARJ (56% - 70%) -->
+            <div class="apex-cinema-chapter" data-cinema-chapter="2" data-start="0.56" data-end="0.70" aria-hidden="true">
                 <div class="apex-container">
                     <div class="apex-cinema-story-card">
-                        <span class="apex-live-pill">02 / 2 FIBA Basketbol · 1 CEV Voleybol</span>
-                        <h2 class="apex-h1" style="margin-top:16px;">Maç Atmosferi, Anında Rezervasyon.</h2>
-                        <p class="apex-lead">Şok emici parke zemin, LED skorbord ve tek tıkla eklenebilen lisanslı hakem ayarlama hizmetiyle turnuva standardında salon kiralama.</p>
+                        <span class="apex-live-pill">02 / 180 Araçlık Akıllı Kapalı Otopark &amp; 6 EV Şarj</span>
+                        <h2 class="apex-h1" style="margin-top:16px;">Sıfır Bekleme, Doğrudan Giriş.</h2>
+                        <p class="apex-lead">Plaka tanımalı otomatik bariyerler, üyelere ilk 3 saat ücretsiz park ayrıcalığı ve elektrikli araç hızlı şarj istasyonları.</p>
                         <div class="apex-hero-ctas">
-                            <a href="<?php echo esc_url( home_url( '/salon-kiralama/#rezervasyon' ) ); ?>" class="apex-btn apex-btn-primary">Canlı Saat Seç &amp; Kirala</a>
+                            <a href="<?php echo esc_url( home_url( '/tesis-olanaklari/' ) ); ?>" class="apex-btn apex-btn-primary">Tesis Olanaklarını İncele</a>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- BÖLÜM 3: BİREBİR PT & HİBRİT AI KOÇ -->
-            <div class="apex-cinema-chapter" data-cinema-chapter="3" data-start="0.75" data-end="1.00" aria-hidden="true">
+            <!-- BÖLÜM 3: RFID SOYUNMA ODALARI, YAĞMUR DUŞ & FİN SAUNASI (70% - 85%) -->
+            <div class="apex-cinema-chapter" data-cinema-chapter="3" data-start="0.69" data-end="0.85" aria-hidden="true">
                 <div class="apex-container">
                     <div class="apex-cinema-story-card">
-                        <span class="apex-live-pill">03 / Bireysel &amp; Grupsal PT · Online Takvim</span>
-                        <h2 class="apex-h1" style="margin-top:16px;">Hedefine Özel Koçluk.</h2>
-                        <p class="apex-lead">TBF/TVF/NASM sertifikalı antrenör seçimi, şeffaf seans paketleri ve canlı takvim üzerinden saniyeler içinde onaylanan PT randevuları.</p>
+                        <span class="apex-live-pill">03 / 240 RFID Dolap · Yağmur Duş · Fin Saunası</span>
+                        <h2 class="apex-h1" style="margin-top:16px;">Otel Konforunda Toparlanma.</h2>
+                        <p class="apex-lead">Dijital akıllı dolaplar, özel yağmur duş kabinleri ve sedir ağacı Fin saunasıyla yoğun antrenman sonrası tam yenilenme.</p>
                         <div class="apex-hero-ctas">
-                            <a href="<?php echo esc_url( home_url( '/pt-egitmenler/' ) ); ?>" class="apex-btn apex-btn-primary">PT Paketlerini İncele</a>
-                            <a href="<?php echo esc_url( home_url( '/antrenorler/' ) ); ?>" class="apex-btn apex-btn-outline">Antrenör Kadrosu</a>
+                            <a href="<?php echo esc_url( home_url( '/pt-egitmenler/' ) ); ?>" class="apex-btn apex-btn-outline">PT Programlarını İncele →</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BÖLÜM 4: APEX ARENA PROTEİN KAFE & LOUNGE (85% - 100%) -->
+            <div class="apex-cinema-chapter" data-cinema-chapter="4" data-start="0.84" data-end="1.00" aria-hidden="true">
+                <div class="apex-container">
+                    <div class="apex-cinema-story-card">
+                        <span class="apex-live-pill">04 / Apex Arena Protein Kafe &amp; Lounge</span>
+                        <h2 class="apex-h1" style="margin-top:16px;">Beslenme ve Sosyal Buluşma.</h2>
+                        <p class="apex-lead">Makro hesaplı protein shake’ler, taze fit bowl menüleri ve 3. dalga kahve barıyla günün her saatinde enerji dolu mola.</p>
+                        <div class="apex-hero-ctas">
+                            <a href="<?php echo esc_url( home_url( '/salon-kiralama/#rezervasyon' ) ); ?>" class="apex-btn apex-btn-primary">Salon Kirala &amp; Başla</a>
+                            <a href="<?php echo esc_url( home_url( '/tesis-olanaklari/#kafe' ) ); ?>" class="apex-btn apex-btn-outline">Kafe Menüsü</a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Apple Clear Liquid Glass Video Scrubbing HUD -->
+        <!-- Apple Clear Liquid Glass 60 FPS Video Scrubbing HUD -->
         <div class="apex-cinema-hud-wrap">
-            <div class="apex-cinema-hud" role="region" aria-label="Kaydırma tabanlı video kontrol çubuğu">
+            <div class="apex-cinema-hud" role="region" aria-label="60 FPS kaydırma tabanlı mimari tur video kontrol çubuğu">
                 <button type="button" class="apex-cinema-play-btn" data-cinema-autoplay aria-pressed="false">
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="6,4 20,12 6,20"/></svg>
                     <span data-play-label>Oynat</span>
@@ -134,8 +149,8 @@ $hero_sub   = get_theme_mod( 'apex_hero_subtitle', 'İki FIBA basketbol salonu, 
 
                 <div class="apex-cinema-track-wrap">
                     <div class="apex-cinema-track-meta">
-                        <span data-cinema-status>Scroll ile Oynat</span>
-                        <span data-cinema-time>00:00.0 / 00:07.9</span>
+                        <span data-cinema-status>60 FPS · Scroll ile Oynat</span>
+                        <span data-cinema-time>00:00.0 / 00:20.0</span>
                         <span data-cinema-pct>0%</span>
                     </div>
                     <div class="apex-cinema-track" aria-hidden="true">
@@ -143,11 +158,12 @@ $hero_sub   = get_theme_mod( 'apex_hero_subtitle', 'İki FIBA basketbol salonu, 
                     </div>
                 </div>
 
-                <div class="apex-cinema-dots" aria-label="Video sahneleri">
-                    <button type="button" class="apex-cinema-dot is-active" data-cinema-jump="0.00" aria-label="Sahne 1: Giriş">01</button>
-                    <button type="button" class="apex-cinema-dot" data-cinema-jump="0.33" aria-label="Sahne 2: Performans">02</button>
-                    <button type="button" class="apex-cinema-dot" data-cinema-jump="0.62" aria-label="Sahne 3: Basketbol Salonu">03</button>
-                    <button type="button" class="apex-cinema-dot" data-cinema-jump="0.90" aria-label="Sahne 4: PT Eğitimi">04</button>
+                <div class="apex-cinema-dots" aria-label="Mimari tur sahneleri">
+                    <button type="button" class="apex-cinema-dot is-active" data-cinema-jump="0.00" aria-label="Sahne 1: Dış Mimari">01</button>
+                    <button type="button" class="apex-cinema-dot" data-cinema-jump="0.48" aria-label="Sahne 2: Mimari Lobi">02</button>
+                    <button type="button" class="apex-cinema-dot" data-cinema-jump="0.63" aria-label="Sahne 3: Akıllı Otopark">03</button>
+                    <button type="button" class="apex-cinema-dot" data-cinema-jump="0.77" aria-label="Sahne 4: Soyunma, Duş ve Sauna">04</button>
+                    <button type="button" class="apex-cinema-dot" data-cinema-jump="0.95" aria-label="Sahne 5: Apex Protein Kafe">05</button>
                 </div>
             </div>
         </div>

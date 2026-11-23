@@ -1255,7 +1255,7 @@ body.admin-bar .apex-mobile-drawer { padding-top: 64px; }
    ========================================================================== */
 .apex-cinema-runway {
   position: relative;
-  height: 400vh;
+  height: 540vh;
   background: #000000;
   border-bottom: 1px solid var(--apex-border);
 }
@@ -1342,7 +1342,7 @@ body.admin-bar .apex-mobile-drawer { padding-top: 64px; }
   bottom: 20px;
   transform: translateX(-50%);
   z-index: 4;
-  width: min(560px, calc(100% - 390px));
+  width: min(610px, calc(100% - 390px));
   min-width: 320px;
   pointer-events: none;
 }
@@ -1681,7 +1681,7 @@ body.admin-bar .apex-mobile-drawer { padding-top: 64px; }
   .apex-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .apex-grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .apex-grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .apex-cinema-runway { height: 320vh; }
+  .apex-cinema-runway { height: 390vh; }
   .apex-cinema-hud-wrap {
     bottom: 76px;
     width: min(480px, calc(100% - 28px));
@@ -1710,7 +1710,7 @@ body.admin-bar .apex-mobile-drawer { padding-top: 64px; }
   .apex-hero-ctas .apex-btn { flex: 1 1 170px; }
   .apex-ai-launcher { right: 12px; bottom: 12px; padding: 10px 16px; font-size: 0.84rem; }
   .apex-ai-panel { right: 12px; bottom: 68px; }
-  .apex-cinema-runway { height: 280vh; }
+  .apex-cinema-runway { height: 330vh; }
   .apex-cinema-kpi-compact { display: none; }
   .apex-cinema-dots { display: none; }
   .apex-cinema-hud-wrap { bottom: 68px; width: calc(100% - 24px); }
