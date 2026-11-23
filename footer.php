@@ -81,19 +81,19 @@ $settings = apex_get_settings();
                     <li><a href="<?php echo esc_url( home_url( '/gizlilik-politikasi/' ) ); ?>">Gizlilik Politikası</a></li>
                     <li><a href="<?php echo esc_url( home_url( '/uyelik-sozlesmesi/' ) ); ?>">Üyelik & İptal Sözleşmesi</a></li>
                     <li><a href="<?php echo esc_url( home_url( '/erisilebilirlik-beyani/' ) ); ?>">Erişilebilirlik Beyanı</a></li>
-                    <li><button type="button" class="apex-footer-btn-link" data-open-cookie-modal>🍪 Çerez Tercihlerini Yönet</button></li>
+                    <li><button type="button" class="apex-footer-btn-link" data-open-cookie-modal>Çerez Tercihlerini Yönet</button></li>
                 </ul>
             </div>
 
             <div class="apex-footer-col">
-                <h3 class="apex-footer-title">İLETİŞİM & KAYNAK</h3>
+                <h3 class="apex-footer-title">İletişim &amp; Kaynak</h3>
                 <ul class="apex-footer-links apex-footer-contact">
-                    <li>📍 <?php echo esc_html( $settings['address'] ); ?></li>
-                    <li>📞 <a href="tel:<?php echo esc_attr( preg_replace( '/\s+/', '', $settings['phone'] ) ); ?>"><?php echo esc_html( $settings['phone'] ); ?></a></li>
-                    <li>✉️ <a href="mailto:<?php echo esc_attr( $settings['email'] ); ?>"><?php echo esc_html( $settings['email'] ); ?></a></li>
-                    <li>🕒 H.İçi: <?php echo esc_html( $settings['weekday_hours'] ); ?></li>
-                    <li>🔗 <a href="<?php echo esc_url( $settings['github_url'] ); ?>" target="_blank" rel="noopener noreferrer">GitHub Tema Deposu ↗</a></li>
-                    <li>🛒 <a href="<?php echo esc_url( $settings['envato_url'] ); ?>" target="_blank" rel="noopener noreferrer">Envato Market Profili ↗</a></li>
+                    <li><?php echo esc_html( $settings['address'] ); ?></li>
+                    <li><a href="tel:<?php echo esc_attr( preg_replace( '/\s+/', '', $settings['phone'] ) ); ?>"><?php echo esc_html( $settings['phone'] ); ?></a></li>
+                    <li><a href="mailto:<?php echo esc_attr( $settings['email'] ); ?>"><?php echo esc_html( $settings['email'] ); ?></a></li>
+                    <li>Hafta İçi: <?php echo esc_html( $settings['weekday_hours'] ); ?></li>
+                    <li><a href="<?php echo esc_url( $settings['github_url'] ); ?>" target="_blank" rel="noopener noreferrer">GitHub Tema Deposu ↗</a></li>
+                    <li><a href="<?php echo esc_url( $settings['envato_url'] ); ?>" target="_blank" rel="noopener noreferrer">Envato Market Profili ↗</a></li>
                 </ul>
             </div>
         </div>
