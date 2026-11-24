@@ -22,7 +22,7 @@ $hero_sub   = get_theme_mod( 'apex_hero_subtitle', 'İki FIBA basketbol salonu, 
     class="apex-cinema-runway"
     aria-labelledby="hero-title"
     data-frame-base="<?php echo esc_url( APEX_URI . '/assets/video-frames/' ); ?>"
-    data-frame-ver="<?php echo esc_attr( APEX_VERSION ); ?>"
+    data-frame-ver="1.4.1"
     data-frame-count="240"
     data-duration="20.0"
     data-pad="4"
@@ -135,35 +135,6 @@ $hero_sub   = get_theme_mod( 'apex_hero_subtitle', 'İki FIBA basketbol salonu, 
                             <a href="<?php echo esc_url( home_url( '/tesis-olanaklari/#kafe' ) ); ?>" class="apex-btn apex-btn-outline">Kafe Menüsü</a>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Apple Clear Liquid Glass 60 FPS Video Scrubbing HUD -->
-        <div class="apex-cinema-hud-wrap">
-            <div class="apex-cinema-hud" role="region" aria-label="60 FPS kaydırma tabanlı mimari tur video kontrol çubuğu">
-                <button type="button" class="apex-cinema-play-btn" data-cinema-autoplay aria-pressed="false">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="6,4 20,12 6,20"/></svg>
-                    <span data-play-label>Oynat</span>
-                </button>
-
-                <div class="apex-cinema-track-wrap">
-                    <div class="apex-cinema-track-meta">
-                        <span data-cinema-status>60 FPS · Scroll ile Oynat</span>
-                        <span data-cinema-time>00:00.0 / 00:20.0</span>
-                        <span data-cinema-pct>0%</span>
-                    </div>
-                    <div class="apex-cinema-track" aria-hidden="true">
-                        <div class="apex-cinema-track-fill" data-cinema-fill></div>
-                    </div>
-                </div>
-
-                <div class="apex-cinema-dots" aria-label="Mimari tur sahneleri">
-                    <button type="button" class="apex-cinema-dot is-active" data-cinema-jump="0.00" aria-label="Sahne 1: Dış Mimari">01</button>
-                    <button type="button" class="apex-cinema-dot" data-cinema-jump="0.48" aria-label="Sahne 2: Mimari Lobi">02</button>
-                    <button type="button" class="apex-cinema-dot" data-cinema-jump="0.63" aria-label="Sahne 3: Akıllı Otopark">03</button>
-                    <button type="button" class="apex-cinema-dot" data-cinema-jump="0.77" aria-label="Sahne 4: Soyunma, Duş ve Sauna">04</button>
-                    <button type="button" class="apex-cinema-dot" data-cinema-jump="0.95" aria-label="Sahne 5: Apex Protein Kafe">05</button>
                 </div>
             </div>
         </div>

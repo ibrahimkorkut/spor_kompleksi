@@ -1300,7 +1300,7 @@ body.admin-bar .apex-mobile-drawer { padding-top: 64px; }
   flex: 1;
   display: grid;
   align-items: end;
-  padding: 108px 0 96px;
+  padding: 108px 0 68px;
 }
 
 .apex-cinema-chapter {
@@ -1714,7 +1714,7 @@ body.admin-bar .apex-mobile-drawer { padding-top: 64px; }
   .apex-cinema-kpi-compact { display: none; }
   .apex-cinema-dots { display: none; }
   .apex-cinema-hud-wrap { bottom: 68px; width: calc(100% - 24px); }
-  .apex-cinema-layers { padding: 92px 0 132px; }
+  .apex-cinema-layers { padding: 92px 0 84px; }
 }
 
 @media (max-width: 480px) {
