@@ -72,11 +72,38 @@
     });
   });
 
+  // 4b. Çift Yönlü Kavisli Üyelik / Giriş Kayar Kartı (#apex-auth-stage)
+  const authStage = document.getElementById('apex-auth-stage');
+  function setAuthMode(mode) {
+    if (!authStage) return;
+    const isReg = mode === 'register';
+    authStage.classList.toggle('is-register', isReg);
+    authStage.querySelectorAll('[data-auth-mode]').forEach((b) => {
+      if (b.classList.contains('apex-auth-m-btn')) {
+        const active = b.getAttribute('data-auth-mode') === mode;
+        b.classList.toggle('is-active', active);
+        b.setAttribute('aria-selected', String(active));
+      }
+    });
+  }
+  if (authStage) {
+    authStage.querySelectorAll('[data-auth-mode]').forEach((btn) => {
+      btn.addEventListener('click', () => setAuthMode(btn.getAttribute('data-auth-mode')));
+    });
+    const syncAuthHash = () => {
+      if (window.location.hash === '#giris') setAuthMode('login');
+      else if (window.location.hash === '#kayit') setAuthMode('register');
+    };
+    syncAuthHash();
+    window.addEventListener('hashchange', syncAuthHash);
+  }
+
   document.querySelectorAll('[data-select-plan]').forEach((btn) => {
     btn.addEventListener('click', () => {
       const slug = btn.getAttribute('data-select-plan');
       const sel = document.getElementById('mem-plan-select');
       if (sel) sel.value = slug;
+      setAuthMode('register');
       const target = document.getElementById('kayit');
       if (target) target.scrollIntoView({ behavior: 'smooth' });
     });

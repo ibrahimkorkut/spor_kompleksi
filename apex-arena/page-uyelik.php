@@ -155,117 +155,170 @@ $cu     = $logged ? wp_get_current_user() : null;
     </div>
 </section>
 
-<!-- 2. Online Üye Kaydı & Üye Girişi -->
-<section class="apex-section" id="kayit">
+<!-- 2. Çift Yönlü Kavisli Kayar Üye Girişi & Online Kayıt Kartı (APEX Koyu + Kırmızı Estetiği) -->
+<section class="apex-section" id="kayit" aria-label="Üyelik kaydı ve üye girişi">
+    <span id="giris" class="apex-anchor-target" aria-hidden="true"></span>
     <div class="apex-container">
-        <div class="apex-grid-2" style="align-items:start;">
-            <!-- Online Kayıt / Paket Başvurusu -->
-            <div class="apex-panel">
-                <span class="apex-eyebrow">1 DAKİKADA DİJİTAL ÜYELİK</span>
-                <h2 class="apex-h2" style="margin-bottom:18px;"><?php echo $logged ? 'PAKET DEĞİŞTİR / YÜKSELT' : 'ONLINE ÜYELİK KAYDI'; ?></h2>
-                <form id="apex-membership-register-form" class="apex-form-grid" novalidate>
-                    <div class="apex-field">
-                        <label for="mem-plan-select">Üyelik Paketi *</label>
-                        <select id="mem-plan-select" name="plan_slug" required>
-                            <?php foreach ( $plans as $pl ) : ?>
-                                <option value="<?php echo esc_attr( $pl['slug'] ); ?>" <?php selected( $pl['slug'], $pre_plan ); ?>>
-                                    <?php echo esc_html( $pl['name'] . ' — ' . apex_format_tl( $pl['monthly_price'] ) . '/ay' ); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="apex-field">
-                        <label for="mem-billing-select">Ödeme Periyodu *</label>
-                        <select id="mem-billing-select" name="billing_cycle">
-                            <option value="monthly">Aylık Standart</option>
-                            <option value="annual">Yıllık (%20 İndirimli)</option>
-                        </select>
-                    </div>
-                    <div class="apex-field">
-                        <label for="mem-fullname">Ad Soyad *</label>
-                        <input type="text" id="mem-fullname" name="full_name" value="<?php echo esc_attr( $cu ? $cu->display_name : '' ); ?>" required>
-                    </div>
-                    <div class="apex-field">
-                        <label for="mem-phone">Telefon *</label>
-                        <input type="tel" id="mem-phone" name="phone" value="<?php echo esc_attr( $cu ? get_user_meta( $cu->ID, 'apex_member_phone', true ) : '' ); ?>" placeholder="0532 000 00 00" required>
-                    </div>
-                    <div class="apex-field">
-                        <label for="mem-email">E-posta *</label>
-                        <input type="email" id="mem-email" name="email" value="<?php echo esc_attr( $cu ? $cu->user_email : '' ); ?>" required>
-                    </div>
-                    <?php if ( ! $logged ) : ?>
-                    <div class="apex-field">
-                        <label for="mem-password">Hesap Şifresi * (Min. 6 karakter)</label>
-                        <input type="password" id="mem-password" name="password" minlength="6" required>
-                    </div>
-                    <?php endif; ?>
-                    <div class="apex-field">
-                        <label for="mem-goal">Birincil Hedefiniz</label>
-                        <select id="mem-goal" name="goal">
-                            <option value="Genel Fitness & Kondisyon">Genel Fitness & Kondisyon</option>
-                            <option value="Yağ Yakımı & Kilo Kontrolü">Yağ Yakımı & Kilo Kontrolü</option>
-                            <option value="Kas Kazanımı & Kuvvet">Kas Kazanımı & Kuvvet</option>
-                            <option value="Basketbol / Voleybol Performansı">Basketbol / Voleybol Performansı</option>
-                        </select>
-                    </div>
-                    <div class="apex-field">
-                        <label for="mem-emergency">Acil Durum Yakını (Ad & Tel)</label>
-                        <input type="text" id="mem-emergency" name="emergency_contact" placeholder="Örn. Ayşe Yılmaz · 0533...">
-                    </div>
-                    <div class="apex-field apex-field-full" style="gap:10px;">
-                        <label style="display:flex;gap:10px;align-items:flex-start;font-weight:500;font-size:0.86rem;">
-                            <input type="checkbox" name="kvkk_consent" value="1" required style="width:20px;height:20px;min-height:20px;">
-                            <span><a href="<?php echo esc_url( home_url( '/kvkk-aydinlatma-metni/' ) ); ?>" target="_blank" style="color:var(--apex-volt);text-decoration:underline;">KVKK Aydınlatma Metni</a>’ni okudum ve kişisel verilerimin işlenmesini onaylıyorum. *</span>
-                        </label>
-                        <label style="display:flex;gap:10px;align-items:flex-start;font-weight:500;font-size:0.86rem;">
-                            <input type="checkbox" name="terms_consent" value="1" required style="width:20px;height:20px;min-height:20px;">
-                            <span><a href="<?php echo esc_url( home_url( '/uyelik-sozlesmesi/' ) ); ?>" target="_blank" style="color:var(--apex-volt);text-decoration:underline;">Üyelik ve Mesafeli Satış Sözleşmesi</a>’ni kabul ediyorum. *</span>
-                        </label>
-                    </div>
-                    <div class="apex-field apex-field-full">
-                        <button type="submit" class="apex-btn apex-btn-primary apex-btn-lg apex-btn-block">ÜYELİĞİ BAŞLAT & QR KART OLUŞTUR</button>
-                    </div>
-                </form>
-                <div id="mem-register-result" role="status" aria-live="polite"></div>
+        <?php
+        $start_register = isset( $_GET['plan'] ) && ! empty( $_GET['plan'] );
+        ?>
+        <div class="apex-auth-stage <?php echo $start_register ? 'is-register' : ''; ?>" id="apex-auth-stage">
+            <!-- Mobil Hızlı Geçiş Sekmesi (<= 900px) -->
+            <div class="apex-auth-mobile-switch" role="tablist" aria-label="Giriş veya kayıt seçimi">
+                <button type="button" class="apex-auth-m-btn <?php echo $start_register ? '' : 'is-active'; ?>" data-auth-mode="login" role="tab" aria-selected="<?php echo $start_register ? 'false' : 'true'; ?>">Üye Girişi</button>
+                <button type="button" class="apex-auth-m-btn <?php echo $start_register ? 'is-active' : ''; ?>" data-auth-mode="register" role="tab" aria-selected="<?php echo $start_register ? 'true' : 'false'; ?>"><?php echo $logged ? 'Paket Yükselt' : 'Kayıt Ol'; ?></button>
             </div>
 
-            <!-- Üye Girişi + VKİ Hesaplayıcı -->
-            <div style="display:grid;gap:24px;">
-                <div class="apex-panel" id="giris">
-                    <span class="apex-eyebrow apex-eyebrow-volt">MEVCUT ÜYELER</span>
-                    <h2 class="apex-h2" style="margin-bottom:14px;">ÜYE GİRİŞİ</h2>
-                    <form id="apex-member-login-form" style="display:grid;gap:14px;" novalidate>
+            <!-- SOL PANEL: ÜYE GİRİŞİ -->
+            <div class="apex-auth-pane apex-auth-pane-login">
+                <div class="apex-auth-pane-inner">
+                    <div class="apex-auth-brand">
+                        <span class="apex-brand-mark" aria-hidden="true">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3 22 20H2L12 3Z"/></svg>
+                        </span>
+                        <span><strong>APEX</strong> ARENA</span>
+                    </div>
+                    <h2 class="apex-auth-title">Giriş Yap</h2>
+                    <p class="apex-auth-sub">Kullanıcı adın veya e-posta şifrenle dijital QR paneline bağlan.</p>
+
+                    <form id="apex-member-login-form" class="apex-auth-form" novalidate>
                         <div class="apex-field">
                             <label for="login-user">Kullanıcı Adı veya E-posta</label>
                             <input type="text" id="login-user" name="username" placeholder="uye_demo" required>
                         </div>
                         <div class="apex-field">
                             <label for="login-pass">Şifre</label>
-                            <input type="password" id="login-pass" name="password" required>
+                            <input type="password" id="login-pass" name="password" placeholder="••••••••" required>
                         </div>
-                        <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                            <button type="submit" class="apex-btn apex-btn-primary" style="flex:1;">GİRİŞ YAP</button>
-                            <button type="button" class="apex-btn apex-btn-ghost" id="apex-fill-demo-login">DEMO ÜYE DOLDUR</button>
+                        <div class="apex-auth-aux">
+                            <a href="<?php echo esc_url( wp_lostpassword_url() ); ?>" class="apex-auth-forgot">Şifreni mi unuttun?</a>
+                            <button type="button" class="apex-auth-demo-link" id="apex-fill-demo-login">Demo Üye Doldur</button>
                         </div>
+                        <button type="submit" class="apex-btn apex-btn-primary apex-btn-lg apex-btn-block">GİRİŞ YAP</button>
                     </form>
-                    <small class="apex-muted" style="display:block;margin-top:10px;">Demo Test Hesabı: <code>uye_demo</code> / <code>ApexUye2026!</code></small>
-                    <div id="mem-login-result" role="status" aria-live="polite"></div>
-                </div>
 
-                <!-- VKİ & Günlük Kalori Hesaplayıcı (MACFit Hesaplama Araçları Esintisi) -->
-                <div class="apex-panel" id="vki">
-                    <span class="apex-eyebrow">HESAPLAMA ARACI</span>
-                    <h2 class="apex-h3" style="margin-bottom:14px;">VKİ (BMI) & GÜNLÜK KALORİ HESAPLAYICI</h2>
-                    <form id="apex-bmi-form" class="apex-form-grid">
-                        <div class="apex-field"><label for="bmi-height">Boy (cm)</label><input type="number" id="bmi-height" value="178" min="120" max="230" required></div>
-                        <div class="apex-field"><label for="bmi-weight">Kilo (kg)</label><input type="number" id="bmi-weight" value="78" min="35" max="220" required></div>
-                        <div class="apex-field apex-field-full">
-                            <button type="submit" class="apex-btn apex-btn-volt apex-btn-block">HESAPLA VE PROGRAM ÖNER</button>
-                        </div>
-                    </form>
-                    <div id="bmi-output" style="margin-top:14px;" role="status" aria-live="polite"></div>
+                    <div id="mem-login-result" role="status" aria-live="polite" style="margin-top:10px;"></div>
+
+                    <div class="apex-auth-perks" aria-label="Üyelik avantajları">
+                        <span class="apex-auth-perk-chip" title="Dijital QR Giriş Kartı">QR</span>
+                        <span class="apex-auth-perk-chip" title="2 FIBA Basketbol & 1 Voleybol Salonu">3 Salon</span>
+                        <span class="apex-auth-perk-chip" title="Sertifikalı PT Takvimi">PT</span>
+                        <span class="apex-auth-perk-chip" title="7/24 Gemini AI Spor Koçu">AI Koç</span>
+                    </div>
+                    <small class="apex-muted apex-auth-demo-note">Demo Test Hesabı: <code>uye_demo</code> / <code>ApexUye2026!</code></small>
                 </div>
             </div>
+
+            <!-- SAĞ PANEL: ONLINE ÜYELİK KAYDI / PAKET DEĞİŞTİR -->
+            <div class="apex-auth-pane apex-auth-pane-register">
+                <div class="apex-auth-pane-inner apex-auth-pane-wide">
+                    <span class="apex-eyebrow" style="margin-bottom:4px;">1 DAKİKADA DİJİTAL ÜYELİK</span>
+                    <h2 class="apex-auth-title" style="font-size:clamp(1.5rem,2.4vw,2rem);margin-bottom:14px;"><?php echo $logged ? 'Paket Değiştir / Yükselt' : 'Online Üyelik Kaydı'; ?></h2>
+
+                    <form id="apex-membership-register-form" class="apex-form-grid apex-auth-reg-grid" novalidate>
+                        <div class="apex-field">
+                            <label for="mem-plan-select">Üyelik Paketi *</label>
+                            <select id="mem-plan-select" name="plan_slug" required>
+                                <?php foreach ( $plans as $pl ) : ?>
+                                    <option value="<?php echo esc_attr( $pl['slug'] ); ?>" <?php selected( $pl['slug'], $pre_plan ); ?>>
+                                        <?php echo esc_html( $pl['name'] . ' — ' . apex_format_tl( $pl['monthly_price'] ) . '/ay' ); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="apex-field">
+                            <label for="mem-billing-select">Ödeme Periyodu *</label>
+                            <select id="mem-billing-select" name="billing_cycle">
+                                <option value="monthly">Aylık Standart</option>
+                                <option value="annual">Yıllık (%20 İndirimli)</option>
+                            </select>
+                        </div>
+                        <div class="apex-field">
+                            <label for="mem-fullname">Ad Soyad *</label>
+                            <input type="text" id="mem-fullname" name="full_name" value="<?php echo esc_attr( $cu ? $cu->display_name : '' ); ?>" placeholder="Ahmet Yılmaz" required>
+                        </div>
+                        <div class="apex-field">
+                            <label for="mem-phone">Telefon *</label>
+                            <input type="tel" id="mem-phone" name="phone" value="<?php echo esc_attr( $cu ? get_user_meta( $cu->ID, 'apex_member_phone', true ) : '' ); ?>" placeholder="0532 000 00 00" required>
+                        </div>
+                        <div class="apex-field">
+                            <label for="mem-email">E-posta *</label>
+                            <input type="email" id="mem-email" name="email" value="<?php echo esc_attr( $cu ? $cu->user_email : '' ); ?>" placeholder="ornek@eposta.com" required>
+                        </div>
+                        <?php if ( ! $logged ) : ?>
+                        <div class="apex-field">
+                            <label for="mem-password">Hesap Şifresi * (Min. 6)</label>
+                            <input type="password" id="mem-password" name="password" minlength="6" placeholder="••••••••" required>
+                        </div>
+                        <?php endif; ?>
+                        <div class="apex-field">
+                            <label for="mem-goal">Birincil Hedefiniz</label>
+                            <select id="mem-goal" name="goal">
+                                <option value="Genel Fitness & Kondisyon">Genel Fitness &amp; Kondisyon</option>
+                                <option value="Yağ Yakımı & Kilo Kontrolü">Yağ Yakımı &amp; Kilo Kontrolü</option>
+                                <option value="Kas Kazanımı & Kuvvet">Kas Kazanımı &amp; Kuvvet</option>
+                                <option value="Basketbol / Voleybol Performansı">Basketbol / Voleybol Performansı</option>
+                            </select>
+                        </div>
+                        <div class="apex-field">
+                            <label for="mem-emergency">Acil Durum Yakını</label>
+                            <input type="text" id="mem-emergency" name="emergency_contact" placeholder="Örn. Ayşe Yılmaz · 0533...">
+                        </div>
+                        <div class="apex-field apex-field-full apex-auth-consents">
+                            <label>
+                                <input type="checkbox" name="kvkk_consent" value="1" required>
+                                <span><a href="<?php echo esc_url( home_url( '/kvkk-aydinlatma-metni/' ) ); ?>" target="_blank">KVKK Aydınlatma Metni</a>’ni okudum, onaylıyorum. *</span>
+                            </label>
+                            <label>
+                                <input type="checkbox" name="terms_consent" value="1" required>
+                                <span><a href="<?php echo esc_url( home_url( '/uyelik-sozlesmesi/' ) ); ?>" target="_blank">Üyelik ve Mesafeli Satış Sözleşmesi</a>’ni kabul ediyorum. *</span>
+                            </label>
+                        </div>
+                        <div class="apex-field apex-field-full">
+                            <button type="submit" class="apex-btn apex-btn-primary apex-btn-block">ÜYELİĞİ BAŞLAT &amp; QR KART OLUŞTUR</button>
+                        </div>
+                    </form>
+                    <div id="mem-register-result" role="status" aria-live="polite" style="margin-top:8px;"></div>
+                </div>
+            </div>
+
+            <!-- KAYAR KAVİSLİ APEX KIRMIZI ÖRTÜ PANELİ (Fotoğraf 2 İkonik Kavis + Fotoğraf 1 Kırmızı Palet) -->
+            <div class="apex-auth-overlay-wrap" aria-hidden="false">
+                <div class="apex-auth-overlay">
+                    <div class="apex-auth-overlay-panel apex-auth-overlay-left">
+                        <span class="apex-auth-ov-eyebrow">MEVCUT ÜYELER</span>
+                        <h3 class="apex-auth-ov-title">Tekrar Hoş Geldin!</h3>
+                        <p class="apex-auth-ov-text">Zaten APEX ARENA üyesiysen hesabına giriş yap; dijital QR kartını, salon rezervasyonlarını ve PT takvimini hemen yönet.</p>
+                        <button type="button" class="apex-auth-ov-btn" data-auth-mode="login">GİRİŞ YAP</button>
+                    </div>
+                    <div class="apex-auth-overlay-panel apex-auth-overlay-right">
+                        <span class="apex-auth-ov-eyebrow">YENİ ÜYELİK &amp; PAKET YÜKSELTME</span>
+                        <h3 class="apex-auth-ov-title">Merhaba, Değerli Üye!</h3>
+                        <p class="apex-auth-ov-text">Sitenin tüm özelliklerini kullanmak, dijital QR kartını oluşturmak ve salon/PT rezervasyonu yapmak için hemen kayıt ol.</p>
+                        <button type="button" class="apex-auth-ov-btn" data-auth-mode="register"><?php echo $logged ? 'PAKET DEĞİŞTİR' : 'KAYIT OL'; ?></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Geniş Yatay VKİ & Günlük Kalori Hesaplayıcı Barı -->
+        <div class="apex-panel apex-bmi-bar" id="vki">
+            <div class="apex-bmi-bar-head">
+                <span class="apex-eyebrow" style="margin-bottom:4px;">HESAPLAMA ARACI</span>
+                <h2 class="apex-h3">VKİ (BMI) &amp; Günlük Kalori Hesaplayıcı</h2>
+            </div>
+            <form id="apex-bmi-form" class="apex-bmi-inline-form">
+                <div class="apex-field">
+                    <label for="bmi-height">Boy (cm)</label>
+                    <input type="number" id="bmi-height" value="178" min="120" max="230" required>
+                </div>
+                <div class="apex-field">
+                    <label for="bmi-weight">Kilo (kg)</label>
+                    <input type="number" id="bmi-weight" value="78" min="35" max="220" required>
+                </div>
+                <button type="submit" class="apex-btn apex-btn-volt apex-bmi-submit">HESAPLA VE PROGRAM ÖNER</button>
+            </form>
+            <div id="bmi-output" style="margin-top:14px;" role="status" aria-live="polite"></div>
         </div>
     </div>
 </section>

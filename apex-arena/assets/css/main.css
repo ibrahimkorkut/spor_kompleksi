@@ -1673,6 +1673,349 @@ body.admin-bar .apex-mobile-drawer { padding-top: 64px; }
 }
 
 /* ==========================================================================
+   SPLIT SLIDING CURVED AUTH STAGE (/uyelik/ — Photo 2 Layout × APEX Dark/Crimson)
+   ========================================================================== */
+.apex-anchor-target {
+  display: block;
+  position: relative;
+  top: -96px;
+  visibility: hidden;
+}
+
+.apex-auth-stage {
+  position: relative;
+  width: 100%;
+  max-width: 1080px;
+  min-height: 670px;
+  margin: 0 auto;
+  border-radius: 30px;
+  overflow: hidden;
+  background: var(--apex-surface);
+  border: 1px solid var(--apex-border-strong);
+  box-shadow: 0 34px 96px rgba(0, 0, 0, 0.54), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.apex-auth-mobile-switch {
+  display: none;
+}
+
+.apex-auth-pane {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(26px, 3.2vw, 44px);
+  transition: transform 0.65s cubic-bezier(0.65, 0, 0.35, 1), opacity 0.45s ease;
+}
+
+.apex-auth-pane-login {
+  left: 0;
+  z-index: 2;
+  opacity: 1;
+}
+
+.apex-auth-pane-register {
+  left: 0;
+  z-index: 1;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* When Register mode is active, Register pane slides smoothly to the RIGHT half */
+.apex-auth-stage.is-register .apex-auth-pane-login {
+  transform: translateX(100%);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.apex-auth-stage.is-register .apex-auth-pane-register {
+  transform: translateX(100%);
+  opacity: 1;
+  pointer-events: auto;
+  z-index: 5;
+}
+
+.apex-auth-pane-inner {
+  width: 100%;
+  max-width: 380px;
+}
+
+.apex-auth-pane-wide {
+  max-width: 460px;
+}
+
+.apex-auth-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.84rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--apex-text-muted);
+  margin-bottom: 14px;
+}
+.apex-auth-brand strong {
+  color: var(--apex-crimson);
+}
+
+.apex-auth-title {
+  font-family: var(--apex-font-display);
+  font-size: clamp(1.9rem, 3vw, 2.5rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: var(--apex-text);
+  margin: 0 0 8px;
+  line-height: 1.08;
+}
+
+.apex-auth-sub {
+  margin: 0 0 22px;
+  font-size: 0.9rem;
+  color: var(--apex-text-muted);
+  line-height: 1.5;
+}
+
+.apex-auth-form {
+  display: grid;
+  gap: 14px;
+}
+
+.apex-auth-aux {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.82rem;
+  margin: 2px 0 4px;
+}
+
+.apex-auth-forgot {
+  color: var(--apex-text-muted);
+}
+.apex-auth-forgot:hover {
+  color: var(--apex-text);
+}
+
+.apex-auth-demo-link {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: var(--apex-crimson);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.apex-auth-demo-link:hover {
+  text-decoration: underline;
+}
+
+.apex-auth-perks {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.apex-auth-perk-chip {
+  min-width: 54px;
+  height: 36px;
+  padding: 0 11px;
+  border-radius: 10px;
+  background: var(--apex-surface-2);
+  border: 1px solid var(--apex-border);
+  color: var(--apex-text-muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.apex-auth-demo-note {
+  display: block;
+  text-align: center;
+  margin-top: 12px;
+  font-size: 0.78rem;
+}
+
+.apex-auth-reg-grid {
+  gap: 11px 12px;
+}
+.apex-auth-reg-grid .apex-field label {
+  font-size: 0.76rem;
+}
+.apex-auth-reg-grid .apex-field input,
+.apex-auth-reg-grid .apex-field select {
+  padding: 9px 12px;
+  min-height: 40px;
+  font-size: 0.86rem;
+}
+
+.apex-auth-consents {
+  gap: 7px;
+}
+.apex-auth-consents label {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.78rem !important;
+  font-weight: 500 !important;
+  color: var(--apex-text-muted);
+  line-height: 1.4;
+}
+.apex-auth-consents input[type="checkbox"] {
+  width: 17px !important;
+  height: 17px !important;
+  min-height: 17px !important;
+  margin-top: 2px;
+  flex-shrink: 0;
+  accent-color: var(--apex-crimson);
+}
+.apex-auth-consents a {
+  color: var(--apex-text);
+  text-decoration: underline;
+}
+
+/* Curved Sliding Crimson Overlay Panel (Photo 2 Curve Geometry × Photo 1 Crimson!) */
+.apex-auth-overlay-wrap {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 50%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 10;
+  border-radius: 150px 0 0 110px;
+  box-shadow: -20px 0 60px rgba(0, 0, 0, 0.45);
+  transition: transform 0.65s cubic-bezier(0.65, 0, 0.35, 1), border-radius 0.65s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.apex-auth-stage.is-register .apex-auth-overlay-wrap {
+  transform: translateX(-100%);
+  border-radius: 0 150px 110px 0;
+  box-shadow: 20px 0 60px rgba(0, 0, 0, 0.45);
+}
+
+.apex-auth-overlay {
+  position: relative;
+  left: -100%;
+  width: 200%;
+  height: 100%;
+  background:
+    radial-gradient(ellipse 80% 70% at 25% 20%, rgba(255, 110, 130, 0.28) 0%, rgba(227, 24, 55, 0) 60%),
+    linear-gradient(138deg, #e31837 0%, #b50f2b 52%, #680717 100%);
+  color: #ffffff;
+  transform: translateX(0);
+  transition: transform 0.65s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.apex-auth-stage.is-register .apex-auth-overlay {
+  transform: translateX(50%);
+}
+
+.apex-auth-overlay-panel {
+  position: absolute;
+  top: 0;
+  width: 50%;
+  height: 100%;
+  padding: 40px clamp(28px, 3.8vw, 52px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 14px;
+  transition: transform 0.65s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.apex-auth-overlay-left {
+  left: 0;
+  transform: translateX(-18%);
+}
+.apex-auth-stage.is-register .apex-auth-overlay-left {
+  transform: translateX(0);
+}
+
+.apex-auth-overlay-right {
+  right: 0;
+  transform: translateX(0);
+}
+.apex-auth-stage.is-register .apex-auth-overlay-right {
+  transform: translateX(18%);
+}
+
+.apex-auth-ov-eyebrow {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.apex-auth-ov-title {
+  margin: 0;
+  font-family: var(--apex-font-display);
+  font-size: clamp(1.9rem, 3vw, 2.55rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.08;
+  color: #ffffff;
+}
+
+.apex-auth-ov-text {
+  margin: 0;
+  max-width: 34ch;
+  font-size: 0.94rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.apex-auth-ov-btn {
+  margin-top: 8px;
+  padding: 12px 36px;
+  min-height: 46px;
+  border-radius: var(--apex-radius-pill);
+  border: 1.5px solid rgba(255, 255, 255, 0.78);
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  font-size: 0.86rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease, color 0.2s ease;
+}
+.apex-auth-ov-btn:hover {
+  background: #ffffff;
+  color: #9e0b23;
+  transform: translateY(-2px);
+}
+
+/* Wide Horizontal BMI Bar below Auth Stage */
+.apex-bmi-bar {
+  max-width: 1080px;
+  margin: 28px auto 0;
+}
+.apex-bmi-bar-head {
+  margin-bottom: 16px;
+}
+.apex-bmi-inline-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) minmax(220px, 1.15fr);
+  gap: 14px;
+  align-items: end;
+}
+.apex-bmi-submit {
+  min-height: 46px;
+  width: 100%;
+}
+
+/* ==========================================================================
    APPLE HIG REDUCED TRANSPARENCY FALLBACK (liquid-glass.md Checklist #5)
    ========================================================================== */
 @media (prefers-reduced-transparency: reduce) {
@@ -1716,6 +2059,56 @@ body.admin-bar .apex-mobile-drawer { padding-top: 64px; }
 
 @media (max-width: 960px) {
   .apex-split-booking, .apex-split-profile { grid-template-columns: 1fr; }
+  .apex-auth-stage {
+    min-height: auto;
+    border-radius: 24px;
+  }
+  .apex-auth-mobile-switch {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+    padding: 10px;
+    background: linear-gradient(135deg, #e31837 0%, #8f0b21 100%);
+  }
+  .apex-auth-m-btn {
+    border: 0;
+    border-radius: var(--apex-radius-pill);
+    padding: 11px 14px;
+    font-size: 0.86rem;
+    font-weight: 700;
+    background: rgba(0, 0, 0, 0.22);
+    color: rgba(255, 255, 255, 0.84);
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+  .apex-auth-m-btn.is-active {
+    background: #ffffff;
+    color: #9e0b23;
+  }
+  .apex-auth-overlay-wrap {
+    display: none;
+  }
+  .apex-auth-pane {
+    position: relative;
+    width: 100%;
+    height: auto;
+    transform: none !important;
+    padding: 26px 20px;
+  }
+  .apex-auth-pane-register {
+    display: none;
+  }
+  .apex-auth-stage.is-register .apex-auth-pane-login {
+    display: none;
+  }
+  .apex-auth-stage.is-register .apex-auth-pane-register {
+    display: flex;
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .apex-bmi-inline-form {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 768px) {
