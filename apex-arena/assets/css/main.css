@@ -2093,6 +2093,275 @@ body.home .apex-section {
   transform: translateY(-2px);
 }
 
+/* ==========================================================================
+   CONTACT PAGE — PHOTO 1 SPLIT LAYOUT × APEX ARENA DARK/CRIMSON PALETTE
+   ========================================================================== */
+.apex-contact-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.06fr) minmax(0, 0.94fr);
+  gap: 36px;
+  align-items: start;
+}
+
+.apex-contact-form-card {
+  background: var(--apex-surface);
+  border: 1px solid var(--apex-border-strong);
+  border-radius: 22px;
+  padding: 36px 34px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.48);
+}
+
+.apex-contact-head {
+  margin-bottom: 24px;
+}
+
+.apex-contact-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.apex-contact-title-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--apex-text);
+  flex-shrink: 0;
+}
+
+.apex-contact-heading {
+  margin: 0;
+  font-family: var(--apex-font-display);
+  font-size: clamp(1.7rem, 2.5vw, 2.15rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--apex-text);
+}
+
+.apex-contact-sub {
+  margin: 0;
+  font-size: 0.93rem;
+  color: var(--apex-text-muted);
+}
+
+.apex-contact-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 16px;
+}
+
+.apex-contact-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.apex-contact-field-full {
+  grid-column: 1 / -1;
+}
+
+.apex-contact-field > label:not(.apex-contact-kvkk) {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--apex-text);
+}
+
+.apex-contact-field > label:not(.apex-contact-kvkk) svg {
+  color: var(--apex-crimson);
+  flex-shrink: 0;
+}
+
+.apex-contact-field input[type="text"],
+.apex-contact-field input[type="email"],
+.apex-contact-field input[type="tel"],
+.apex-contact-field textarea {
+  width: 100%;
+  background: var(--apex-bg);
+  border: 1px solid var(--apex-border-strong);
+  border-radius: 12px;
+  padding: 12px 14px;
+  color: var(--apex-text);
+  font-family: inherit;
+  font-size: 0.92rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.apex-contact-field textarea {
+  min-height: 124px;
+  resize: vertical;
+  line-height: 1.55;
+}
+
+.apex-contact-field input::placeholder,
+.apex-contact-field textarea::placeholder {
+  color: var(--apex-text-tertiary);
+}
+
+.apex-contact-field input:focus,
+.apex-contact-field textarea:focus {
+  outline: none;
+  border-color: var(--apex-crimson);
+  box-shadow: 0 0 0 3px rgba(227, 24, 55, 0.2);
+}
+
+.apex-contact-kvkk {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: var(--apex-text-muted);
+  cursor: pointer;
+}
+
+.apex-contact-kvkk input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  min-height: 18px;
+  margin-top: 2px;
+  accent-color: var(--apex-crimson);
+  flex-shrink: 0;
+}
+
+.apex-contact-kvkk a {
+  color: var(--apex-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.apex-contact-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 13px 28px;
+  min-height: 48px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: var(--apex-crimson);
+  color: #ffffff;
+  font-size: 0.94rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  box-shadow: 0 12px 28px rgba(227, 24, 55, 0.36);
+  transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.apex-contact-submit:hover {
+  background: var(--apex-crimson-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 16px 34px rgba(227, 24, 55, 0.46);
+}
+
+/* Right Info Column — 5 Individual Icon Cards */
+.apex-contact-info-col {
+  padding-top: 8px;
+}
+
+.apex-contact-info-list {
+  display: grid;
+  gap: 14px;
+}
+
+.apex-contact-info-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  border-radius: 16px;
+  background: var(--apex-surface);
+  border: 1px solid var(--apex-border);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.22s ease, transform 0.22s ease, background 0.22s ease;
+}
+
+.apex-contact-info-link:hover {
+  border-color: rgba(227, 24, 55, 0.55);
+  background: var(--apex-surface-2);
+  transform: translateY(-2px);
+}
+
+.apex-contact-icon-badge {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: rgba(227, 24, 55, 0.14);
+  border: 1px solid rgba(227, 24, 55, 0.26);
+  color: var(--apex-crimson);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.apex-contact-icon-badge.is-wa {
+  background: rgba(37, 211, 102, 0.14);
+  border-color: rgba(37, 211, 102, 0.32);
+  color: #25d366;
+}
+
+.apex-contact-info-body {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.apex-contact-info-body strong {
+  font-size: 0.96rem;
+  font-weight: 700;
+  color: var(--apex-text);
+  line-height: 1.25;
+}
+
+.apex-contact-info-body span {
+  font-size: 0.88rem;
+  color: var(--apex-text-muted);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+/* Full-Width Real Google Maps Card */
+.apex-contact-map-card {
+  margin-top: 36px;
+  background: var(--apex-surface);
+  border: 1px solid var(--apex-border-strong);
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.44);
+}
+
+.apex-contact-map-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+  padding: 22px 28px;
+  border-bottom: 1px solid var(--apex-border);
+}
+
+.apex-contact-map-frame {
+  position: relative;
+  width: 100%;
+  height: 430px;
+  background: #0d0f14;
+}
+
+.apex-contact-map-frame iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
 /* Wide Horizontal BMI Bar below Auth Stage */
 .apex-bmi-bar {
   max-width: 1080px;
@@ -2206,6 +2475,13 @@ body.home .apex-section {
   .apex-bmi-inline-form {
     grid-template-columns: 1fr;
   }
+  .apex-contact-layout {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  .apex-contact-form-card {
+    padding: 26px 22px;
+  }
 }
 
 @media (max-width: 768px) {
@@ -2233,6 +2509,9 @@ body.home .apex-section {
   .apex-cinema-dots { display: none; }
   .apex-cinema-hud-wrap { bottom: 68px; width: calc(100% - 24px); }
   .apex-cinema-layers { padding: 92px 0 84px; }
+  .apex-contact-grid { grid-template-columns: 1fr; }
+  .apex-contact-map-head { padding: 18px 20px; }
+  .apex-contact-map-frame { height: 320px; }
 }
 
 @media (max-width: 480px) {
