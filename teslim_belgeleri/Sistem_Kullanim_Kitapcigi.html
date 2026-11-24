@@ -3,82 +3,165 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>APEX ARENA — Sistem Kullanım Kitapçığı (v2.0.0)</title>
+<title>APEX ARENA — Sistem Kullanım Kitapçığı (v2.0.2)</title>
 <style>
-  :root { --bg:#0a0a0c; --card:#141418; --text:#f5f5f7; --muted:#a1a1aa; --red:#e31837; --border:rgba(255,255,255,0.12); }
+  :root { --bg:#0a0a0c; --card:#14151a; --text:#f5f5f7; --muted:#a1a1aa; --red:#fa114f; --lime:#a4ff2e; --cyan:#26e6ff; --border:rgba(255,255,255,0.11); }
   * { box-sizing:border-box; }
-  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:var(--bg); color:var(--text); line-height:1.6; padding:36px 20px; }
-  .wrap { max-width:980px; margin:0 auto; }
-  .hero { background:linear-gradient(135deg,#18181d,#240a11); border:1px solid var(--border); border-radius:20px; padding:34px 32px; margin-bottom:28px; }
-  .badge { display:inline-block; background:rgba(227,24,55,0.18); border:1px solid rgba(227,24,55,0.45); color:#ff6b81; font-size:12px; font-weight:700; letter-spacing:.08em; padding:4px 12px; border-radius:999px; text-transform:uppercase; }
-  h1 { margin:12px 0 8px; font-size:32px; letter-spacing:-0.02em; }
-  h2 { font-size:20px; margin:28px 0 12px; padding-bottom:8px; border-bottom:1px solid var(--border); color:#fff; }
-  p, li { color:var(--muted); font-size:15px; }
+  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:var(--bg); color:var(--text); line-height:1.62; padding:34px 20px 60px; }
+  .wrap { max-width:1040px; margin:0 auto; }
+  .hero { background:radial-gradient(ellipse 55% 110% at 92% 0%, rgba(250,17,79,0.22), transparent 62%), linear-gradient(135deg,#15161d,#1a0d14); border:1px solid var(--border); border-radius:22px; padding:34px 36px; margin-bottom:26px; box-shadow:0 24px 60px rgba(0,0,0,0.4); }
+  .badge { display:inline-block; background:rgba(250,17,79,0.18); border:1px solid rgba(250,17,79,0.48); color:#ff7398; font-size:12px; font-weight:700; letter-spacing:.08em; padding:5px 13px; border-radius:999px; text-transform:uppercase; }
+  h1 { margin:14px 0 8px; font-size:32px; letter-spacing:-0.025em; }
+  h2 { font-size:20px; margin:0 0 14px; padding-bottom:10px; border-bottom:1px solid var(--border); color:#fff; letter-spacing:-0.015em; }
+  h3 { font-size:16px; margin:20px 0 8px; color:#fff; }
+  p, li { color:var(--muted); font-size:14.5px; }
   strong, code { color:#fff; }
-  code { background:rgba(255,255,255,0.08); padding:2px 6px; border-radius:6px; font-size:13px; }
-  .card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:22px 24px; margin-bottom:18px; }
+  code { background:rgba(255,255,255,0.08); padding:2px 6px; border-radius:6px; font-size:12.5px; }
+  .meta-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:10px; margin-top:18px; }
+  .meta-pill { background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:12px; padding:10px 14px; font-size:13px; }
+  .meta-pill span { display:block; color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.06em; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:18px; padding:24px 26px; margin-bottom:20px; }
+  .toc { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+  .toc a { text-decoration:none; padding:6px 12px; border-radius:999px; background:rgba(255,255,255,0.05); border:1px solid var(--border); color:#e4e4e7; font-size:12.5px; font-weight:600; }
+  .toc a:hover { border-color:var(--red); color:#fff; }
   table { width:100%; border-collapse:collapse; margin-top:10px; }
-  th, td { text-align:left; padding:11px 14px; border-bottom:1px solid var(--border); font-size:14px; }
-  th { color:#fff; background:rgba(255,255,255,0.04); }
-  a { color:#ff5a70; }
-  @media print { body { background:#fff; color:#111; } .hero,.card { background:#fff; border-color:#ddd; } p,li { color:#333; } strong,h1,h2,th,code { color:#111; } }
+  th, td { text-align:left; padding:10px 12px; border-bottom:1px solid var(--border); font-size:13.5px; vertical-align:top; }
+  th { color:#fff; background:rgba(255,255,255,0.04); font-size:12px; text-transform:uppercase; letter-spacing:.05em; }
+  .ok { color:#a4ff2e; font-weight:800; white-space:nowrap; }
+  .shot-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin-top:16px; }
+  figure { margin:0; background:#0d0e12; border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+  figure img { width:100%; height:auto; display:block; }
+  figcaption { padding:9px 13px; font-size:12px; color:#b4b8c5; border-top:1px solid var(--border); }
+  a { color:#ff5c86; }
+  .print-btn { float:right; background:var(--red); color:#fff; border:0; border-radius:999px; padding:9px 18px; font-size:12.5px; font-weight:700; cursor:pointer; }
+  @media (max-width:760px) { .shot-grid { grid-template-columns:1fr; } .print-btn { float:none; margin-bottom:12px; } }
+  @media print {
+    body { background:#fff; color:#111; padding:0; }
+    .print-btn, .toc { display:none; }
+    .hero, .card, figure { background:#fff; border-color:#d4d4d8; box-shadow:none; break-inside:avoid; }
+    p, li, figcaption, .meta-pill span { color:#333; }
+    strong, h1, h2, h3, th, code { color:#111; }
+    .ok { color:#15803d; }
+    a { color:#b91c1c; text-decoration:none; }
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header class="hero">
-    <span class="badge">WordPress Özel Tema · v2.0.0</span>
+    <button type="button" class="print-btn" onclick="window.print()">PDF / Yazdır</button>
+    <span class="badge">WordPress Özel Tema · Sistem Kullanım Kitapçığı · v2.0.2</span>
     <h1>APEX ARENA — Spor ve Performans Kompleksi</h1>
-    <p>Sistem Kullanım Kitapçığı, Koç Grafik Portalı &amp; Modül Dokümantasyonu</p>
-    <p style="margin:10px 0 0;font-size:13px;">
-      <strong>Yerel URL:</strong> <code>http://localhost/spor_kompleksi/wordpress/</code> ·
-      <strong>GitHub:</strong> <a href="https://github.com/ibrahimkorkut/spor_kompleksi">github.com/ibrahimkorkut/spor_kompleksi</a>
-    </p>
+    <p style="margin:6px 0 0;">Kurulum Rehberi, 100 Puanlık Değerlendirme Kriterleri Karşılık Tablosu, Görselli Modül Kılavuzu ve Yönetici/Koç/Üye Kullanım Dokümantasyonu</p>
+
+    <div class="meta-grid">
+      <div class="meta-pill"><span>Geliştirici (Ad-Soyad)</span><strong>İbrahim Korkut</strong></div>
+      <div class="meta-pill"><span>Canlı Yerel Adres</span><strong><code>http://localhost/spor_kompleksi/wordpress/</code></strong></div>
+      <div class="meta-pill"><span>GitHub Deposu</span><strong><a href="https://github.com/ibrahimkorkut/spor_kompleksi" target="_blank">github.com/ibrahimkorkut/spor_kompleksi</a></strong></div>
+      <div class="meta-pill"><span>Tema &amp; Envato Paketi</span><strong><code>apex-arena-envato-theme.zip</code> (v2.0.2)</strong></div>
+    </div>
+
+    <nav class="toc" aria-label="İçindekiler">
+      <a href="#rubric">1. Değerlendirme Matrisi (100 Puan)</a>
+      <a href="#kurulum">2. Kurulum Rehberi</a>
+      <a href="#hesaplar">3. Rol &amp; Giriş Bilgileri</a>
+      <a href="#moduller">4. Görselli Modül Kılavuzu</a>
+      <a href="#koc-admin">5. Koç &amp; Yönetici Panelleri</a>
+      <a href="#mimari">6. Veritabanı &amp; REST API</a>
+    </nav>
   </header>
 
-  <section class="card">
-    <h2 style="margin-top:0;">1. Test, Koç ve Yönetim Giriş Bilgileri</h2>
+  <section class="card" id="rubric">
+    <h2>1. Değerlendirme Kriterleri Karşılık Tablosu (100 / 100 Puan)</h2>
     <table>
-      <thead><tr><th>Rol</th><th>Giriş Adresi</th><th>Kullanıcı Adı</th><th>Şifre</th><th>Yetki Kapsamı</th></tr></thead>
+      <thead><tr><th>Kategori / İstenilen Kriter</th><th>Puan</th><th>Projedeki Karşılığı (Dosya / Canlı Sayfa)</th><th>Durum</th></tr></thead>
       <tbody>
-        <tr><td><strong>WordPress Yönetici</strong></td><td><code>/wp-login.php</code></td><td><code>root</code></td><td><code>korkut2006</code></td><td>Tam yönetim, Gelir/CSV, tüm koçlar</td></tr>
-        <tr><td><strong>Koç — Kerem Alkan</strong></td><td><code>/wp-login.php</code></td><td><code>koc_kerem</code></td><td><code>ApexKoc2026!</code></td><td>Sadece kendi 5 öğrencisi (Rol izolasyonlu)</td></tr>
-        <tr><td><strong>Koç — Elif Karaca</strong></td><td><code>/wp-login.php</code></td><td><code>koc_elif</code></td><td><code>ApexKoc2026!</code></td><td>Sadece kendi 2 öğrencisi (Rol izolasyonlu)</td></tr>
-        <tr><td><strong>Demo Üye (QR &amp; Koç)</strong></td><td><code>/uyelik/#giris</code></td><td><code>uye_demo</code></td><td><code>ApexUye2026!</code></td><td>QR Kart, Koç Beslenme Takvimi, 1-1 Sohbet</td></tr>
+        <tr><td><strong>WordPress Klasörü</strong></td><td>2,5</td><td><code>wordpress/</code> tam kurulum + <code>apex-arena/</code> özel tema kaynak kodu</td><td class="ok">✓ Tamam</td></tr>
+        <tr><td><strong>Database Dosyası</strong></td><td>2,5</td><td><code>teslim_belgeleri/spor_kompleksi_wp.sql</code> (11 özel tablo + tüm WP verileri, UTF-8MB4)</td><td class="ok">✓ Tamam</td></tr>
+        <tr><td><strong>WordPress Dışarı Aktar Dosyası</strong></td><td>5</td><td><code>teslim_belgeleri/apex-arena-wordpress-export.xml</code> (Resmi WXR 1.2 · 41 içerik öğesi)</td><td class="ok">✓ Tamam</td></tr>
+        <tr><td><strong>Sistem Kullanım Kitapçığı</strong></td><td>15</td><td>Görselli, yazdırılabilir <code>Sistem_Kullanim_Kitapcigi.html</code> &amp; <code>.md</code></td><td class="ok">✓ Tamam</td></tr>
+        <tr><td><strong>PT Eğitmenler · Bireysel Antrenman</strong></td><td>5</td><td><code>/pt-egitmenler/#bireysel</code> — Bireysel PT filtresi, seans içeriği ve paketleri</td><td class="ok">✓ Tamam</td></tr>
+        <tr><td><strong>PT Eğitmenler · Grupsal Antrenman</strong></td><td>5</td><td><code>/pt-egitmenler/#grupsal</code> — HIIT, Reformer, fonksiyonel grup dersleri</td><td class="ok">✓ Tamam</td></tr>
+        <tr><td><strong>PT Paketler &amp; Seans Ücretleri</strong></td><td>5</td><td><code>/pt-egitmenler/#paketler</code> — 6 CPT paketi, toplam &amp; seans başı şeffaf ücretler</td><td class="ok">✓ Tamam</td></tr>
+        <tr><td><strong>Eğitim Detayları, Kapsamı, İçeriği, Günler</strong></td><td>5</td><td><code>/pt-egitmenler/#program</code> — Kapsam maddeleri + Haftalık Eğitim Günleri tablosu</td><td class="ok">✓ Tamam</td></tr>
+        <tr><td><strong>Antrenör Seçimi</strong></td><td>5</td><td><code>/pt-egitmenler/#randevu</code> — Tıklanabilir antrenör seçimi + anlık takvim senkronu</td><td class="ok">✓ Tamam</td></tr>
+        <tr><td><strong>Online Randevu ve Rezervasyon</strong></td><td>5</td><td><code>/pt-egitmenler/#randevu</code> — Canlı MySQL randevu + <code>.ics</code> takvim + WhatsApp paylaşımı</td><td class="ok">✓ Tamam</td></tr>
+        <tr><td><strong>Antrenör (Kim, Foto, Uzmanlık, Özgeçmiş, Sertifika, Online Takvim)</strong></td><td>5</td><td><code>/antrenorler/</code> &amp; <code>/antrenor/{slug}/</code> — 4 antrenör, <strong>Resmi Sertifika Doğrulama Modalı</strong>, haftalık takvim</td><td class="ok">✓ Tamam</td></tr>
+        <tr><td><strong>Salon ve Kiralama (Bilgi, Fotoğraf, Rezervasyon)</strong></td><td>5</td><td><code>/salon-kiralama/</code> — 2 FIBA Basketbol + 1 CEV Voleybol, Lightbox, <strong>Hakem (+₺450)</strong>, <code>.ics</code> &amp; WhatsApp davet</td><td class="ok">✓ Tamam</td></tr>
+        <tr><td><strong>Tesis Olanakları (Soyunma/Duş, Otopark, Kafe)</strong></td><td>5</td><td><code>/tesis-olanaklari/</code> — 240 RFID dolap/duş/sauna, 180 araçlık otopark + 6 EV şarj + yoğunluk grafiği + <strong>Protein Kafe Sepeti</strong></td><td class="ok">✓ Tamam</td></tr>
+        <tr><td><strong>Üyelik İşlemleri</strong></td><td>10</td><td><code>/uyelik/</code> — 3 paket, Akıllı Quiz, karşılaştırma tablosu, Giriş/Kayıt, <strong>Dijital QR Kart</strong>, canlı Koç Beslenme/Sohbet, VKİ</td><td class="ok">✓ Tamam</td></tr>
+        <tr><td><strong>Erişilebilirlik İşlemleri</strong></td><td>10</td><td>Tüm sayfalarda <strong>WCAG 2.2 AA/AAA Erişilebilirlik Merkezi</strong> (10 canlı ayar) + <code>/erisilebilirlik-beyani/</code></td><td class="ok">✓ Tamam</td></tr>
+        <tr><td><strong>Envato Market / Git Hesabı Linki</strong></td><td>10</td><td>Footer’da canlı <strong>GitHub Tema Deposu</strong> (<code>github.com/ibrahimkorkut/spor_kompleksi</code>) + <strong>Envato Profili</strong> + tema ZIP paketi</td><td class="ok">✓ Tamam</td></tr>
       </tbody>
     </table>
   </section>
 
-  <section class="card">
-    <h2 style="margin-top:0;">2. Hızlı Kurulum (XAMPP)</h2>
+  <section class="card" id="kurulum">
+    <h2>2. Kurulum ve Çalıştırma Rehberi (XAMPP)</h2>
+    <h3>Yöntem A — Tam Veritabanı Yedeği ile Birebir Kurulum (Önerilen)</h3>
     <ol>
-      <li>XAMPP Control Panel üzerinden <strong>Apache</strong> ve <strong>MySQL</strong> servislerini başlatın.</li>
-      <li><code>teslim_belgeleri/apex-arena-envato-theme.zip</code> paketini WordPress temalarına yükleyin veya <code>apex-arena/</code> klasörünü <code>wp-content/themes/</code> içine kopyalayın.</li>
-      <li><code>phpMyAdmin</code> üzerinden <code>spor_kompleksi_wp</code> veritabanını oluşturup <code>teslim_belgeleri/spor_kompleksi_wp.sql</code> dosyasını içe aktarın.</li>
-      <li>Canlı Gemini 2.5 Flash AI sohbeti için <strong>WP Admin → APEX ARENA → AI &amp; Ayarlar</strong> bölümüne kendi Gemini API anahtarınızı girebilirsiniz (anahtarsız kurulumda yerel Hibrit Veritabanı Motoru otomatik çalışır).</li>
+      <li>XAMPP Control Panel üzerinden <strong>Apache</strong> ve <strong>MySQL (MariaDB)</strong> servislerini başlatın.</li>
+      <li><code>wordpress/</code> klasörünü <code>C:\xampp\htdocs\spor_kompleksi\wordpress\</code> dizinine yerleştirin.</li>
+      <li><code>http://localhost/phpmyadmin</code> üzerinde <code>spor_kompleksi_wp</code> (<code>utf8mb4_unicode_ci</code>) veritabanını oluşturup <code>teslim_belgeleri/spor_kompleksi_wp.sql</code> dosyasını içe aktarın.</li>
+      <li>Tarayıcıdan <code>http://localhost/spor_kompleksi/wordpress/</code> adresini açın.</li>
+    </ol>
+    <h3>Yöntem B — Sadece Tema ZIP + WXR XML İçe Aktarma</h3>
+    <ol>
+      <li>WP Admin → <strong>Görünüm → Temalar → Yeni Ekle → Tema Yükle</strong> adımından <code>teslim_belgeleri/apex-arena-envato-theme.zip</code> dosyasını yükleyip etkinleştirin (11 özel MySQL tablosu ve demo koç/üye verileri otomatik oluşur).</li>
+      <li><strong>Araçlar → İçe Aktar → WordPress</strong> üzerinden <code>teslim_belgeleri/apex-arena-wordpress-export.xml</code> dosyasını yükleyin.</li>
+      <li><em>İsteğe bağlı:</em> Canlı Gemini 2.5 Flash AI sohbeti için <strong>WP Admin → APEX ARENA → AI &amp; Ayarlar</strong> bölümüne kendi Gemini API anahtarınızı girebilirsiniz (anahtarsız kurulumda yerel Hibrit Veritabanı Motoru otomatik çalışır).</li>
     </ol>
   </section>
 
-  <section class="card">
-    <h2 style="margin-top:0;">3. Başlıca Özellikler &amp; v2.0.0 Yenilikleri</h2>
-    <ul>
-      <li><strong>Koça Özel Grafiksel Yönetim Paneli:</strong> <code>apex_coach</code> özel rolüyle koçlar sadece kendi öğrencilerini görür. 5 kartlık koyu SVG analiz paneli (Sütun, Alan/Çizgi, Pasta/Donut, Program Uyumu, Öğrenci Durum Tablosu) + 5 öğünlük Beslenme Takvimi + Koç Önerisi + Birebir Canlı Mesajlaşma içerir.</li>
-      <li><strong>Admin Gelir Grafiği &amp; Excel/CSV Rapor Merkezi:</strong> Canlı MySQL gelir dağılımı, Türkçe Excel uyumlu UTF-8 BOM CSV indirmeleri (<code>Salonlar</code>, <code>PT</code>, <code>Üyelikler</code>, <code>Kafe</code>, <code>Yorumlar</code>) ve <code>Kafe &amp; Yorumlar</code> moderasyon ekranı.</li>
-      <li><strong>İnteraktif SVG Tesis Kat Planı &amp; Canlı 5 Yıldızlı Yorumlar:</strong> Ana sayfada 6 bölgeli tıklanabilir kompleks kat planı ve MySQL'e anlık kaydedilen üye puanlama sistemi.</li>
-      <li><strong>EV Şarj Monitörü, Saatlik Yoğunluk Grafiği &amp; Protein Kafe Sepeti:</strong> 6× 22 kW EV şarj durumu, Hafta İçi/Cmt/Paz saatlik doluluk barları ve makro hesaplı antrenman çıkışı kafe ön siparişi.</li>
-      <li><strong>Akıllı 3 Soruluk Paket Bulucu, Üye Antrenman Günlüğü &amp; <code>.ics</code> + WhatsApp Daveti:</strong> Kişisel paket/PT önerisi, detaylı karşılaştırma matrisi, Google/Apple takvim (<code>.ics</code>) indirme ve tek tıkla WhatsApp maç daveti paylaşımı.</li>
-      <li><strong>60/120 FPS Scroll Mimari Tur Videosu &amp; 3D Dumbbell:</strong> 240 HD WebP kare, off-main-thread GPU <code>createImageBitmap</code> ve Three.js prosedürel 3D cast-iron dumbbell sahnesi.</li>
-      <li><strong>Gemini 2.5 Flash AI Spor Koçu, Gerçek Google Maps, WCAG 2.2 AA/AAA &amp; Yoast SEO:</strong> Animasyonlu WhatsApp hattı, <code>Ctrl+K</code> arama, okuma ilerleme çizgisi ve canlı açık/kapalı durum rozeti.</li>
-    </ul>
+  <section class="card" id="hesaplar">
+    <h2>3. Rol Bazlı Test ve Yönetim Giriş Bilgileri</h2>
+    <table>
+      <thead><tr><th>Rol</th><th>Giriş Adresi</th><th>Kullanıcı Adı</th><th>Şifre</th><th>Yetki Kapsamı</th></tr></thead>
+      <tbody>
+        <tr><td><strong>WordPress Yönetici</strong></td><td><code>/wp-login.php</code></td><td><code>root</code></td><td><code>korkut2006</code></td><td>Tam yönetim, Gelir Grafiği, Excel/CSV, Kafe/Yorumlar, tüm koçlar</td></tr>
+        <tr><td><strong>Koç — Kerem Alkan</strong></td><td><code>/wp-login.php</code></td><td><code>koc_kerem</code></td><td><code>ApexKoc2026!</code></td><td>Otomatik Koç Stüdyosu · Sadece kendi 5 öğrencisi (tam rol izolasyonu)</td></tr>
+        <tr><td><strong>Koç — Elif Karaca</strong></td><td><code>/wp-login.php</code></td><td><code>koc_elif</code></td><td><code>ApexKoc2026!</code></td><td>Otomatik Koç Stüdyosu · Sadece kendi 2 öğrencisi (tam rol izolasyonu)</td></tr>
+        <tr><td><strong>Demo Üye (QR &amp; Koç)</strong></td><td><code>/uyelik/#giris</code></td><td><code>uye_demo</code></td><td><code>ApexUye2026!</code></td><td>QR Kart, Rezervasyon Yönetimi, Koç Beslenme Takvimi &amp; 1-1 Sohbet</td></tr>
+      </tbody>
+    </table>
   </section>
 
-  <section class="card">
-    <h2 style="margin-top:0;">4. Teslim Dosyaları İçeriği</h2>
+  <section class="card" id="moduller">
+    <h2>4. Görselli Site Modülleri Kullanım Kılavuzu</h2>
     <ul>
-      <li><code>apex-arena-envato-theme.zip</code> — Kuruluma hazır WordPress özel tema arşivi (v2.0.0)</li>
-      <li><code>spor_kompleksi_wp.sql</code> — Güncel, 11 özel tablolu ve API anahtarı temizlenmiş MySQL yedeği</li>
-      <li><code>apex-arena-wordpress-export.xml</code> — WordPress WXR 1.2 içerik dışa aktarımı</li>
-      <li><code>ekran_goruntuleri/</code> — Koç Grafik Paneli, Kat Planı, Kafe Sepeti, Üye Sohbeti ve Mobil 390px dahil güncel ekran görüntüleri</li>
+      <li><strong>Ana Sayfa (<code>/</code>):</strong> 240 HD WebP karelik 60/120 FPS scroll-driven mimari tur videosu, Three.js prosedürel 3D Dambıl (<em>HAREKETİN YENİ MERKEZİ</em>), 6 bölgeli tıklanabilir <strong>İnteraktif SVG Tesis Kat Planı</strong> (<code>#kat-plani</code>) ve canlı <strong>5 Yıldızlı Üye Değerlendirmeleri</strong> (<code>#yorumlar</code>).</li>
+      <li><strong>PT Eğitmenler &amp; Antrenörler (<code>/pt-egitmenler/</code>, <code>/antrenorler/</code>):</strong> Bireysel &amp; Grupsal filtreler, 6 PT paketi ve seans ücretleri, haftalık eğitim programı tablosu, 4 sertifikalı antrenör, tıklanabilir <strong>Sertifika Doğrulama Modalı</strong> ve çakışma korumalı online randevu takvimi.</li>
+      <li><strong>Salon ve Kiralama (<code>/salon-kiralama/</code>):</strong> 2 FIBA Basketbol + 1 CEV Voleybol salonu, fotoğraf Lightbox galerisi, <strong>Lisanslı Hakem (+₺450)</strong> opsiyonu, onay sonrası tek tıkla <code>.ics</code> takvim indirme ve <strong>WhatsApp Maç Daveti</strong>.</li>
+      <li><strong>Tesis Olanakları (<code>/tesis-olanaklari/</code>):</strong> 240 RFID akıllı dolap, yağmur duş &amp; 85°C Fin saunası; 180 araçlık kapalı otopark, 6× 22 kW EV şarj monitörü ve saatlik yoğunluk tahmin grafiği; makro hesaplı <strong>Apex Protein Kafe Ön Sipariş Sepeti</strong>.</li>
+      <li><strong>Üyelik İşlemleri &amp; Erişilebilirlik (<code>/uyelik/</code>):</strong> 3 soruluk Akıllı Paket Bulucu Quiz, karşılaştırma matrisi, kavisli kayar Giriş/Kayıt kartı, Dijital QR Kartı, VKİ hesaplayıcı, canlı Koç Beslenme Takvimi + 1-1 Sohbet + Haftalık Antrenman Günlüğü; sol altta 10 ayarlı <strong>WCAG 2.2 AA/AAA Erişilebilirlik Merkezi</strong> ve sağ altta 3 katmanlı yeşil ghost animasyonlu <strong>WhatsApp Hattı</strong> + <strong>Gemini 2.5 Flash AI Spor Koçu</strong>.</li>
+    </ul>
+
+    <div class="shot-grid">
+      <figure><img src="ekran_goruntuleri/16_whatsapp_hero_v170.png" alt="Ana Sayfa ve WhatsApp Hattı"><figcaption>Ana Sayfa — 60/120 FPS Mimari Tur, Canlı Doluluk &amp; WhatsApp Hattı</figcaption></figure>
+      <figure><img src="ekran_goruntuleri/23_interaktif_kat_plani_v200.png" alt="İnteraktif SVG Kat Planı"><figcaption>Ana Sayfa — 6 Bölgeli İnteraktif SVG Tesis Kat Planı</figcaption></figure>
+      <figure><img src="ekran_goruntuleri/04-salon-kiralama-hakem-onay.png" alt="Salon Kiralama ve Hakem Onay"><figcaption>Salon Kiralama — FIBA Basketbol / CEV Voleybol + Hakem Opsiyonu</figcaption></figure>
+      <figure><img src="ekran_goruntuleri/25_kafe_on_siparis_sepeti_v200.png" alt="Protein Kafe Ön Sipariş Sepeti"><figcaption>Tesis Olanakları — Makro Hesaplı Protein Kafe Ön Sipariş Sepeti</figcaption></figure>
+      <figure><img src="ekran_goruntuleri/24_uye_beslenme_koc_sohbet_v200.png" alt="Üye Paneli Koç Beslenme ve Sohbet"><figcaption>Üye Paneli — Koçtan Canlı Beslenme Takvimi, Öneri &amp; 1-1 Sohbet</figcaption></figure>
+      <figure><img src="ekran_goruntuleri/03-erisilebilirlik-aydinlik-mod.png" alt="WCAG 2.2 Erişilebilirlik Merkezi"><figcaption>WCAG 2.2 AA/AAA Erişilebilirlik Merkezi &amp; Aydınlık Mod</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="card" id="koc-admin">
+    <h2>5. Koç Performans Stüdyosu &amp; Yönetici Operasyon Merkezi</h2>
+    <p><strong>Koç Portalı (<code>admin.php?page=apex-coach-portal</code>):</strong> <code>apex_coach</code> rolündeki eğitmenler yalnızca kendi öğrencilerini görebilir. Apple Fitness tarzı 3 iç içe neon glow <strong>Aktivite Halkası</strong> (İlerleme, Seans, Beslenme), etkileşimli hover tooltip’li sütun ve çift eğrili alan grafikleri, durum filtreli öğrenci listesi, 5 öğünlük Beslenme Takvimi ve Birebir Mesajlaşma tek ekranda canlı senkron çalışır.</p>
+    <p><strong>Yönetici Paneli (<code>admin.php?page=apex-arena-dashboard</code>):</strong> Canlı MySQL gelir dağılımı, Türkçe Excel uyumlu UTF-8 BOM <strong>CSV Rapor İndirme</strong> (Salonlar, PT, Üyelikler, Kafe, Yorumlar) ve <strong>Kafe &amp; Yorumlar</strong> moderasyonu sunar.</p>
+    <div class="shot-grid">
+      <figure><img src="ekran_goruntuleri/22_koc_grafik_paneli_v200.png" alt="Koç Performans ve Aktivite Halkaları"><figcaption>Koç Performans Stüdyosu — Apple Fitness Neon Glow Aktivite Halkaları &amp; Rol İzolasyonu</figcaption></figure>
+      <figure><img src="ekran_goruntuleri/26_admin_gelir_csv_v200.png" alt="Admin Operasyon Merkezi ve CSV Raporları"><figcaption>Yönetici Operasyon Merkezi — Canlı MySQL Gelir Dağılımı &amp; Excel/CSV İndirme</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="card" id="mimari">
+    <h2>6. Veritabanı Mimarisi ve REST API Uç Noktaları</h2>
+    <ul>
+      <li><strong>Özel İçerik Türleri (4 CPT):</strong> <code>apex_trainer</code>, <code>apex_pt_package</code>, <code>apex_court</code>, <code>apex_announcement</code>.</li>
+      <li><strong>Özel MySQL Tabloları (11 Tablo):</strong> <code>apex_court_bookings</code>, <code>apex_pt_appointments</code>, <code>apex_membership_applications</code>, <code>apex_contact_messages</code>, <code>apex_ai_chat_logs</code>, <code>apex_coach_students</code>, <code>apex_nutrition_plans</code>, <code>apex_coach_messages</code>, <code>apex_reviews</code>, <code>apex_cafe_orders</code>, <code>apex_workout_logs</code>.</li>
+      <li><strong>REST API (<code>/wp-json/apex/v1/</code> — 13 Uç Nokta):</strong> <code>GET /availability</code>, <code>POST /book-court</code>, <code>POST /book-pt</code>, <code>POST /membership/register</code>, <code>POST /membership/login</code>, <code>POST /booking/cancel</code>, <code>POST /contact</code>, <code>POST /chat</code>, <code>GET/POST /reviews</code>, <code>POST /cafe-order</code>, <code>POST /workout-log</code>, <code>POST /member/message</code>, <code>POST /coach/save-student</code>, <code>POST /coach/message</code>.</li>
     </ul>
   </section>
 </div>

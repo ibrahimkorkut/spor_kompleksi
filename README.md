@@ -2,8 +2,8 @@
 
 ![APEX ARENA Ana Sayfa — 60/120 FPS Scroll Mimari Tur & Animasyonlu WhatsApp Hattı](teslim_belgeleri/ekran_goruntuleri/16_whatsapp_hero_v170.png)
 
-> **Modern spor kompleksleri için sıfırdan geliştirilmiş, tam entegre özel WordPress teması ve çok rollü yönetim ekosistemi (`v2.0.0`).**  
-> 60/120 FPS kaydırmayla oynayan mimari tur videosu, Three.js prosedürel 3D dambıl sahnesi, **Koça Özel Grafiksel Öğrenci Yönetim Paneli (5 SVG Grafik + Beslenme Takvimi + 1-1 Mesajlaşma)**, interaktif tesis kat planı, makro hesaplı Protein Kafe ön sipariş sepeti, canlı **Gemini 2.5 Flash AI Spor Koçu**, lisanslı hakem + `.ics` takvim / WhatsApp maç davetli salon kiralama, **Excel/CSV Rapor Merkezi**, gerçek **Google Maps** ve **WCAG 2.2 AA/AAA** erişilebilirlik merkezini tek çatı altında sunar.
+> **Modern spor kompleksleri için sıfırdan geliştirilmiş, tam entegre özel WordPress teması ve çok rollü yönetim ekosistemi (`v2.0.2`).**  
+> 60/120 FPS kaydırmayla oynayan mimari tur videosu, Three.js prosedürel 3D dambıl sahnesi, **Apple Fitness Neon Glow Koç Performans Stüdyosu (3 İç İçe Aktivite Halkası + Etkileşimli Grafikler + Beslenme Takvimi + 1-1 Mesajlaşma)**, interaktif tesis kat planı, makro hesaplı Protein Kafe ön sipariş sepeti, canlı **Gemini 2.5 Flash AI Spor Koçu**, lisanslı hakem + `.ics` takvim / WhatsApp maç davetli salon kiralama, **Excel/CSV Rapor Merkezi**, gerçek **Google Maps** ve **WCAG 2.2 AA/AAA** erişilebilirlik merkezini tek çatı altında sunar.
 
 ---
 
@@ -144,4 +144,4 @@ Tüm sayfalar **Masaüstü (`1440×900`)**, **Tablet (`768×1024`)** ve **Mobil 
 
 ---
 
-**Geliştirici:** İbrahim Korkut · **Sürüm:** `v2.0.0` · **Lisans:** GPL v2 or later
+**Geliştirici:** İbrahim Korkut · **Sürüm:** `v2.0.2` · **Lisans:** GPL v2 or later
