@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'APEX_VERSION', '1.5.2' );
+define( 'APEX_VERSION', '1.6.0' );
 define( 'APEX_DIR', get_template_directory() );
 define( 'APEX_URI', get_template_directory_uri() );
 
@@ -198,6 +198,18 @@ function apex_output_schema_jsonld() {
     echo '<script type="application/ld+json">' . wp_json_encode( $schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ) . '</script>' . "\n";
 }
 add_action( 'wp_head', 'apex_output_schema_jsonld', 20 );
+
+/**
+ * LCP İlk Video Karesi Öncelikli Preload (Scroll Cinema)
+ */
+function apex_preload_hero_frame() {
+    if ( ! is_front_page() ) {
+        return;
+    }
+    $frame0 = esc_url( APEX_URI . '/assets/video-frames/frame_0001.webp?v=1.4.1' );
+    echo '<link rel="preload" as="image" type="image/webp" href="' . $frame0 . '" fetchpriority="high">' . "\n";
+}
+add_action( 'wp_head', 'apex_preload_hero_frame', 2 );
 
 /**
  * Tema etkinleştirildiğinde veritabanı tablolarını oluştur ve permalink kurallarını yenile

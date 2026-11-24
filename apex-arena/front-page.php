@@ -31,7 +31,7 @@ $hero_sub   = get_theme_mod( 'apex_hero_subtitle', 'İki FIBA basketbol salonu, 
         <canvas
             id="apex-cinema-canvas"
             class="apex-cinema-canvas"
-            style="background-image:url('<?php echo esc_url( APEX_URI . '/assets/video-frames/frame_0001.webp?v=' . APEX_VERSION ); ?>');background-size:cover;background-position:center;"
+            style="background-image:url('<?php echo esc_url( APEX_URI . '/assets/video-frames/frame_0001.webp?v=1.4.1' ); ?>');background-size:cover;background-position:center;"
             aria-hidden="true"
         ></canvas>
         <div class="apex-cinema-vignette" aria-hidden="true"></div>

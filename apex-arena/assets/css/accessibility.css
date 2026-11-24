@@ -11,8 +11,8 @@
   align-items: center;
   gap: 8px;
   background: var(--glass-bg-regular);
-  -webkit-backdrop-filter: blur(28px) saturate(1.85);
-  backdrop-filter: blur(28px) saturate(1.85);
+  -webkit-backdrop-filter: blur(14px) saturate(1.65);
+  backdrop-filter: blur(14px) saturate(1.65);
   color: var(--apex-text);
   border: 1px solid var(--glass-border);
   border-radius: var(--apex-radius-pill);

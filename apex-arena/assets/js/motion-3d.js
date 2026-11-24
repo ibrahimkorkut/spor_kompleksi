@@ -1,7 +1,12 @@
 /**
- * APEX ARENA — 3D Perspective Monolith & Cast-Iron Spin-Lock 3D Dumbbell WebGL Engine (v1.5.0)
- * 100% offline Three.js procedural CAD geometry (LatheGeometry stepped cast-iron plates,
- * real 3D threaded spin-lock shafts, 6-lobe ExtrudeGeometry star lock nuts, knurled steel bar).
+ * APEX ARENA — 3D Perspective Monolith & Cast-Iron Spin-Lock 3D Dumbbell WebGL Engine (v1.6.0)
+ * Senior Frontend Performance Engineering Pass:
+ * - Lazy Three.js + PBR texture initialization via IntersectionObserver (0ms Hero load blocking!)
+ * - True off-screen rAF pause & visibilitychange sleep (0% off-screen CPU/GPU usage!)
+ * - Zero forced synchronous layouts during scroll/pointermove (ResizeObserver-cached geometry)
+ * - Dirty-checked monolith CSS transforms & quantized borderRadius (no idle clip-mask rebuilds)
+ * - Adaptive mobile/mid-range quality (pixelRatio, procedural texture resolution, lathe segments)
+ * - Full WebGL geometry/material/texture/renderer disposal on pagehide
  *
  * @package ApexArena
  */
@@ -16,8 +21,9 @@ if (runway) {
    Deterministic 2D Noise for Forged Cast-Iron & Knurled Steel PBR Maps
    ============================================================================ */
 function hash2(x, y) {
-  const n = Math.sin(x * 127.1 + y * 311.7) * 43758.5453123;
-  return n - Math.floor(n);
+  let h = (Math.imul(x | 0, 374761393) + Math.imul(y | 0, 668265263)) | 0;
+  h = Math.imul(h ^ (h >>> 13), 1274126177);
+  return ((h ^ (h >>> 16)) >>> 0) * 2.3283064365386963e-10;
 }
 
 function noise2(x, y) {
@@ -49,9 +55,9 @@ function fbm2(x, y, octaves = 4) {
 /* ============================================================================
    Procedural PBR Textures: Sand-Cast Iron Plates + Knurled Brushed Steel Grip
    ============================================================================ */
-function createCastIronMaps() {
-  const W = 512;
-  const H = 512;
+function createCastIronMaps(size) {
+  const W = size;
+  const H = size;
   const albedoC = document.createElement('canvas');
   const roughC = document.createElement('canvas');
   const bumpC = document.createElement('canvas');
@@ -67,21 +73,19 @@ function createCastIronMaps() {
   const bImg = bCtx.createImageData(W, H);
 
   for (let y = 0; y < H; y++) {
+    const v = y / H;
     for (let x = 0; x < W; x++) {
       const u = x / W;
-      const v = y / H;
-      const coarse = fbm2(u * 10, v * 10, 4);
-      const scuff = fbm2(u * 24 + 5.1, v * 24 - 2.3, 3);
-      const grain = hash2(x * 0.9, y * 0.9);
+      const coarse = fbm2(u * 10, v * 10, 3);
+      const scuff = fbm2(u * 24 + 5.1, v * 24 - 2.3, 2);
+      const grain = hash2(x, y);
 
-      // Authentic weathered forged charcoal cast-iron with metallic wear highlights
       const wear = Math.max(0, scuff - 0.56) * 2.4;
       const base = 38 + coarse * 26 + wear * 58 + (grain - 0.5) * 14;
       const ar = Math.min(135, Math.max(24, base + 2));
       const ag = Math.min(132, Math.max(24, base + 1));
       const ab = Math.min(138, Math.max(26, base + 4));
 
-      // Lower roughness where iron edge is scuffed/polished
       const rough = Math.min(235, Math.max(72, 168 - wear * 85 + (grain - 0.5) * 30));
       const bump = Math.min(255, Math.max(0, 128 + (coarse - 0.5) * 70 + (grain - 0.5) * 85));
 
@@ -119,9 +123,9 @@ function createCastIronMaps() {
   return { map, roughnessMap, bumpMap };
 }
 
-function createKnurledSteelMaps() {
-  const W = 512;
-  const H = 256;
+function createKnurledSteelMaps(width) {
+  const W = width;
+  const H = width >> 1;
   const albedoC = document.createElement('canvas');
   const bumpC = document.createElement('canvas');
   albedoC.width = bumpC.width = W;
@@ -140,7 +144,6 @@ function createKnurledSteelMaps() {
       const brush = fbm2(u * 6, v * 48, 3);
       const patina = fbm2(u * 10 + 3, v * 10 + 1, 3);
 
-      // Machined diamond knurling cross-hatch in center grip
       let knurl = 0.5;
       if (inGripZone) {
         const d1 = Math.abs(((u * 54 + v * 28) % 1) - 0.5) * 2;
@@ -179,52 +182,53 @@ function createKnurledSteelMaps() {
 }
 
 /* ============================================================================
-   High-Contrast Studio Softbox Environment (Makes Dark Cast-Iron & Chrome Pop!)
+   High-Contrast Studio Softbox Environment
    ============================================================================ */
 function buildStudioEnvironment(renderer) {
   const pmrem = new THREE.PMREMGenerator(renderer);
   const envScene = new THREE.Scene();
   envScene.background = new THREE.Color(0x14151c);
+  const tempGeos = [];
+  const tempMats = [];
 
   const addPanel = (color, intensity, pos, scale, rot) => {
     const mat = new THREE.MeshBasicMaterial({
       color: new THREE.Color(color).multiplyScalar(intensity),
       side: THREE.DoubleSide,
     });
-    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), mat);
+    const geo = new THREE.PlaneGeometry(1, 1);
+    tempGeos.push(geo);
+    tempMats.push(mat);
+    const mesh = new THREE.Mesh(geo, mat);
     mesh.position.set(...pos);
     mesh.scale.set(...scale);
     mesh.rotation.set(...rot);
     envScene.add(mesh);
   };
 
-  // Bright overhead studio strip softbox (carves razor-sharp bevel reflections on cast-iron rims!)
   addPanel(0xffffff, 5.8, [0, 7, 1.5], [14, 5, 1], [Math.PI / 2, 0, 0]);
-  // Strong right-side warm key reflector
   addPanel(0xfff0cc, 4.8, [8, 2.5, 4], [5, 10, 1], [0, -Math.PI / 2.3, 0]);
-  // Crisp cool-silver left rim strip
   addPanel(0xd4e2ff, 4.4, [-8, 1.5, 2], [5, 10, 1], [0, Math.PI / 2.3, 0]);
-  // Subtle warm gold under-bounce echoing the #f4e268 typography behind the dumbbell
   addPanel(0xf4e268, 2.2, [0, -6.5, 2], [12, 5, 1], [-Math.PI / 2, 0, 0]);
-  // Front fill card so dark iron face details stay richly readable
   addPanel(0xeef1f7, 2.4, [0, 1.2, 9], [8, 5, 1], [0, Math.PI, 0]);
 
   const envRT = pmrem.fromScene(envScene, 0.035);
+  tempGeos.forEach((g) => g.dispose());
+  tempMats.forEach((m) => m.dispose());
   pmrem.dispose();
-  return envRT.texture;
+  return envRT;
 }
 
 /* ============================================================================
-   Procedural CAD Sculpting: Cast-Iron Spin-Lock Dumbbell (Exact Sketchfab Form)
+   Procedural CAD Sculpting: Cast-Iron Spin-Lock Dumbbell
    ============================================================================ */
-function buildCastIronPlateGeometry(outerR, thickness, boreR) {
+function buildCastIronPlateGeometry(outerR, thickness, boreR, radialSegments) {
   const halfT = thickness * 0.5;
   const bevel = 0.042;
   const rimWidth = outerR * 0.16;
   const dishDepth = thickness * 0.23;
   const hubR = boreR + 0.15;
 
-  // Cross-section profile rotated 360° around Y axis (later oriented along X)
   const pts = [
     new THREE.Vector2(boreR, -halfT + 0.015),
     new THREE.Vector2(boreR + 0.02, -halfT),
@@ -244,15 +248,18 @@ function buildCastIronPlateGeometry(outerR, thickness, boreR) {
     new THREE.Vector2(boreR, halfT - 0.015),
   ];
 
-  const geo = new THREE.LatheGeometry(pts, 96);
-  geo.rotateZ(Math.PI / 2); // Align plate axis along X
+  const geo = new THREE.LatheGeometry(pts, radialSegments);
+  geo.rotateZ(Math.PI / 2);
   geo.computeVertexNormals();
   return geo;
 }
 
-function buildThreadedShaftGeometry(length, baseR, threadCount) {
-  // Real 3D machined helical-style V-thread ridges along outer bar ends!
-  const pts = [new THREE.Vector2(0.001, 0), new THREE.Vector2(baseR - 0.018, 0), new THREE.Vector2(baseR, 0.02)];
+function buildThreadedShaftGeometry(length, baseR, threadCount, radialSegments) {
+  const pts = [
+    new THREE.Vector2(0.001, 0),
+    new THREE.Vector2(baseR - 0.018, 0),
+    new THREE.Vector2(baseR, 0.02),
+  ];
   const usable = length - 0.04;
   const step = usable / threadCount;
 
@@ -267,20 +274,18 @@ function buildThreadedShaftGeometry(length, baseR, threadCount) {
   pts.push(new THREE.Vector2(baseR - 0.018, length));
   pts.push(new THREE.Vector2(0.001, length));
 
-  const geo = new THREE.LatheGeometry(pts, 48);
+  const geo = new THREE.LatheGeometry(pts, radialSegments);
   geo.computeVertexNormals();
   return geo;
 }
 
-function buildStarSpinLockGeometry(innerR, outerR, depth) {
-  // Authentic 6-pointed star spin-lock nut (exact silhouette from reference!)
+function buildStarSpinLockGeometry(innerR, outerR, depth, curveSegments) {
   const shape = new THREE.Shape();
   const lobes = 6;
-  const steps = lobes * 24;
+  const steps = lobes * (curveSegments >= 28 ? 24 : 16);
   for (let i = 0; i <= steps; i++) {
     const a = (i / steps) * Math.PI * 2;
     const wave = Math.cos(a * lobes);
-    // Sharper rounded gear-star lobes with deep finger valleys
     const shaped = Math.sign(wave) * Math.pow(Math.abs(wave), 0.72);
     const r = outerR * (0.81 + 0.19 * shaped);
     const x = Math.cos(a) * r;
@@ -299,20 +304,24 @@ function buildStarSpinLockGeometry(innerR, outerR, depth) {
     bevelEnabled: true,
     bevelThickness: 0.022,
     bevelSize: 0.018,
-    bevelSegments: 4,
-    curveSegments: 32,
+    bevelSegments: curveSegments >= 28 ? 4 : 2,
+    curveSegments,
   });
   geo.translate(0, 0, -depth * 0.5);
-  geo.rotateY(Math.PI / 2); // Align nut axis along X
+  geo.rotateY(Math.PI / 2);
   geo.computeVertexNormals();
   return geo;
 }
 
-function createDumbbellSculpture() {
+function createDumbbellSculpture(isLowTier) {
   const group = new THREE.Group();
+  const texSize = isLowTier ? 192 : 256;
+  const plateSegs = isLowTier ? 56 : 96;
+  const shaftSegs = isLowTier ? 32 : 48;
+  const curveSegs = isLowTier ? 18 : 32;
 
-  const ironMaps = createCastIronMaps();
-  const steelMaps = createKnurledSteelMaps();
+  const ironMaps = createCastIronMaps(texSize);
+  const steelMaps = createKnurledSteelMaps(texSize);
 
   const ironMat = new THREE.MeshStandardMaterial({
     map: ironMaps.map,
@@ -356,53 +365,56 @@ function createDumbbellSculpture() {
     envMapIntensity: 1.65,
   });
 
-  // 1. Center knurled steel handle bar
   const handleLen = 1.48;
   const barR = 0.142;
-  const handleGeo = new THREE.CylinderGeometry(barR, barR, handleLen, 48, 1);
+  const handleGeo = new THREE.CylinderGeometry(barR, barR, handleLen, shaftSegs, 1);
   handleGeo.rotateZ(Math.PI / 2);
-  const handleMesh = new THREE.Mesh(handleGeo, steelGripMat);
-  group.add(handleMesh);
+  group.add(new THREE.Mesh(handleGeo, steelGripMat));
 
-  // Shared geometries for symmetrical left/right halves
-  const stopCollarGeo = new THREE.CylinderGeometry(0.225, 0.225, 0.13, 48);
+  const stopCollarGeo = new THREE.CylinderGeometry(0.225, 0.225, 0.13, shaftSegs);
   stopCollarGeo.rotateZ(Math.PI / 2);
 
-  const bigPlateGeo = buildCastIronPlateGeometry(1.06, 0.25, barR * 1.02);
-  const smallPlateGeo = buildCastIronPlateGeometry(0.84, 0.23, barR * 1.02);
-  const starNutGeo = buildStarSpinLockGeometry(barR * 0.98, 0.39, 0.14);
-  const threadGeo = buildThreadedShaftGeometry(1.08, barR * 1.02, 11);
+  const bigPlateGeo = buildCastIronPlateGeometry(1.06, 0.25, barR * 1.02, plateSegs);
+  const smallPlateGeo = buildCastIronPlateGeometry(0.84, 0.23, barR * 1.02, plateSegs);
+  const starNutGeo = buildStarSpinLockGeometry(barR * 0.98, 0.39, 0.14, curveSegs);
+  const threadGeo = buildThreadedShaftGeometry(1.08, barR * 1.02, 11, shaftSegs);
 
   [-1, 1].forEach((side) => {
-    // 2. Inner machined stop collar
     const collar = new THREE.Mesh(stopCollarGeo, collarSteelMat);
     collar.position.x = side * 0.67;
     group.add(collar);
 
-    // 3. Large inner forged cast-iron weight plate
     const bigPlate = new THREE.Mesh(bigPlateGeo, ironMat);
     bigPlate.position.x = side * 0.88;
     group.add(bigPlate);
 
-    // 4. Medium outer forged cast-iron weight plate
     const smallPlate = new THREE.Mesh(smallPlateGeo, ironMat);
     smallPlate.position.x = side * 1.15;
     group.add(smallPlate);
 
-    // 5. 6-lobe star spin-lock nut
     const starNut = new THREE.Mesh(starNutGeo, starNutMat);
     starNut.position.x = side * 1.37;
     starNut.rotation.x = side > 0 ? 0.22 : -0.18;
     group.add(starNut);
 
-    // 6. Threaded bar sleeve extending cleanly outside the star lock nut
     const thread = new THREE.Mesh(threadGeo, threadSteelMat);
     thread.rotation.z = side > 0 ? -Math.PI / 2 : Math.PI / 2;
     thread.position.x = side * 0.74;
     group.add(thread);
   });
 
-  return group;
+  return {
+    group,
+    dispose() {
+      [handleGeo, stopCollarGeo, bigPlateGeo, smallPlateGeo, starNutGeo, threadGeo].forEach((g) => g.dispose());
+      [ironMat, steelGripMat, collarSteelMat, threadSteelMat, starNutMat].forEach((m) => m.dispose());
+      ironMaps.map.dispose();
+      ironMaps.roughnessMap.dispose();
+      ironMaps.bumpMap.dispose();
+      steelMaps.map.dispose();
+      steelMaps.bumpMap.dispose();
+    },
+  };
 }
 
 /* ============================================================================
@@ -416,6 +428,12 @@ function initMotionStage(runwayEl) {
   const replayBtn = runwayEl.querySelector('[data-3d-replay]');
   if (!monolith || !canvas) return;
 
+  const isMobileViewport = window.innerWidth < 768;
+  const lowHardware =
+    (typeof navigator.deviceMemory === 'number' && navigator.deviceMemory <= 4) ||
+    (typeof navigator.hardwareConcurrency === 'number' && navigator.hardwareConcurrency <= 4);
+  const isLowTier = isMobileViewport || lowHardware;
+
   const isReducedMotion = () =>
     document.documentElement.classList.contains('a11y-reduce-motion');
 
@@ -428,54 +446,71 @@ function initMotionStage(runwayEl) {
     });
   }
 
-  let renderer;
-  try {
-    renderer = new THREE.WebGLRenderer({
-      canvas,
-      alpha: true,
-      antialias: true,
-      powerPreference: 'high-performance',
-    });
-  } catch (err) {
-    return;
+  // Optional zero-overhead perf stats (?perf=1)
+  const perfEnabled = window.location.search.indexOf('perf=1') !== -1;
+  const perfStats = {
+    initialized: false,
+    initMs: 0,
+    isRunning: false,
+    renderedFrames: 0,
+    pixelRatio: 1,
+    tier: isLowTier ? 'low-mobile' : 'desktop',
+  };
+  if (perfEnabled) {
+    window.__APEX_PERF__ = window.__APEX_PERF__ || {};
+    window.__APEX_PERF__.motion3d = perfStats;
   }
 
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.24;
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  // Cached layout geometry — ZERO forced layouts per frame!
+  let cachedRunwayTop = 0;
+  let cachedScrollable = 1;
+  let cachedMonolithRect = { left: 0, top: 0, width: 1, height: 1 };
+  let layoutDirty = true;
 
-  const scene = new THREE.Scene();
-  scene.environment = buildStudioEnvironment(renderer);
+  let renderer = null;
+  let scene = null;
+  let camera = null;
+  let rig = null;
+  let dumbbell = null;
+  let sculptureCleanup = null;
+  let envRT = null;
+  let webglInitialized = false;
 
-  const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 100);
-  camera.position.set(0, 0, 6.4);
+  let targetMouseX = 0;
+  let targetMouseY = 0;
+  let mouseX = 0;
+  let mouseY = 0;
+  let targetScrollP = 0;
+  let scrollP = 0;
+  let isVisible = false;
+  let rafId = null;
+  let lastTime = performance.now();
+  let idlePhase = 0;
+  let resizeRafId = null;
 
-  // Sculptural 4-point automotive/product studio lighting so dark cast-iron plates gleam crisply
-  const keyLight = new THREE.DirectionalLight(0xfffaf0, 3.6);
-  keyLight.position.set(4.2, 5.2, 4.8);
-  scene.add(keyLight);
+  // Dirty-check strings to skip redundant DOM/clip-mask writes
+  let lastMonoTransform = '';
+  let lastMonoRadius = '';
+  let lastTopTransform = '';
+  let lastBotTransform = '';
 
-  const rimLeft = new THREE.DirectionalLight(0xd6e6ff, 2.8);
-  rimLeft.position.set(-5.0, 2.6, -2.2);
-  scene.add(rimLeft);
+  function measureLayout() {
+    const rRect = runwayEl.getBoundingClientRect();
+    cachedRunwayTop = rRect.top + window.scrollY;
+    cachedScrollable = Math.max(1, runwayEl.offsetHeight - window.innerHeight);
+    cachedMonolithRect = monolith.getBoundingClientRect();
+    layoutDirty = false;
+  }
 
-  const goldBounce = new THREE.PointLight(0xf4e268, 12, 16);
-  goldBounce.position.set(0.6, -3.2, 3.4);
-  scene.add(goldBounce);
+  function computeProgress() {
+    if (layoutDirty) measureLayout();
+    return Math.max(0, Math.min(1, (window.scrollY - cachedRunwayTop) / cachedScrollable));
+  }
 
-  const frontFill = new THREE.DirectionalLight(0xf0f2f8, 1.35);
-  frontFill.position.set(-1.5, 0.8, 6.0);
-  scene.add(frontFill);
-
-  const rig = new THREE.Group();
-  scene.add(rig);
-
-  const dumbbell = createDumbbellSculpture();
-  rig.add(dumbbell);
-
-  function resize() {
+  function resizeRenderer() {
+    if (!renderer || !camera) return;
     const rect = monolith.getBoundingClientRect();
+    cachedMonolithRect = rect;
     const w = Math.max(1, Math.round(rect.width));
     const h = Math.max(1, Math.round(rect.height));
     renderer.setSize(w, h, false);
@@ -484,55 +519,77 @@ function initMotionStage(runwayEl) {
     camera.updateProjectionMatrix();
   }
 
-  resize();
-  window.addEventListener('resize', resize);
+  // Lazy-initialize Three.js & procedural PBR maps ONLY when approaching this section
+  function initWebGLIfNeeded() {
+    if (webglInitialized) return;
+    webglInitialized = true;
+    const t0 = performance.now();
 
-  let targetMouseX = 0;
-  let targetMouseY = 0;
-  let mouseX = 0;
-  let mouseY = 0;
-  let targetScrollP = 0;
-  let scrollP = 0;
-  let isVisible = true;
-  let lastTime = performance.now();
-  let idlePhase = 0;
+    try {
+      renderer = new THREE.WebGLRenderer({
+        canvas,
+        alpha: true,
+        antialias: true,
+        powerPreference: 'high-performance',
+      });
+    } catch (_) {
+      return;
+    }
 
-  monolith.addEventListener(
-    'pointermove',
-    (e) => {
-      const rect = monolith.getBoundingClientRect();
-      targetMouseX = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
-      targetMouseY = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
-    },
-    { passive: true }
-  );
+    const pr = Math.min(window.devicePixelRatio || 1, isLowTier ? 1 : 1.5);
+    renderer.setPixelRatio(pr);
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.24;
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    perfStats.pixelRatio = pr;
 
-  monolith.addEventListener('pointerleave', () => {
-    targetMouseX = 0;
-    targetMouseY = 0;
-  });
+    scene = new THREE.Scene();
+    envRT = buildStudioEnvironment(renderer);
+    scene.environment = envRT.texture;
 
-  function computeProgress() {
-    const rect = runwayEl.getBoundingClientRect();
-    const scrollable = Math.max(1, runwayEl.offsetHeight - window.innerHeight);
-    return Math.max(0, Math.min(1, -rect.top / scrollable));
-  }
+    camera = new THREE.PerspectiveCamera(34, 1, 0.1, 100);
+    camera.position.set(0, 0, 6.4);
 
-  if ('IntersectionObserver' in window) {
-    const io = new IntersectionObserver(
-      (entries) => {
-        isVisible = entries[0] ? entries[0].isIntersecting : true;
-      },
-      { rootMargin: '250px 0px' }
-    );
-    io.observe(runwayEl);
+    const keyLight = new THREE.DirectionalLight(0xfffaf0, 3.6);
+    keyLight.position.set(4.2, 5.2, 4.8);
+    scene.add(keyLight);
+
+    const rimLeft = new THREE.DirectionalLight(0xd6e6ff, 2.8);
+    rimLeft.position.set(-5.0, 2.6, -2.2);
+    scene.add(rimLeft);
+
+    const goldBounce = new THREE.PointLight(0xf4e268, 12, 16);
+    goldBounce.position.set(0.6, -3.2, 3.4);
+    scene.add(goldBounce);
+
+    const frontFill = new THREE.DirectionalLight(0xf0f2f8, 1.35);
+    frontFill.position.set(-1.5, 0.8, 6.0);
+    scene.add(frontFill);
+
+    rig = new THREE.Group();
+    scene.add(rig);
+
+    const built = createDumbbellSculpture(isLowTier);
+    dumbbell = built.group;
+    sculptureCleanup = built.dispose;
+    rig.add(dumbbell);
+
+    resizeRenderer();
+    perfStats.initialized = true;
+    perfStats.initMs = Math.round(performance.now() - t0);
+    if (perfEnabled) runwayEl.setAttribute('data-perf', JSON.stringify(perfStats));
   }
 
   function applyMonolithTransform(p, mx, my) {
-    const reduced = isReducedMotion();
-    if (reduced) {
-      monolith.style.transform = 'none';
-      monolith.style.borderRadius = '24px';
+    if (isReducedMotion()) {
+      if (lastMonoTransform !== 'none') {
+        monolith.style.transform = 'none';
+        lastMonoTransform = 'none';
+      }
+      if (lastMonoRadius !== '24px') {
+        monolith.style.borderRadius = '24px';
+        lastMonoRadius = '24px';
+      }
       return;
     }
 
@@ -560,7 +617,7 @@ function initMotionStage(runwayEl) {
     const tiltY = mx * 3.4;
     const tiltX = -my * 2.2;
 
-    monolith.style.transform =
+    const monoTransform =
       'translate3d(0,' +
       translateY.toFixed(2) +
       'vh,0) rotateX(' +
@@ -570,52 +627,203 @@ function initMotionStage(runwayEl) {
       'deg) scale(' +
       scale.toFixed(4) +
       ')';
-    monolith.style.borderRadius = radius.toFixed(1) + 'px';
+
+    if (monoTransform !== lastMonoTransform) {
+      monolith.style.transform = monoTransform;
+      lastMonoTransform = monoTransform;
+    }
+
+    // Quantize borderRadius to whole pixels to prevent 60 FPS clip-mask invalidation when subtle/idle
+    const monoRadius = Math.round(radius) + 'px';
+    if (monoRadius !== lastMonoRadius) {
+      monolith.style.borderRadius = monoRadius;
+      lastMonoRadius = monoRadius;
+    }
 
     const drift = (p - 0.5) * 44;
     if (lineTop) {
-      lineTop.style.transform = 'translate3d(' + (-drift + mx * -10).toFixed(1) + 'px,0,0)';
+      const topT = 'translate3d(' + (-drift + mx * -10).toFixed(1) + 'px,0,0)';
+      if (topT !== lastTopTransform) {
+        lineTop.style.transform = topT;
+        lastTopTransform = topT;
+      }
     }
     if (lineBot) {
-      lineBot.style.transform = 'translate3d(' + (drift + mx * 10).toFixed(1) + 'px,0,0)';
+      const botT = 'translate3d(' + (drift + mx * 10).toFixed(1) + 'px,0,0)';
+      if (botT !== lastBotTransform) {
+        lineBot.style.transform = botT;
+        lastBotTransform = botT;
+      }
     }
   }
 
+  function startLoop() {
+    if (rafId !== null || !isVisible || document.hidden) return;
+    initWebGLIfNeeded();
+    lastTime = performance.now();
+    perfStats.isRunning = true;
+    rafId = window.requestAnimationFrame(animate);
+  }
+
+  function stopLoop() {
+    if (rafId !== null) {
+      window.cancelAnimationFrame(rafId);
+      rafId = null;
+    }
+    perfStats.isRunning = false;
+    if (perfEnabled) runwayEl.setAttribute('data-perf', JSON.stringify(perfStats));
+  }
+
   function animate(now) {
-    window.requestAnimationFrame(animate);
+    rafId = null;
+    if (!isVisible || document.hidden) {
+      perfStats.isRunning = false;
+      return;
+    }
+
     const dt = Math.min(0.05, (now - lastTime) / 1000);
     lastTime = now;
 
     targetScrollP = computeProgress();
-    scrollP += (targetScrollP - scrollP) * 0.12;
+    scrollP += (targetScrollP - scrollP) * 0.14;
     mouseX += (targetMouseX - mouseX) * 0.08;
     mouseY += (targetMouseY - mouseY) * 0.08;
 
     applyMonolithTransform(scrollP, mouseX, mouseY);
 
-    if (!isVisible) return;
+    if (renderer && scene && camera && dumbbell && rig) {
+      const reduced = isReducedMotion();
+      if (!reduced) {
+        idlePhase += dt * 0.45;
+      }
 
-    const reduced = isReducedMotion();
-    if (!reduced) {
-      idlePhase += dt * 0.45;
+      const entranceLift = scrollP < 0.36 ? (1 - scrollP / 0.36) * -1.35 : 0;
+      const bob = reduced ? 0 : Math.sin(now * 0.0015) * 0.07;
+
+      dumbbell.rotation.y =
+        -0.58 + (scrollP - 0.5) * Math.PI * 1.9 + Math.sin(idlePhase) * 0.24 + mouseX * 0.52;
+      dumbbell.rotation.x =
+        0.22 + (scrollP - 0.5) * 0.65 + Math.cos(idlePhase * 0.7) * 0.08 + mouseY * 0.34;
+      dumbbell.rotation.z = -0.24 + Math.sin(scrollP * Math.PI) * 0.14;
+
+      rig.position.y = -0.1 + entranceLift + bob;
+      rig.position.x = mouseX * 0.18;
+
+      renderer.render(scene, camera);
+      perfStats.renderedFrames++;
     }
 
-    // Dynamic 3/4 diagonal athletic pose synced 1:1 to scroll + smooth hover look
-    const entranceLift = scrollP < 0.36 ? (1 - scrollP / 0.36) * -1.35 : 0;
-    const bob = reduced ? 0 : Math.sin(now * 0.0015) * 0.07;
-
-    dumbbell.rotation.y = -0.58 + (scrollP - 0.5) * Math.PI * 1.9 + Math.sin(idlePhase) * 0.24 + mouseX * 0.52;
-    dumbbell.rotation.x = 0.22 + (scrollP - 0.5) * 0.65 + Math.cos(idlePhase * 0.7) * 0.08 + mouseY * 0.34;
-    dumbbell.rotation.z = -0.24 + Math.sin(scrollP * Math.PI) * 0.14;
-
-    rig.position.y = -0.1 + entranceLift + bob;
-    rig.position.x = mouseX * 0.18;
-
-    renderer.render(scene, camera);
+    rafId = window.requestAnimationFrame(animate);
   }
 
+  function onPointerEnter() {
+    cachedMonolithRect = monolith.getBoundingClientRect();
+  }
+
+  function onPointerMove(e) {
+    if (!isVisible || cachedMonolithRect.width < 1) return;
+    targetMouseX = ((e.clientX - cachedMonolithRect.left) / cachedMonolithRect.width - 0.5) * 2;
+    targetMouseY = ((e.clientY - cachedMonolithRect.top) / cachedMonolithRect.height - 0.5) * 2;
+  }
+
+  function onPointerLeave() {
+    targetMouseX = 0;
+    targetMouseY = 0;
+  }
+
+  function onResizeDebounced() {
+    if (resizeRafId) return;
+    resizeRafId = window.requestAnimationFrame(() => {
+      resizeRafId = null;
+      measureLayout();
+      resizeRenderer();
+    });
+  }
+
+  function onVisibilityChange() {
+    if (document.hidden) {
+      stopLoop();
+    } else if (isVisible) {
+      startLoop();
+    }
+  }
+
+  monolith.addEventListener('pointerenter', onPointerEnter, { passive: true });
+  monolith.addEventListener('pointermove', onPointerMove, { passive: true });
+  monolith.addEventListener('pointerleave', onPointerLeave);
+  window.addEventListener('resize', onResizeDebounced, { passive: true });
+  window.addEventListener('load', onResizeDebounced, { passive: true });
+  document.addEventListener('visibilitychange', onVisibilityChange);
+
+  // Observer 1: Pre-warm WebGL 900px before viewport so it never blocks Hero load/scroll
+  let prewarmIo = null;
+  let activeIo = null;
+  let ro = null;
+
+  if ('IntersectionObserver' in window) {
+    prewarmIo = new IntersectionObserver(
+      (entries) => {
+        if (entries[0] && entries[0].isIntersecting) {
+          initWebGLIfNeeded();
+          if (prewarmIo) {
+            prewarmIo.disconnect();
+            prewarmIo = null;
+          }
+        }
+      },
+      { rootMargin: '900px 0px' }
+    );
+    prewarmIo.observe(runwayEl);
+
+    // Observer 2: Strictly start/stop 60 FPS WebGL loop when visible (0% off-screen work!)
+    activeIo = new IntersectionObserver(
+      (entries) => {
+        const visible = entries[0] ? entries[0].isIntersecting : false;
+        isVisible = visible;
+        if (visible) {
+          measureLayout();
+          targetScrollP = computeProgress();
+          scrollP = targetScrollP;
+          startLoop();
+        } else {
+          stopLoop();
+        }
+      },
+      { rootMargin: '220px 0px' }
+    );
+    activeIo.observe(runwayEl);
+  } else {
+    isVisible = true;
+    startLoop();
+  }
+
+  if ('ResizeObserver' in window) {
+    ro = new ResizeObserver(onResizeDebounced);
+    ro.observe(runwayEl);
+  }
+
+  function cleanup() {
+    stopLoop();
+    if (resizeRafId) window.cancelAnimationFrame(resizeRafId);
+    if (prewarmIo) prewarmIo.disconnect();
+    if (activeIo) activeIo.disconnect();
+    if (ro) ro.disconnect();
+    monolith.removeEventListener('pointerenter', onPointerEnter);
+    monolith.removeEventListener('pointermove', onPointerMove);
+    monolith.removeEventListener('pointerleave', onPointerLeave);
+    window.removeEventListener('resize', onResizeDebounced);
+    window.removeEventListener('load', onResizeDebounced);
+    document.removeEventListener('visibilitychange', onVisibilityChange);
+    if (sculptureCleanup) sculptureCleanup();
+    if (envRT) envRT.dispose();
+    if (renderer) renderer.dispose();
+  }
+
+  window.addEventListener('pagehide', cleanup);
+
+  // Set initial resting perspective pose without spinning up WebGL yet
+  measureLayout();
   targetScrollP = computeProgress();
   scrollP = targetScrollP;
   applyMonolithTransform(scrollP, 0, 0);
-  window.requestAnimationFrame(animate);
 }
