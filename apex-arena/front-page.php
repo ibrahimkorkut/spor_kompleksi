@@ -150,7 +150,7 @@ $hero_sub   = get_theme_mod( 'apex_hero_subtitle', 'İki FIBA basketbol salonu, 
                     <span class="apex-3d-prism-core"></span>
                     <span>3D · MOTION</span>
                 </span>
-                <span class="apex-3d-meta">KINTSUGI 3D · 60 FPS WEBGL</span>
+                <span class="apex-3d-meta">PRO 3D DUMBBELL · 60 FPS WEBGL</span>
             </div>
 
             <!-- Katman 1: Dev Kinetik Tipografi (3D Heykelin Arkasında) -->
