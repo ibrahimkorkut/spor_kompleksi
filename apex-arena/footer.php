@@ -101,7 +101,11 @@ $settings = apex_get_settings();
         <div class="apex-footer-bottom">
             <p>© <?php echo esc_html( date( 'Y' ) ); ?> <strong>APEX ARENA Spor ve Performans Kompleksi</strong>. Tüm hakları saklıdır. Özel WordPress Teması (v<?php echo esc_html( APEX_VERSION ); ?>).</p>
             <div class="apex-footer-bottom-links">
-                <a href="<?php echo esc_url( admin_url( 'admin.php?page=apex-arena-dashboard' ) ); ?>">Yönetim Paneli</a>
+                <?php
+                $apex_admin_target = admin_url( 'admin.php?page=apex-arena-dashboard' );
+                $apex_panel_url    = current_user_can( 'manage_options' ) ? $apex_admin_target : wp_login_url( $apex_admin_target, true );
+                ?>
+                <a href="<?php echo esc_url( $apex_panel_url ); ?>">Yönetim Paneli</a>
                 <span aria-hidden="true">·</span>
                 <button type="button" class="apex-footer-btn-link" data-open-a11y>Erişilebilirlik Merkezi</button>
                 <span aria-hidden="true">·</span>

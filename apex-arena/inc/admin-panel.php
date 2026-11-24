@@ -41,39 +41,55 @@ function apex_admin_dashboard_page() {
                  + (int) $wpdb->get_var( "SELECT COALESCE(SUM(price),0) FROM {$wpdb->prefix}apex_pt_appointments WHERE status != 'cancelled'" )
                  + (int) $wpdb->get_var( "SELECT COALESCE(SUM(price),0) FROM {$wpdb->prefix}apex_membership_applications WHERE status = 'active'" );
     $ai_mode = apex_get_effective_ai_mode();
+    $ai_mode_lbl = $ai_mode === 'gemini-live' ? 'Gemini 2.5 Flash (Canlı)' : ( $ai_mode === 'openai-live' ? 'OpenAI (Canlı)' : 'Hibrit WP DB' );
     ?>
-    <div class="wrap">
-        <h1 style="font-weight:800;">APEX ARENA — Spor Kompleksi Yönetim Merkezi</h1>
-        <p>Tüm salon rezervasyonları (hakem talepleri dahil), PT randevuları, üyelikler ve Hibrit AI Spor Koçu canlı metrikleri.</p>
-
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin:20px 0;">
-            <div style="background:#13161D;color:#fff;padding:20px;border-radius:10px;border-left:4px solid #E31837;">
-                <div style="font-size:12px;color:#94A3B8;text-transform:uppercase;">Aktif Salon Rezervasyonu</div>
-                <div style="font-size:32px;font-weight:800;margin-top:6px;"><?php echo esc_html( $court_count ); ?></div>
-                <div style="font-size:12px;color:#B8FF00;">Hakemli Maç Talebi: <?php echo esc_html( $ref_count ); ?></div>
+    <div class="wrap apex-admin-wrap" style="max-width:1200px;">
+        <div style="background:#0f1116;color:#f5f5f7;padding:28px 32px;border-radius:16px;border:1px solid rgba(255,255,255,0.08);box-shadow:0 20px 50px rgba(0,0,0,0.22);margin:16px 0 22px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;">
+            <div>
+                <div style="display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#989ea9;margin-bottom:8px;">
+                    <span style="width:8px;height:8px;border-radius:50%;background:#30d158;display:inline-block;"></span>
+                    APEX ARENA YÖNETİM MERKEZİ · v<?php echo esc_html( APEX_VERSION ); ?>
+                </div>
+                <h1 style="color:#ffffff;font-weight:800;font-size:24px;margin:0;padding:0;">Spor Kompleksi Operasyon Paneli</h1>
+                <p style="color:#989ea9;margin:6px 0 0;font-size:13.5px;">Salon rezervasyonları (hakem talepleri dahil), PT randevuları, üyelikler, Yoast SEO ve Gemini 2.5 AI Spor Koçu metrikleri.</p>
             </div>
-            <div style="background:#13161D;color:#fff;padding:20px;border-radius:10px;border-left:4px solid #B8FF00;">
-                <div style="font-size:12px;color:#94A3B8;text-transform:uppercase;">Aktif PT Randevusu</div>
-                <div style="font-size:32px;font-weight:800;margin-top:6px;"><?php echo esc_html( $pt_count ); ?></div>
-                <div style="font-size:12px;color:#94A3B8;">Bireysel & Grupsal</div>
-            </div>
-            <div style="background:#13161D;color:#fff;padding:20px;border-radius:10px;border-left:4px solid #38BDF8;">
-                <div style="font-size:12px;color:#94A3B8;text-transform:uppercase;">Aktif Üyelikler</div>
-                <div style="font-size:32px;font-weight:800;margin-top:6px;"><?php echo esc_html( $mem_count ); ?></div>
-                <div style="font-size:12px;color:#94A3B8;">Dijital QR Kartlı</div>
-            </div>
-            <div style="background:#13161D;color:#fff;padding:20px;border-radius:10px;border-left:4px solid #F59E0B;">
-                <div style="font-size:12px;color:#94A3B8;text-transform:uppercase;">Toplam İşlem Hacmi</div>
-                <div style="font-size:28px;font-weight:800;margin-top:6px;"><?php echo esc_html( apex_format_tl( $revenue ) ); ?></div>
-                <div style="font-size:12px;color:#B8FF00;">AI Sohbet: <?php echo esc_html( $chat_count ); ?> · Mod: <?php echo esc_html( $ai_mode ); ?></div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="button" style="background:rgba(255,255,255,0.08);color:#fff;border-color:rgba(255,255,255,0.16);border-radius:999px;padding:4px 16px;" target="_blank">Canlı Siteyi Aç ↗</a>
+                <a href="<?php echo esc_url( wp_logout_url( wp_login_url( admin_url( 'admin.php?page=apex-arena-dashboard' ) ) ) ); ?>" class="button" style="background:rgba(227,24,55,0.18);color:#ff8093;border-color:rgba(227,24,55,0.42);border-radius:999px;padding:4px 16px;">Güvenli Çıkış</a>
             </div>
         </div>
 
-        <p>
-            <a href="<?php echo esc_url( admin_url( 'admin.php?page=apex-court-bookings' ) ); ?>" class="button button-primary">Salon Rezervasyonlarını Yönet</a>
-            <a href="<?php echo esc_url( admin_url( 'admin.php?page=apex-pt-appointments' ) ); ?>" class="button">PT Randevuları</a>
-            <a href="<?php echo esc_url( admin_url( 'admin.php?page=apex-settings' ) ); ?>" class="button">AI Chatbot API & Tesis Ayarları</a>
-            <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="button" target="_blank">Canlı Siteyi Aç ↗</a>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin:0 0 22px;">
+            <div style="background:#0f1116;color:#fff;padding:22px;border-radius:14px;border:1px solid rgba(255,255,255,0.08);border-top:3px solid #E31837;">
+                <div style="font-size:11.5px;color:#989ea9;text-transform:uppercase;letter-spacing:0.06em;">Aktif Salon Rezervasyonu</div>
+                <div style="font-size:32px;font-weight:800;margin-top:8px;"><?php echo esc_html( $court_count ); ?></div>
+                <div style="font-size:12px;color:#30d158;margin-top:4px;">Hakemli Maç Talebi: <?php echo esc_html( $ref_count ); ?></div>
+            </div>
+            <div style="background:#0f1116;color:#fff;padding:22px;border-radius:14px;border:1px solid rgba(255,255,255,0.08);border-top:3px solid #30d158;">
+                <div style="font-size:11.5px;color:#989ea9;text-transform:uppercase;letter-spacing:0.06em;">Aktif PT Randevusu</div>
+                <div style="font-size:32px;font-weight:800;margin-top:8px;"><?php echo esc_html( $pt_count ); ?></div>
+                <div style="font-size:12px;color:#989ea9;margin-top:4px;">Bireysel &amp; Grupsal</div>
+            </div>
+            <div style="background:#0f1116;color:#fff;padding:22px;border-radius:14px;border:1px solid rgba(255,255,255,0.08);border-top:3px solid #38BDF8;">
+                <div style="font-size:11.5px;color:#989ea9;text-transform:uppercase;letter-spacing:0.06em;">Aktif Üyelikler</div>
+                <div style="font-size:32px;font-weight:800;margin-top:8px;"><?php echo esc_html( $mem_count ); ?></div>
+                <div style="font-size:12px;color:#989ea9;margin-top:4px;">Dijital QR Kartlı</div>
+            </div>
+            <div style="background:#0f1116;color:#fff;padding:22px;border-radius:14px;border:1px solid rgba(255,255,255,0.08);border-top:3px solid #f4e268;">
+                <div style="font-size:11.5px;color:#989ea9;text-transform:uppercase;letter-spacing:0.06em;">Toplam İşlem Hacmi</div>
+                <div style="font-size:28px;font-weight:800;margin-top:8px;"><?php echo esc_html( apex_format_tl( $revenue ) ); ?></div>
+                <div style="font-size:12px;color:#f4e268;margin-top:4px;">AI Sohbet: <?php echo esc_html( $chat_count ); ?> · <?php echo esc_html( $ai_mode_lbl ); ?></div>
+            </div>
+        </div>
+
+        <p style="display:flex;gap:10px;flex-wrap:wrap;">
+            <a href="<?php echo esc_url( admin_url( 'admin.php?page=apex-court-bookings' ) ); ?>" class="button button-primary" style="background:#E31837;border-color:#E31837;border-radius:8px;padding:4px 16px;">Salon Rezervasyonlarını Yönet</a>
+            <a href="<?php echo esc_url( admin_url( 'admin.php?page=apex-pt-appointments' ) ); ?>" class="button" style="border-radius:8px;padding:4px 16px;">PT Randevuları</a>
+            <a href="<?php echo esc_url( admin_url( 'admin.php?page=apex-memberships' ) ); ?>" class="button" style="border-radius:8px;padding:4px 16px;">Üyelikler &amp; Mesajlar</a>
+            <a href="<?php echo esc_url( admin_url( 'admin.php?page=apex-settings' ) ); ?>" class="button" style="border-radius:8px;padding:4px 16px;">AI Chatbot API &amp; Tesis Ayarları</a>
+            <?php if ( defined( 'WPSEO_VERSION' ) ) : ?>
+            <a href="<?php echo esc_url( admin_url( 'admin.php?page=wpseo_dashboard' ) ); ?>" class="button" style="border-radius:8px;padding:4px 16px;">Yoast SEO Ayarları</a>
+            <?php endif; ?>
         </p>
     </div>
     <?php
