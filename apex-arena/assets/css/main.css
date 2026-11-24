@@ -1065,8 +1065,99 @@ body.home .apex-section {
 .apex-footer-bottom-links { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 
 /* ==========================================================================
-   FLOATING LIQUID GLASS AI COACH & COOKIE CONSENT (FUNCTIONAL LAYER)
+   FLOATING WHATSAPP HOTLINE + LIQUID GLASS AI COACH & COOKIE CONSENT
    ========================================================================== */
+.apex-wa-launcher {
+  position: fixed;
+  right: 22px;
+  bottom: 82px;
+  z-index: 9095;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 28%, #3be67c 0%, #25d366 60%, #1eb858 100%);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  box-shadow:
+    0 10px 28px rgba(37, 211, 102, 0.44),
+    0 2px 8px rgba(0, 0, 0, 0.32),
+    inset 0 1px 1px rgba(255, 255, 255, 0.35);
+  transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.24s ease;
+}
+.apex-wa-launcher:hover,
+.apex-wa-launcher:focus-visible {
+  transform: translateY(-2px) scale(1.06);
+  box-shadow:
+    0 14px 34px rgba(37, 211, 102, 0.56),
+    0 4px 12px rgba(0, 0, 0, 0.38),
+    inset 0 1px 1px rgba(255, 255, 255, 0.45);
+}
+.apex-wa-ring {
+  position: absolute;
+  inset: -11px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(37, 211, 102, 0.42);
+  background: radial-gradient(circle, rgba(37, 211, 102, 0.16) 0%, rgba(37, 211, 102, 0) 72%);
+  pointer-events: none;
+  animation: apexWaPulse 2.6s ease-out infinite;
+  will-change: transform, opacity;
+}
+@keyframes apexWaPulse {
+  0% { transform: scale(0.92); opacity: 0.72; }
+  70% { transform: scale(1.18); opacity: 0.14; }
+  100% { transform: scale(1.24); opacity: 0; }
+}
+.apex-wa-icon {
+  position: relative;
+  z-index: 2;
+  display: block;
+}
+.apex-wa-badge {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  z-index: 3;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #ff3b30;
+  border: 2.5px solid #25d366;
+  color: #ffffff;
+  font-size: 0.74rem;
+  font-weight: 800;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 10px rgba(255, 59, 48, 0.55);
+}
+.apex-wa-tooltip {
+  position: absolute;
+  right: calc(100% + 12px);
+  top: 50%;
+  transform: translate3d(6px, -50%, 0);
+  padding: 7px 13px;
+  border-radius: var(--apex-radius-pill);
+  background: rgba(16, 17, 20, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.42);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.apex-wa-launcher:hover .apex-wa-tooltip,
+.apex-wa-launcher:focus-visible .apex-wa-tooltip {
+  opacity: 1;
+  transform: translate3d(0, -50%, 0);
+}
+
 .apex-ai-launcher {
   position: fixed;
   right: 20px;
@@ -2131,6 +2222,10 @@ body.home .apex-section {
   .apex-footer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .apex-hero { min-height: auto; padding: 112px 0 48px; }
   .apex-hero-ctas .apex-btn { flex: 1 1 170px; }
+  .apex-wa-launcher { right: 14px; bottom: 70px; width: 50px; height: 50px; }
+  .apex-wa-icon { width: 25px; height: 25px; }
+  .apex-wa-badge { width: 20px; height: 20px; font-size: 0.7rem; }
+  .apex-wa-tooltip { display: none; }
   .apex-ai-launcher { right: 12px; bottom: 12px; padding: 10px 16px; font-size: 0.84rem; }
   .apex-ai-panel { right: 12px; bottom: 68px; }
   .apex-cinema-runway { height: 330vh; }
