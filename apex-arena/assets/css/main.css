@@ -1083,55 +1083,133 @@ body.home .apex-section {
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: radial-gradient(circle at 32% 28%, #3be67c 0%, #25d366 60%, #1eb858 100%);
   color: #ffffff;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   text-decoration: none;
-  box-shadow:
-    0 10px 28px rgba(37, 211, 102, 0.44),
-    0 2px 8px rgba(0, 0, 0, 0.32),
-    inset 0 1px 1px rgba(255, 255, 255, 0.35);
-  transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.24s ease;
+  animation: apexWaFloat 3.8s ease-in-out infinite;
+  transition: transform 0.34s cubic-bezier(0.22, 1, 0.36, 1), filter 0.3s ease;
+  will-change: transform;
 }
 .apex-wa-launcher:hover,
 .apex-wa-launcher:focus-visible {
-  transform: translateY(-2px) scale(1.06);
-  box-shadow:
-    0 14px 34px rgba(37, 211, 102, 0.56),
-    0 4px 12px rgba(0, 0, 0, 0.38),
-    inset 0 1px 1px rgba(255, 255, 255, 0.45);
+  animation-play-state: paused;
+  transform: translate3d(0, -4px, 0) scale(1.09);
 }
+.apex-wa-launcher:active {
+  transform: translate3d(0, -1px, 0) scale(0.97);
+}
+@keyframes apexWaFloat {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, -5px, 0); }
+}
+
+.apex-wa-orb {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 30% 24%, #4bf08a 0%, #25d366 56%, #18ad4f 100%);
+  box-shadow:
+    0 12px 30px rgba(37, 211, 102, 0.48),
+    0 3px 10px rgba(0, 0, 0, 0.36),
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.45),
+    inset 0 -3px 8px rgba(10, 92, 42, 0.35);
+  transition: box-shadow 0.3s ease;
+}
+.apex-wa-launcher:hover .apex-wa-orb,
+.apex-wa-launcher:focus-visible .apex-wa-orb {
+  box-shadow:
+    0 16px 38px rgba(37, 211, 102, 0.65),
+    0 4px 14px rgba(0, 0, 0, 0.42),
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.58),
+    inset 0 -3px 8px rgba(10, 92, 42, 0.28);
+}
+
+/* Liquid Glass Specular Shimmer Sweep across the Green Sphere */
+.apex-wa-sheen {
+  position: absolute;
+  top: -20%;
+  left: -65%;
+  width: 55%;
+  height: 140%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.46) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: translate3d(-120%, 0, 0) skewX(-24deg);
+  pointer-events: none;
+  animation: apexWaSheen 4.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  will-change: transform;
+}
+@keyframes apexWaSheen {
+  0%, 66% { transform: translate3d(-120%, 0, 0) skewX(-24deg); opacity: 0; }
+  70% { opacity: 1; }
+  92% { transform: translate3d(360%, 0, 0) skewX(-24deg); opacity: 0.9; }
+  100% { transform: translate3d(360%, 0, 0) skewX(-24deg); opacity: 0; }
+}
+
+/* Dual Staggered Concentric Emerald Sonar Ripples */
 .apex-wa-ring {
   position: absolute;
-  inset: -11px;
+  inset: -6px;
   border-radius: 50%;
-  border: 1.5px solid rgba(37, 211, 102, 0.42);
-  background: radial-gradient(circle, rgba(37, 211, 102, 0.16) 0%, rgba(37, 211, 102, 0) 72%);
+  border: 1.5px solid rgba(46, 232, 118, 0.56);
+  background: radial-gradient(circle, rgba(37, 211, 102, 0.18) 0%, rgba(37, 211, 102, 0) 70%);
   pointer-events: none;
-  animation: apexWaPulse 2.6s ease-out infinite;
+  animation: apexWaPulse 3s cubic-bezier(0.2, 0.72, 0.3, 1) infinite;
   will-change: transform, opacity;
 }
-@keyframes apexWaPulse {
-  0% { transform: scale(0.92); opacity: 0.72; }
-  70% { transform: scale(1.18); opacity: 0.14; }
-  100% { transform: scale(1.24); opacity: 0; }
+.apex-wa-ring-2 {
+  animation-delay: -1.5s;
 }
+@keyframes apexWaPulse {
+  0% { transform: scale(0.92); opacity: 0.78; }
+  65% { transform: scale(1.36); opacity: 0.18; }
+  100% { transform: scale(1.52); opacity: 0; }
+}
+
+/* Subtle Periodic Chime Nod on WhatsApp Icon + Spring Hover Tilt */
 .apex-wa-icon {
   position: relative;
   z-index: 2;
   display: block;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.18));
+  animation: apexWaIconTilt 5.4s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+  transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+  will-change: transform;
 }
+.apex-wa-launcher:hover .apex-wa-icon,
+.apex-wa-launcher:focus-visible .apex-wa-icon {
+  animation: none;
+  transform: rotate(-10deg) scale(1.09);
+}
+@keyframes apexWaIconTilt {
+  0%, 74%, 100% { transform: rotate(0deg) scale(1); }
+  79% { transform: rotate(-11deg) scale(1.07); }
+  84% { transform: rotate(10deg) scale(1.07); }
+  89% { transform: rotate(-6deg) scale(1.03); }
+  94% { transform: rotate(4deg) scale(1.01); }
+}
+
+/* Elastic Spring Pop on Notification Badge Synced with Icon Chime */
 .apex-wa-badge {
   position: absolute;
   top: -3px;
   right: -3px;
-  z-index: 3;
+  z-index: 4;
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background: #ff3b30;
+  background: linear-gradient(145deg, #ff5247 0%, #ff2d20 100%);
   border: 2.5px solid #25d366;
   color: #ffffff;
   font-size: 0.74rem;
@@ -1140,30 +1218,52 @@ body.home .apex-section {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 3px 10px rgba(255, 59, 48, 0.55);
+  box-shadow: 0 4px 12px rgba(255, 59, 48, 0.6);
+  animation: apexWaBadgePop 5.4s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+  will-change: transform;
 }
+@keyframes apexWaBadgePop {
+  0%, 74%, 100% { transform: scale(1); }
+  80% { transform: scale(1.24) translate3d(0, -1.5px, 0); }
+  86% { transform: scale(0.92); }
+  91% { transform: scale(1.1); }
+}
+
+/* Expanding Liquid Glass Tooltip with Live Green Dot */
 .apex-wa-tooltip {
   position: absolute;
-  right: calc(100% + 12px);
+  right: calc(100% + 14px);
   top: 50%;
-  transform: translate3d(6px, -50%, 0);
-  padding: 7px 13px;
+  transform: translate3d(8px, -50%, 0) scale(0.96);
+  padding: 8px 14px;
   border-radius: var(--apex-radius-pill);
-  background: rgba(16, 17, 20, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(16, 17, 22, 0.92);
+  -webkit-backdrop-filter: blur(12px) saturate(1.5);
+  backdrop-filter: blur(12px) saturate(1.5);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   color: #ffffff;
-  font-size: 0.78rem;
+  font-size: 0.79rem;
   font-weight: 600;
   white-space: nowrap;
-  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.42);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.16);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition: opacity 0.24s ease, transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.apex-wa-tooltip-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #25d366;
+  box-shadow: 0 0 8px rgba(37, 211, 102, 0.85);
 }
 .apex-wa-launcher:hover .apex-wa-tooltip,
 .apex-wa-launcher:focus-visible .apex-wa-tooltip {
   opacity: 1;
-  transform: translate3d(0, -50%, 0);
+  transform: translate3d(0, -50%, 0) scale(1);
 }
 
 .apex-ai-launcher {
