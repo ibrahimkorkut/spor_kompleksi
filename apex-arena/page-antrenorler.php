@@ -20,7 +20,7 @@ $trainers = get_posts( [ 'post_type' => 'apex_trainer', 'numberposts' => 20, 'po
 </section>
 
 <section class="apex-section">
-    <div class="apex-container" style="display:grid;gap:36px;">
+    <div class="apex-container" style="display:grid;grid-template-columns:minmax(0,1fr);gap:36px;">
         <?php foreach ( $trainers as $tr ) :
             $role   = get_post_meta( $tr->ID, '_apex_role', true );
             $spec   = get_post_meta( $tr->ID, '_apex_specialty', true );
@@ -45,7 +45,7 @@ $trainers = get_posts( [ 'post_type' => 'apex_trainer', 'numberposts' => 20, 'po
                     </div>
                 </div>
 
-                <div style="display:grid;gap:18px;">
+                <div style="display:grid;grid-template-columns:minmax(0,1fr);gap:18px;min-width:0;">
                     <div>
                         <span class="apex-eyebrow" style="margin:0;"><?php echo esc_html( $role ); ?></span>
                         <h2 class="apex-h2" style="margin-top:4px;"><?php echo esc_html( $tr->post_title ); ?></h2>

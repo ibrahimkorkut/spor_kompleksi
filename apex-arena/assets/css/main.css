@@ -655,8 +655,11 @@ body.home .apex-section {
 .apex-grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
 .apex-grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
 .apex-grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
-.apex-split-booking { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.85fr); gap: 24px; align-items: start; }
-.apex-split-profile { display: grid; grid-template-columns: minmax(260px, 340px) minmax(0, 1fr); gap: 32px; align-items: start; }
+.apex-split-booking { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.85fr); gap: 24px; align-items: start; min-width: 0; }
+.apex-split-profile { display: grid; grid-template-columns: minmax(260px, 340px) minmax(0, 1fr); gap: 32px; align-items: start; min-width: 0; }
+.apex-split-booking > *,
+.apex-split-profile > *,
+.apex-split-profile > * > * { min-width: 0; max-width: 100%; }
 
 /* Content Layer Cards — Quiet Opaque Apple Dark Surfaces (Zero Glass on Content!) */
 .apex-card {
@@ -820,7 +823,9 @@ body.home .apex-section {
   background: var(--apex-surface);
   border: 1px solid var(--apex-border);
   border-radius: var(--apex-radius-lg);
-  padding: clamp(22px, 3vw, 34px);
+  padding: clamp(20px, 3vw, 34px);
+  min-width: 0;
+  max-width: 100%;
 }
 .apex-form-grid {
   display: grid;
@@ -933,7 +938,10 @@ body.home .apex-section {
 /* Tables */
 .apex-table-wrap {
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   border: 1px solid var(--apex-border);
   border-radius: var(--apex-radius-md);
   background: var(--apex-surface);
@@ -2364,6 +2372,244 @@ body.home .apex-section {
   display: block;
 }
 
+/* ==========================================================================
+   MICRO-INTERACTIONS (v1.7.0): SCROLL PROGRESS, BACK-TO-TOP, TOAST, COPY, LIVE STATUS
+   ========================================================================== */
+.apex-scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2.5px;
+  z-index: 9500;
+  pointer-events: none;
+  background: rgba(255, 255, 255, 0.05);
+}
+body.admin-bar .apex-scroll-progress { top: 32px; }
+.apex-scroll-progress-fill {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, var(--apex-crimson) 0%, #ff5a70 72%, #ffffff 100%);
+  transform-origin: left center;
+  transform: scaleX(0);
+  will-change: transform;
+}
+
+.apex-toast {
+  position: fixed;
+  top: 88px;
+  left: 50%;
+  transform: translate3d(-50%, -12px, 0);
+  z-index: 10050;
+  padding: 11px 20px;
+  border-radius: var(--apex-radius-pill);
+  background: rgba(20, 21, 26, 0.92);
+  -webkit-backdrop-filter: blur(14px) saturate(1.6);
+  backdrop-filter: blur(14px) saturate(1.6);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.55), var(--glass-specular);
+  color: #ffffff;
+  font-size: 0.86rem;
+  font-weight: 600;
+  max-width: min(92vw, 480px);
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.24s ease, transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.apex-toast.is-visible {
+  opacity: 1;
+  transform: translate3d(-50%, 0, 0);
+}
+.apex-toast[hidden] { display: none !important; }
+
+.apex-kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 8px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: var(--apex-text-muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  align-self: center;
+  flex-shrink: 0;
+}
+
+.apex-back-top {
+  position: fixed;
+  left: 22px;
+  bottom: 82px;
+  z-index: 9095;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg-regular);
+  -webkit-backdrop-filter: blur(14px) saturate(1.6);
+  backdrop-filter: blur(14px) saturate(1.6);
+  color: var(--apex-text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--glass-shadow), var(--glass-specular);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate3d(0, 12px, 0) scale(0.92);
+  transition: opacity 0.25s ease, transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), background 0.2s ease;
+}
+.apex-back-top.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate3d(0, 0, 0) scale(1);
+}
+.apex-back-top:hover {
+  transform: translate3d(0, -2px, 0) scale(1.06);
+  background: rgba(36, 36, 42, 0.86);
+}
+.apex-back-top-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+  pointer-events: none;
+}
+.apex-back-top-track {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.12);
+  stroke-width: 2.2;
+}
+.apex-back-top-arc {
+  fill: none;
+  stroke: var(--apex-crimson);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+.apex-back-top-arrow {
+  position: relative;
+  z-index: 2;
+}
+
+.apex-open-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 9px;
+  margin-left: 6px;
+  border-radius: var(--apex-radius-pill);
+  font-size: 0.71rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  vertical-align: middle;
+}
+.apex-open-badge:empty { display: none; }
+.apex-open-badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.apex-open-badge.is-open {
+  background: rgba(48, 209, 88, 0.14);
+  border: 1px solid rgba(48, 209, 88, 0.34);
+  color: #5ce67e;
+}
+.apex-open-badge.is-open::before {
+  background: #30d158;
+  box-shadow: 0 0 8px rgba(48, 209, 88, 0.8);
+}
+.apex-open-badge.is-closed {
+  background: rgba(255, 159, 10, 0.14);
+  border: 1px solid rgba(255, 159, 10, 0.34);
+  color: #ffb340;
+}
+.apex-open-badge.is-closed::before {
+  background: #ff9f0a;
+}
+
+.apex-contact-info-main {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.apex-copy-btn {
+  margin-left: auto;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid var(--apex-border-strong);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--apex-text-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+.apex-copy-btn:hover {
+  background: rgba(227, 24, 55, 0.16);
+  border-color: rgba(227, 24, 55, 0.48);
+  color: #ffffff;
+  transform: scale(1.06);
+}
+.apex-copy-btn.is-copied {
+  background: rgba(48, 209, 88, 0.18);
+  border-color: rgba(48, 209, 88, 0.55);
+  color: #5ce67e;
+}
+
+/* Subtle Pointer-Tracked Radial Sheen on Interactive Cards */
+.apex-card,
+.apex-contact-info-item {
+  position: relative;
+}
+@media (hover: hover) and (pointer: fine) {
+  .apex-card::after,
+  .apex-contact-info-item::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    background: radial-gradient(280px circle at var(--mx, 50%) var(--my, 50%), rgba(227, 24, 55, 0.11), transparent 70%);
+    transition: opacity 0.28s ease;
+  }
+  .apex-card:hover::after,
+  .apex-contact-info-item:hover::after {
+    opacity: 1;
+  }
+}
+
+/* Crisp GPU-Only Below-the-Fold Scroll Reveal */
+.apex-reveal {
+  opacity: 0;
+  transform: translate3d(0, 18px, 0);
+  transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1), transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.apex-reveal.is-revealed {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+html.a11y-reduce-motion .apex-reveal {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
 /* Wide Horizontal BMI Bar below Auth Stage */
 .apex-bmi-bar {
   max-width: 1080px;
@@ -2426,7 +2672,7 @@ body.home .apex-section {
 }
 
 @media (max-width: 960px) {
-  .apex-split-booking, .apex-split-profile { grid-template-columns: 1fr; }
+  .apex-split-booking, .apex-split-profile { grid-template-columns: minmax(0, 1fr); }
   .apex-auth-stage {
     min-height: auto;
     border-radius: 24px;
@@ -2496,7 +2742,8 @@ body.home .apex-section {
   .apex-3d-bottom-bar { flex-direction: column; align-items: flex-start; gap: 10px; }
   .apex-3d-manifesto { text-align: left; font-size: 0.78rem; }
   .apex-container { padding: 0 16px; }
-  .apex-grid-2, .apex-grid-3, .apex-grid-4, .apex-form-grid, .apex-split-booking, .apex-split-profile { grid-template-columns: 1fr; }
+  .apex-grid-2, .apex-grid-3, .apex-grid-4, .apex-form-grid, .apex-split-booking, .apex-split-profile { grid-template-columns: minmax(0, 1fr); }
+  .apex-btn-ghost { white-space: normal; text-align: left; }
   .apex-footer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .apex-hero { min-height: auto; padding: 112px 0 48px; }
   .apex-hero-ctas .apex-btn { flex: 1 1 170px; }
@@ -2504,6 +2751,9 @@ body.home .apex-section {
   .apex-wa-icon { width: 25px; height: 25px; }
   .apex-wa-badge { width: 20px; height: 20px; font-size: 0.7rem; }
   .apex-wa-tooltip { display: none; }
+  .apex-back-top { left: 14px; bottom: 70px; width: 44px; height: 44px; }
+  .apex-kbd { display: none; }
+  .apex-footer { padding-bottom: 92px; }
   .apex-ai-launcher { right: 12px; bottom: 12px; padding: 10px 16px; font-size: 0.84rem; }
   .apex-ai-panel { right: 12px; bottom: 68px; }
   .apex-cinema-runway { height: 330vh; }

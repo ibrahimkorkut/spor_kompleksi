@@ -27,8 +27,10 @@ $nav_items = [
 <body <?php body_class( 'apex-body' ); ?>>
 <?php wp_body_open(); ?>
 
-<!-- WCAG 2.2 AA Skip Link -->
+<!-- WCAG 2.2 AA Skip Link & Global GPU Scroll Progress Hairline -->
 <a class="apex-skip-link" href="#main-content">Ana içeriğe atla</a>
+<div class="apex-scroll-progress" aria-hidden="true"><div class="apex-scroll-progress-fill" id="apex-scroll-progress-fill"></div></div>
+<div id="apex-toast" class="apex-toast" role="status" aria-live="polite" hidden></div>
 <div id="apex-sr-announcer" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
 <div id="apex-reading-guide" class="apex-reading-guide" aria-hidden="true"></div>
 
@@ -58,7 +60,7 @@ $nav_items = [
             </nav>
 
             <div class="apex-header-actions">
-                <button type="button" class="apex-icon-btn" id="apex-search-toggle" aria-label="Site içi arama" aria-expanded="false">
+                <button type="button" class="apex-icon-btn" id="apex-search-toggle" title="Site içi arama (Ctrl+K)" aria-label="Site içi arama (Ctrl+K)" aria-expanded="false">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7.5"/><path d="m20.5 20.5-4-4"/></svg>
                 </button>
                 <?php if ( is_user_logged_in() ) :
@@ -85,6 +87,7 @@ $nav_items = [
         <form role="search" method="get" action="<?php echo esc_url( home_url( '/' ) ); ?>" class="apex-search-form">
             <label for="apex-global-search" class="sr-only">Sitede ara</label>
             <input type="search" id="apex-global-search" name="s" placeholder="Antrenör, basketbol salonu, PT paketi, kafe veya duyuru ara..." value="<?php echo esc_attr( get_search_query() ); ?>">
+            <kbd class="apex-kbd" aria-hidden="true">ESC</kbd>
             <button type="submit" class="apex-btn apex-btn-primary apex-btn-sm">Ara</button>
         </form>
     </div>

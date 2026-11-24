@@ -125,6 +125,7 @@
 
       if (ok && data.success) {
         resBox.innerHTML = `<div class="apex-alert apex-alert-success">✅ <strong>${data.message}</strong><br>${data.court_name} · ${data.date} ${data.time_slot} · ${data.referee ? '⚖️ Hakem Dahil · ' : ''}Toplam: <strong>${data.total_label}</strong></div>`;
+        if (window.apexToast) window.apexToast(`✓ ${data.court_name} rezervasyonunuz onaylandı!`);
         loadCourtSlots();
       } else {
         resBox.innerHTML = `<div class="apex-alert apex-alert-error">⚠️ ${data.message || 'Rezervasyon tamamlanamadı.'}</div>`;
@@ -292,6 +293,7 @@
       const { ok, data } = await apiFetch('contact', { method: 'POST', body: JSON.stringify(payload) });
       if (ok && data.success) {
         out.innerHTML = `<div class="apex-alert apex-alert-success">✅ ${data.message}</div>`;
+        if (window.apexToast) window.apexToast('✓ Mesajınız APEX ARENA ekibine iletildi.');
         contactForm.reset();
       } else {
         out.innerHTML = `<div class="apex-alert apex-alert-error">⚠️ ${data.message || 'Gönderilemedi.'}</div>`;

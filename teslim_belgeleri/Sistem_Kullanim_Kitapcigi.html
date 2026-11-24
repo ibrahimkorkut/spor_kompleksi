@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APEX ARENA — Sistem Kullanım Kitapçığı (v1.7.1)</title>
+<style>
+  :root { --bg:#0a0a0c; --card:#141418; --text:#f5f5f7; --muted:#a1a1aa; --red:#e31837; --border:rgba(255,255,255,0.12); }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:var(--bg); color:var(--text); line-height:1.6; padding:36px 20px; }
+  .wrap { max-width:960px; margin:0 auto; }
+  .hero { background:linear-gradient(135deg,#18181d,#240a11); border:1px solid var(--border); border-radius:20px; padding:34px 32px; margin-bottom:28px; }
+  .badge { display:inline-block; background:rgba(227,24,55,0.18); border:1px solid rgba(227,24,55,0.45); color:#ff6b81; font-size:12px; font-weight:700; letter-spacing:.08em; padding:4px 12px; border-radius:999px; text-transform:uppercase; }
+  h1 { margin:12px 0 8px; font-size:32px; letter-spacing:-0.02em; }
+  h2 { font-size:20px; margin:28px 0 12px; padding-bottom:8px; border-bottom:1px solid var(--border); color:#fff; }
+  p, li { color:var(--muted); font-size:15px; }
+  strong, code { color:#fff; }
+  code { background:rgba(255,255,255,0.08); padding:2px 6px; border-radius:6px; font-size:13px; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:22px 24px; margin-bottom:18px; }
+  table { width:100%; border-collapse:collapse; margin-top:10px; }
+  th, td { text-align:left; padding:11px 14px; border-bottom:1px solid var(--border); font-size:14px; }
+  th { color:#fff; background:rgba(255,255,255,0.04); }
+  a { color:#ff5a70; }
+  @media print { body { background:#fff; color:#111; } .hero,.card { background:#fff; border-color:#ddd; } p,li { color:#333; } strong,h1,h2,th,code { color:#111; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <span class="badge">WordPress Özel Tema · v1.7.1</span>
+    <h1>APEX ARENA — Spor ve Performans Kompleksi</h1>
+    <p>Sistem Kullanım Kitapçığı, Kurulum Rehberi ve Modül Dokümantasyonu</p>
+    <p style="margin:10px 0 0;font-size:13px;">
+      <strong>Yerel URL:</strong> <code>http://localhost/spor_kompleksi/wordpress/</code> ·
+      <strong>GitHub:</strong> <a href="https://github.com/ibrahimkorkut/spor_kompleksi">github.com/ibrahimkorkut/spor_kompleksi</a>
+    </p>
+  </header>
+
+  <section class="card">
+    <h2 style="margin-top:0;">1. Test ve Yönetim Giriş Bilgileri</h2>
+    <table>
+      <thead><tr><th>Rol</th><th>Giriş Adresi</th><th>Kullanıcı Adı</th><th>Şifre</th></tr></thead>
+      <tbody>
+        <tr><td><strong>WordPress Yönetici</strong></td><td><code>/wp-login.php</code> (Özel Koyu APEX Girişi)</td><td><code>root</code></td><td><code>korkut2006</code></td></tr>
+        <tr><td><strong>Demo Üye (QR &amp; Panel)</strong></td><td><code>/uyelik/#giris</code></td><td><code>uye_demo</code></td><td><code>ApexUye2026!</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <h2 style="margin-top:0;">2. Hızlı Kurulum (XAMPP)</h2>
+    <ol>
+      <li>XAMPP Control Panel üzerinden <strong>Apache</strong> ve <strong>MySQL</strong> servislerini başlatın.</li>
+      <li><code>teslim_belgeleri/apex-arena-envato-theme.zip</code> paketini WordPress temalarına yükleyin veya <code>apex-arena/</code> klasörünü <code>wp-content/themes/</code> içine kopyalayın.</li>
+      <li><code>phpMyAdmin</code> üzerinden <code>spor_kompleksi_wp</code> veritabanını oluşturup <code>teslim_belgeleri/spor_kompleksi_wp.sql</code> dosyasını içe aktarın.</li>
+      <li>Canlı Gemini 2.5 Flash AI sohbeti için <strong>WP Admin → APEX ARENA → AI &amp; Ayarlar</strong> bölümüne kendi Gemini API anahtarınızı girebilirsiniz (anahtarsız kurulumda yerel Hibrit Veritabanı Motoru otomatik çalışır).</li>
+    </ol>
+  </section>
+
+  <section class="card">
+    <h2 style="margin-top:0;">3. Başlıca Özellikler &amp; Yenilikler (v1.7.1)</h2>
+    <ul>
+      <li><strong>60/120 FPS Scroll-Driven Mimari Video:</strong> 240 HD WebP kare, off-main-thread GPU <code>createImageBitmap</code>, O(1) LRU önbellek, sıfır zorunlu layout ve mobil adaptif akış.</li>
+      <li><strong>3D Cast-Iron Dumbbell (WebGL):</strong> Three.js prosedürel CAD dambıl, <em>HAREKETİN YENİ MERKEZİ</em> kinetik tipografi, lazy WebGL yükleme ve görünüm dışı otomatik uyku modu.</li>
+      <li><strong>Salon Kiralama &amp; Lisanslı Hakem:</strong> 2 FIBA Basketbol + 1 CEV Voleybol salonu, canlı çakışma kontrolü ve +₺450 hakem opsiyonu.</li>
+      <li><strong>PT Eğitmenler &amp; Antrenörler:</strong> Bireysel/Grupsal PT paketleri, haftalık ders tablosu, sertifika doğrulama modalı ve online randevu takvimi.</li>
+      <li><strong>Üyelik &amp; QR Kart:</strong> Çift yönlü kavisli kayar Giriş/Kayıt kartı, dijital QR üyelik kartı ve VKİ/Kalori hesaplayıcı.</li>
+      <li><strong>İletişim, Gerçek Google Maps &amp; WhatsApp Hattı:</strong> İki sütunlu yeni iletişim tasarımı, tek tıkla panoya kopyalama + toast bildirimi, canlı <em>Şu An Açık/Kapalı</em> durum rozeti, gerçek Ataşehir/İstanbul Google Harita embed ve yüzen WhatsApp destek butonu.</li>
+      <li><strong>Erişilebilirlik, SEO &amp; Mikro-Etkileşimler:</strong> WCAG 2.2 AA/AAA paneli, KVKK/çerez yönetimi, Yoast SEO (<code>tr_TR</code>), üst scroll ilerleme çizgisi, canlı halkalı Yukarı Çık butonu ve <code>Ctrl+K</code> klavye arama kısayolu.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2 style="margin-top:0;">4. Teslim Dosyaları İçeriği</h2>
+    <ul>
+      <li><code>apex-arena-envato-theme.zip</code> — Kuruluma hazır WordPress özel tema arşivi (v1.7.1)</li>
+      <li><code>spor_kompleksi_wp.sql</code> — Güncel, API anahtarı temizlenmiş MySQL veritabanı yedeği</li>
+      <li><code>apex-arena-wordpress-export.xml</code> — WordPress WXR 1.2 içerik dışa aktarımı</li>
+      <li><code>ekran_goruntuleri/</code> — Masaüstü ve mobil güncel uygulama ekran görüntüleri</li>
+    </ul>
+  </section>
+</div>
+</body>
+</html>

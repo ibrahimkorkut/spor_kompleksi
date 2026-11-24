@@ -227,14 +227,213 @@
     });
   }
 
-  // ESC tuşu tüm açık modalları/çekmeceyi kapatır (WCAG 2.2)
+  // ESC tuşu tüm açık modalları/çekmeceyi/aramayı kapatır (WCAG 2.2) + Ctrl+K / '/' arama kısayolu
   document.addEventListener('keydown', (e) => {
+    const tag = (e.target && e.target.tagName) || '';
+    const inInput = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (e.target && e.target.isContentEditable);
+
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      if (searchBar) {
+        searchBar.hidden = false;
+        if (searchToggle) searchToggle.setAttribute('aria-expanded', 'true');
+        if (searchInput) {
+          searchInput.focus();
+          searchInput.select();
+        }
+      }
+      return;
+    }
+
+    if (!inInput && e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      if (searchBar) {
+        e.preventDefault();
+        searchBar.hidden = false;
+        if (searchToggle) searchToggle.setAttribute('aria-expanded', 'true');
+        if (searchInput) searchInput.focus();
+      }
+      return;
+    }
+
     if (e.key !== 'Escape') return;
     toggleMobileDrawer(false);
+    if (searchBar && !searchBar.hidden) {
+      searchBar.hidden = true;
+      if (searchToggle) searchToggle.setAttribute('aria-expanded', 'false');
+    }
     document.querySelectorAll('.apex-modal-backdrop').forEach((m) => { m.hidden = true; });
     const a11yP = document.getElementById('apex-a11y-panel');
     const aiP = document.getElementById('apex-ai-panel');
     if (a11yP) a11yP.hidden = true;
     if (aiP) aiP.hidden = true;
   });
+
+  // Mobil çekmece içi bağlantılara tıklanınca çekmeceyi kapat
+  if (mobileDrawer) {
+    mobileDrawer.querySelectorAll('a, button[data-open-ai]').forEach((el) => {
+      el.addEventListener('click', () => toggleMobileDrawer(false));
+    });
+  }
+
+  // 8. Apple Liquid Glass Toast Bildirim Sistemi
+  const toastEl = document.getElementById('apex-toast');
+  let toastTimer = null;
+  function showToast(msg) {
+    if (!toastEl || !msg) return;
+    toastEl.textContent = msg;
+    toastEl.hidden = false;
+    toastEl.classList.remove('is-visible');
+    void toastEl.offsetWidth;
+    toastEl.classList.add('is-visible');
+    announce(msg);
+    if (toastTimer) window.clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(() => {
+      toastEl.classList.remove('is-visible');
+      toastTimer = window.setTimeout(() => { toastEl.hidden = true; }, 260);
+    }, 3200);
+  }
+  window.apexToast = showToast;
+
+  // 9. Tek Tıkla Panoya Kopyalama (Telefon, E-posta, Adres)
+  document.querySelectorAll('[data-copy]').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const val = btn.getAttribute('data-copy') || '';
+      const label = btn.getAttribute('data-copy-label') || 'Bilgi';
+      if (!val) return;
+      const done = () => {
+        btn.classList.add('is-copied');
+        showToast(`✓ ${label} kopyalandı: ${val}`);
+        window.setTimeout(() => btn.classList.remove('is-copied'), 1600);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(val).then(done).catch(() => {
+          const ta = document.createElement('textarea');
+          ta.value = val;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          try { document.execCommand('copy'); } catch (_) {}
+          document.body.removeChild(ta);
+          done();
+        });
+      } else {
+        done();
+      }
+    });
+  });
+
+  // 10. Canlı Tesis Açık / Kapalı Durum Rozeti (Hafta İçi 06:30–23:30 · Hafta Sonu 08:00–22:00)
+  const openBadges = document.querySelectorAll('[data-live-open-badge]');
+  if (openBadges.length > 0) {
+    const now = new Date();
+    const day = now.getDay(); // 0 = Paz, 6 = Cmt
+    const mins = now.getHours() * 60 + now.getMinutes();
+    const isWeekend = day === 0 || day === 6;
+    const openMins = isWeekend ? 8 * 60 : 6 * 60 + 30;
+    const closeMins = isWeekend ? 22 * 60 : 23 * 60 + 30;
+    const isOpen = mins >= openMins && mins < closeMins;
+    const closeStr = isWeekend ? '22:00' : '23:30';
+    const nextOpenStr = isWeekend ? '08:00' : '06:30';
+    const text = isOpen ? `Şu An Açık · ${closeStr}’a kadar` : `Şu An Kapalı · ${nextOpenStr}’da açılır`;
+    openBadges.forEach((b) => {
+      b.textContent = text;
+      b.classList.toggle('is-open', isOpen);
+      b.classList.toggle('is-closed', !isOpen);
+    });
+  }
+
+  // 11. Global GPU Scroll-Progress Hairline + Akıllı Yukarı Çık Halkası (0 Forced Layout!)
+  const progressFill = document.getElementById('apex-scroll-progress-fill');
+  const backTopBtn = document.getElementById('apex-back-top');
+  const backTopArc = document.getElementById('apex-back-top-arc');
+  const RING_CIRC = 2 * Math.PI * 21; // r = 21 => ~131.95
+  if (backTopArc) {
+    backTopArc.style.strokeDasharray = RING_CIRC.toFixed(2);
+    backTopArc.style.strokeDashoffset = RING_CIRC.toFixed(2);
+  }
+  let cachedMaxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+  let scrollUiRaf = null;
+  let lastRatioStr = '';
+  let backTopShown = false;
+
+  const measureDocHeight = () => {
+    cachedMaxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+  };
+  const paintScrollUi = () => {
+    scrollUiRaf = null;
+    const sy = window.scrollY;
+    const ratio = Math.min(1, Math.max(0, sy / cachedMaxScroll));
+    const rStr = ratio.toFixed(4);
+    if (rStr !== lastRatioStr) {
+      lastRatioStr = rStr;
+      if (progressFill) progressFill.style.transform = `scaleX(${rStr})`;
+      if (backTopArc) backTopArc.style.strokeDashoffset = (RING_CIRC * (1 - ratio)).toFixed(2);
+    }
+    const shouldShow = sy > 420;
+    if (backTopBtn && shouldShow !== backTopShown) {
+      backTopShown = shouldShow;
+      backTopBtn.classList.toggle('is-visible', shouldShow);
+    }
+  };
+  const scheduleScrollUi = () => {
+    if (!scrollUiRaf) scrollUiRaf = window.requestAnimationFrame(paintScrollUi);
+  };
+  if ('ResizeObserver' in window) {
+    const docRo = new ResizeObserver(measureDocHeight);
+    docRo.observe(document.documentElement);
+  }
+  window.addEventListener('scroll', scheduleScrollUi, { passive: true });
+  window.addEventListener('resize', () => { measureDocHeight(); scheduleScrollUi(); }, { passive: true });
+  measureDocHeight();
+  paintScrollUi();
+
+  if (backTopBtn) {
+    backTopBtn.addEventListener('click', () => {
+      const reduced = document.documentElement.classList.contains('a11y-reduce-motion');
+      window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
+      announce('Sayfanın başına dönüldü.');
+    });
+  }
+
+  // 12. Masaüstü Kart İmleç Işığı (Zero-Layout Pointer Spotlight) + GPU Scroll-Reveal
+  const finePointer = window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  if (finePointer) {
+    document.querySelectorAll('.apex-card, .apex-contact-info-item').forEach((card) => {
+      let rect = null;
+      card.addEventListener('pointerenter', () => { rect = card.getBoundingClientRect(); }, { passive: true });
+      card.addEventListener('pointermove', (e) => {
+        if (!rect || rect.width < 1) return;
+        card.style.setProperty('--mx', `${(e.clientX - rect.left).toFixed(0)}px`);
+        card.style.setProperty('--my', `${(e.clientY - rect.top).toFixed(0)}px`);
+      }, { passive: true });
+    });
+  }
+
+  const reducedPref =
+    document.documentElement.classList.contains('a11y-reduce-motion') ||
+    (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  if (!reducedPref && 'IntersectionObserver' in window) {
+    const revealTargets = document.querySelectorAll('.apex-section .apex-card, .apex-contact-info-item, .apex-contact-map-card');
+    if (revealTargets.length > 0) {
+      const revIo = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-revealed');
+            revIo.unobserve(entry.target);
+          }
+        });
+      }, { rootMargin: '0px 0px -40px 0px', threshold: 0.06 });
+
+      revealTargets.forEach((el) => {
+        const r = el.getBoundingClientRect();
+        if (r.top > window.innerHeight * 0.96) {
+          el.classList.add('apex-reveal');
+          revIo.observe(el);
+        }
+      });
+    }
+  }
 })();

@@ -91,7 +91,7 @@ $settings = apex_get_settings();
                     <li><?php echo esc_html( $settings['address'] ); ?></li>
                     <li><a href="tel:<?php echo esc_attr( preg_replace( '/\s+/', '', $settings['phone'] ) ); ?>"><?php echo esc_html( $settings['phone'] ); ?></a></li>
                     <li><a href="mailto:<?php echo esc_attr( $settings['email'] ); ?>"><?php echo esc_html( $settings['email'] ); ?></a></li>
-                    <li>Hafta İçi: <?php echo esc_html( $settings['weekday_hours'] ); ?></li>
+                    <li>Hafta İçi: <?php echo esc_html( $settings['weekday_hours'] ); ?> <span class="apex-open-badge" data-live-open-badge></span></li>
                     <li><a href="<?php echo esc_url( $settings['github_url'] ); ?>" target="_blank" rel="noopener noreferrer">GitHub Tema Deposu ↗</a></li>
                     <li><a href="<?php echo esc_url( $settings['envato_url'] ); ?>" target="_blank" rel="noopener noreferrer">Envato Market Profili ↗</a></li>
                 </ul>
@@ -114,6 +114,15 @@ $settings = apex_get_settings();
         </div>
     </div>
 </footer>
+
+<!-- Akıllı Yukarı Çık + Canlı Scroll İlerleme Halkası -->
+<button type="button" class="apex-back-top" id="apex-back-top" title="Yukarı Çık" aria-label="Sayfanın başına dön">
+    <svg class="apex-back-top-ring" viewBox="0 0 48 48" aria-hidden="true">
+        <circle class="apex-back-top-track" cx="24" cy="24" r="21" />
+        <circle class="apex-back-top-arc" id="apex-back-top-arc" cx="24" cy="24" r="21" />
+    </svg>
+    <svg class="apex-back-top-arrow" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18 15-6-6-6 6"/></svg>
+</button>
 
 <?php
 // Yüzen Bileşenler: WCAG 2.2 Erişilebilirlik Merkezi, Hibrit AI Spor Koçu, Çerez Tercih Banner & Modalı

@@ -130,34 +130,47 @@ $map_link = 'https://www.google.com/maps/search/?api=1&query=' . $map_q;
                             <strong>Adresimiz</strong>
                             <span><?php echo esc_html( $s['address'] ); ?></span>
                         </div>
+                        <button type="button" class="apex-copy-btn" data-copy="<?php echo esc_attr( $s['address'] ); ?>" data-copy-label="Adres" title="Adresi kopyala" aria-label="Adresi panoya kopyala">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        </button>
                     </div>
 
-                    <a class="apex-contact-info-item apex-contact-info-link" href="tel:<?php echo esc_attr( preg_replace( '/\s+/', '', $s['phone'] ) ); ?>">
-                        <span class="apex-contact-icon-badge" aria-hidden="true">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.61 21 3 13.39 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.46.57 3.58a1 1 0 0 1-.25 1.01l-2.2 2.2Z"/></svg>
-                        </span>
-                        <div class="apex-contact-info-body">
-                            <strong>Telefon</strong>
-                            <span><?php echo esc_html( $s['phone'] ); ?></span>
-                        </div>
-                    </a>
+                    <div class="apex-contact-info-item apex-contact-info-link">
+                        <a class="apex-contact-info-main" href="tel:<?php echo esc_attr( preg_replace( '/\s+/', '', $s['phone'] ) ); ?>">
+                            <span class="apex-contact-icon-badge" aria-hidden="true">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.61 21 3 13.39 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.46.57 3.58a1 1 0 0 1-.25 1.01l-2.2 2.2Z"/></svg>
+                            </span>
+                            <div class="apex-contact-info-body">
+                                <strong>Telefon</strong>
+                                <span><?php echo esc_html( $s['phone'] ); ?></span>
+                            </div>
+                        </a>
+                        <button type="button" class="apex-copy-btn" data-copy="<?php echo esc_attr( $s['phone'] ); ?>" data-copy-label="Telefon numarası" title="Telefonu kopyala" aria-label="Telefon numarasını panoya kopyala">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        </button>
+                    </div>
 
-                    <a class="apex-contact-info-item apex-contact-info-link" href="mailto:<?php echo esc_attr( $s['email'] ); ?>">
-                        <span class="apex-contact-icon-badge" aria-hidden="true">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2Zm0 4-8 5-8-5V6l8 5 8-5v2Z"/></svg>
-                        </span>
-                        <div class="apex-contact-info-body">
-                            <strong>E-posta</strong>
-                            <span><?php echo esc_html( $s['email'] ); ?></span>
-                        </div>
-                    </a>
+                    <div class="apex-contact-info-item apex-contact-info-link">
+                        <a class="apex-contact-info-main" href="mailto:<?php echo esc_attr( $s['email'] ); ?>">
+                            <span class="apex-contact-icon-badge" aria-hidden="true">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2Zm0 4-8 5-8-5V6l8 5 8-5v2Z"/></svg>
+                            </span>
+                            <div class="apex-contact-info-body">
+                                <strong>E-posta</strong>
+                                <span><?php echo esc_html( $s['email'] ); ?></span>
+                            </div>
+                        </a>
+                        <button type="button" class="apex-copy-btn" data-copy="<?php echo esc_attr( $s['email'] ); ?>" data-copy-label="E-posta adresi" title="E-postayı kopyala" aria-label="E-posta adresini panoya kopyala">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        </button>
+                    </div>
 
                     <div class="apex-contact-info-item">
                         <span class="apex-contact-icon-badge" aria-hidden="true">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Zm1 11h-5v-2h3V6h2Z"/></svg>
                         </span>
                         <div class="apex-contact-info-body">
-                            <strong>Çalışma Saatleri</strong>
+                            <strong>Çalışma Saatleri <span class="apex-open-badge" data-live-open-badge></span></strong>
                             <span>Hafta İçi: <?php echo esc_html( $s['weekday_hours'] ); ?> · Hafta Sonu: <?php echo esc_html( $s['weekend_hours'] ); ?></span>
                         </div>
                     </div>
