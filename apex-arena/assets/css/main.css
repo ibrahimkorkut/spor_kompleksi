@@ -1157,24 +1157,29 @@ body.home .apex-section {
   100% { transform: translate3d(360%, 0, 0) skewX(-24deg); opacity: 0; }
 }
 
-/* Dual Staggered Concentric Emerald Sonar Ripples */
+/* Continuous Expanding Green Ghost-Ripple Circles (3 Staggered Waves in Endless Loop) */
 .apex-wa-ring {
   position: absolute;
-  inset: -6px;
+  inset: 0;
+  z-index: 0;
   border-radius: 50%;
-  border: 1.5px solid rgba(46, 232, 118, 0.56);
-  background: radial-gradient(circle, rgba(37, 211, 102, 0.18) 0%, rgba(37, 211, 102, 0) 70%);
+  background: radial-gradient(circle, rgba(37, 211, 102, 0.42) 48%, rgba(46, 232, 118, 0.72) 100%);
+  border: 2px solid rgba(75, 240, 138, 0.88);
+  box-shadow: 0 0 18px rgba(37, 211, 102, 0.42);
   pointer-events: none;
-  animation: apexWaPulse 3s cubic-bezier(0.2, 0.72, 0.3, 1) infinite;
+  animation: apexWaPulse 2.4s cubic-bezier(0.16, 0.78, 0.34, 1) infinite;
   will-change: transform, opacity;
 }
 .apex-wa-ring-2 {
-  animation-delay: -1.5s;
+  animation-delay: -0.8s;
+}
+.apex-wa-ring-3 {
+  animation-delay: -1.6s;
 }
 @keyframes apexWaPulse {
-  0% { transform: scale(0.92); opacity: 0.78; }
-  65% { transform: scale(1.36); opacity: 0.18; }
-  100% { transform: scale(1.52); opacity: 0; }
+  0% { transform: scale(1); opacity: 0.82; }
+  55% { transform: scale(1.62); opacity: 0.3; }
+  100% { transform: scale(2.12); opacity: 0; }
 }
 
 /* Subtle Periodic Chime Nod on WhatsApp Icon + Spring Hover Tilt */

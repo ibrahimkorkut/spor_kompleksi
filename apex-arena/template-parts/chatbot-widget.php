@@ -26,6 +26,7 @@ $wa_url  = 'https://wa.me/' . $wa_digits . '?text=' . $wa_text;
 >
     <span class="apex-wa-ring apex-wa-ring-1" aria-hidden="true"></span>
     <span class="apex-wa-ring apex-wa-ring-2" aria-hidden="true"></span>
+    <span class="apex-wa-ring apex-wa-ring-3" aria-hidden="true"></span>
     <span class="apex-wa-tooltip" aria-hidden="true">
         <span class="apex-wa-tooltip-dot"></span>WhatsApp Destek Hattı
     </span>

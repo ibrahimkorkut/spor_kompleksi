@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'APEX_VERSION', '2.0.0' );
+define( 'APEX_VERSION', '2.0.1' );
 define( 'APEX_DIR', get_template_directory() );
 define( 'APEX_URI', get_template_directory_uri() );
 

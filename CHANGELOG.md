@@ -1,5 +1,9 @@
 # Changelog — APEX ARENA WordPress Theme
 
+## [2.0.1] — 2026-11-25
+- **WhatsApp Green Ghost-Ripple Loop:** Upgraded floating WhatsApp button with 3 staggered translucent green ghost circles expanding continuously (`1.0× → 2.12×`) while fading smoothly from `0.82 → 0` opacity in an infinite loop with `0px` mobile horizontal overflow.
+- **Footer GitHub Repository Link:** Pointed `GitHub Tema Deposu ↗` and `Theme URI` directly to `https://github.com/ibrahimkorkut/spor_kompleksi`.
+
 ## [2.0.0] — 2026-11-25
 - **Coach-Only Graphical Management Portal (`inc/coach-portal.php`):** Added custom `apex_coach` WordPress role (`koc_kerem`, `koc_elif`) with strict student isolation (each coach sees & manages ONLY their assigned students), automatic login redirect to `apex-coach-portal`, hidden admin menus, 5 dark zero-CDN SVG analytics cards (Grouped Bar, Smooth Area, Pie/Donut, Program Adherence Bars, Student Status Table with pills & trend arrows), plus an interactive Coach Studio to update status/advice, edit a 5-meal Nutrition Calendar + macros, and send live 1-on-1 messages synced immediately to the student's `/uyelik/?panel=1` portal.
 - **Admin Revenue Analytics, CSV Exports & Moderation (`inc/admin-panel.php`):** Added live MySQL revenue distribution bars (Courts, PT, Memberships, Protein Cafe), 1-click Turkish Excel UTF-8 BOM CSV exports across 5 tables, sidebar unread badge, and `Kafe & Yorumlar` admin moderation screen.
