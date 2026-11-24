@@ -2235,6 +2235,8 @@ body.home .apex-section {
 }
 
 .apex-contact-submit {
+  align-self: flex-start;
+  min-width: 196px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2510,6 +2512,7 @@ body.home .apex-section {
   .apex-cinema-hud-wrap { bottom: 68px; width: calc(100% - 24px); }
   .apex-cinema-layers { padding: 92px 0 84px; }
   .apex-contact-grid { grid-template-columns: 1fr; }
+  .apex-contact-submit { width: 100%; }
   .apex-contact-map-head { padding: 18px 20px; }
   .apex-contact-map-frame { height: 320px; }
 }
