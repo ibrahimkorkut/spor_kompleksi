@@ -14,7 +14,7 @@
 
   var canvas = document.getElementById('apex-cinema-canvas');
   if (!canvas || !canvas.getContext) return;
-  var ctx = canvas.getContext('2d', { alpha: false, desynchronized: true }) || canvas.getContext('2d', { alpha: false });
+  var ctx = canvas.getContext('2d', { alpha: false });
 
   var frameBase = runway.getAttribute('data-frame-base') || '';
   var frameVer = runway.getAttribute('data-frame-ver') || '1.4.1';
@@ -262,8 +262,10 @@
         }
       }
 
+      var yInt = Math.round(translateY);
       el.style.opacity = opacity.toFixed(3);
-      el.style.transform = 'translate3d(0,' + translateY.toFixed(1) + 'px,0)';
+      el.style.visibility = opacity < 0.01 ? 'hidden' : 'visible';
+      el.style.transform = yInt === 0 ? 'none' : 'translate3d(0,' + yInt + 'px,0)';
       el.style.pointerEvents = opacity > 0.45 ? 'auto' : 'none';
       el.setAttribute('aria-hidden', opacity < 0.15 ? 'true' : 'false');
 

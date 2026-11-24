@@ -1267,6 +1267,7 @@ body.admin-bar .apex-mobile-drawer { padding-top: 64px; }
   height: 100dvh;
   width: 100%;
   overflow: hidden;
+  isolation: isolate;
   background: #000000;
   display: flex;
   flex-direction: column;
@@ -1313,7 +1314,30 @@ body.admin-bar .apex-mobile-drawer { padding-top: 64px; }
 
 .apex-cinema-chapter[data-cinema-chapter="0"] {
   opacity: 1;
+  visibility: visible;
   pointer-events: auto;
+}
+
+/* Prevent Chromium backdrop-filter tile tearing over live 60 FPS animated canvas */
+.apex-cinema-chapter .apex-btn-outline,
+.apex-cinema-chapter .apex-live-pill {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background: rgba(16, 16, 20, 0.66);
+  border-color: rgba(255, 255, 255, 0.24);
+  overflow: hidden;
+}
+.apex-cinema-chapter .apex-btn-outline:hover {
+  background: rgba(28, 28, 34, 0.84);
+  border-color: rgba(255, 255, 255, 0.42);
+}
+.apex-cinema-chapter .apex-kpi-grid {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background: rgba(255, 255, 255, 0.14);
+}
+.apex-cinema-chapter .apex-kpi-card {
+  background: rgba(14, 14, 18, 0.78);
 }
 
 .apex-cinema-story-card {
