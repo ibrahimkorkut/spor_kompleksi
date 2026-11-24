@@ -1,5 +1,11 @@
 # Changelog — APEX ARENA WordPress Theme
 
+## [2.0.2] — 2026-11-25
+- **Apple Fitness Neon Glow Coach Portal (`inc/coach-portal.php`):** Upgraded the 5-card Coach Portal to a dynamic, obsidian-matte neon glow telemetry studio:
+  - Replaced static pie chart with 3 concentric **Apple Fitness Glowing Activity Rings** (Neon Pink Progress, Electric Lime Sessions, Electric Cyan Nutrition) featuring orbiting 3D luminous tip orbs, `rAF` sweep animations, 3-column tabular metrics, and a live `Öğrenci` / `Genel` mode toggle.
+  - Upgraded Bar Chart (`Seans Performansı`) and Dual-Curve Area Chart (`Gelişim & Beslenme Trendi`) with interactive floating glass hover tooltips, full Turkish first names, neon glow spotlighting on the active student, and click-to-select synchronization across all 5 cards.
+  - Upgraded `Program Uyumu` bars with luminous neon tip orbs + click selection, added instant status filter pills (`Tümü`, `Hedefte`, `Dikkat`, `Yeni`, `Takip`) to `Öğrenci Takip Listesi`, and enabled zero-reload real-time chart & ring re-animation on save.
+
 ## [2.0.1] — 2026-11-25
 - **WhatsApp Green Ghost-Ripple Loop:** Upgraded floating WhatsApp button with 3 staggered translucent green ghost circles expanding continuously (`1.0× → 2.12×`) while fading smoothly from `0.82 → 0` opacity in an infinite loop with `0px` mobile horizontal overflow.
 - **Footer GitHub Repository Link:** Pointed `GitHub Tema Deposu ↗` and `Theme URI` directly to `https://github.com/ibrahimkorkut/spor_kompleksi`.
