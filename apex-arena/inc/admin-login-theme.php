@@ -277,17 +277,22 @@ add_action( 'login_enqueue_scripts', function() {
 
         .login .forgetmenot {
             float: none !important;
-            margin: 0 0 16px !important;
+            margin: 0 0 18px !important;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 10px;
+            justify-content: flex-start;
+            gap: 8px;
+        }
+
+        .login .forgetmenot .wp-login-remember-tooltip,
+        .login .forgetmenot .dashicons-editor-help {
+            display: none !important;
         }
 
         .login .forgetmenot label {
             display: inline-flex !important;
             align-items: center;
-            gap: 7px;
+            gap: 6px;
             margin: 0 !important;
             font-size: 12.5px !important;
             color: var(--apex-login-muted) !important;
@@ -300,6 +305,7 @@ add_action( 'login_enqueue_scripts', function() {
             border-radius: 4px !important;
             box-shadow: none !important;
             margin: 0 !important;
+            flex-shrink: 0;
         }
 
         .login input[type="checkbox"]:checked::before {
@@ -307,6 +313,7 @@ add_action( 'login_enqueue_scripts', function() {
         }
 
         .apex-login-register-link {
+            margin-left: auto;
             display: inline-flex;
             align-items: center;
             gap: 6px;
@@ -356,17 +363,13 @@ add_action( 'login_enqueue_scripts', function() {
             transform: scale(0.99);
         }
 
-        /* Kart Alt Bağlantıları: Şifre sıfırlama + Web Sitesine Dön */
+        /* Kart Alt Bağlantısı: Sadece temiz "← Web Sitesine Dön" (Fotoğraf 2 sadeliği) */
         .login #nav {
-            margin: 16px 0 0 !important;
-            padding: 0 !important;
-            text-align: center !important;
-            font-size: 12.5px !important;
-            color: var(--apex-login-muted) !important;
+            display: none !important;
         }
 
         .login #backtoblog {
-            margin: 12px 0 0 !important;
+            margin: 18px 0 0 !important;
             padding: 14px 0 0 !important;
             border-top: 1px solid rgba(255, 255, 255, 0.07);
             text-align: center !important;
