@@ -1,5 +1,17 @@
 # Changelog — APEX ARENA WordPress Theme
 
+## [2.0.0] — 2026-11-25
+- **Coach-Only Graphical Management Portal (`inc/coach-portal.php`):** Added custom `apex_coach` WordPress role (`koc_kerem`, `koc_elif`) with strict student isolation (each coach sees & manages ONLY their assigned students), automatic login redirect to `apex-coach-portal`, hidden admin menus, 5 dark zero-CDN SVG analytics cards (Grouped Bar, Smooth Area, Pie/Donut, Program Adherence Bars, Student Status Table with pills & trend arrows), plus an interactive Coach Studio to update status/advice, edit a 5-meal Nutrition Calendar + macros, and send live 1-on-1 messages synced immediately to the student's `/uyelik/?panel=1` portal.
+- **Admin Revenue Analytics, CSV Exports & Moderation (`inc/admin-panel.php`):** Added live MySQL revenue distribution bars (Courts, PT, Memberships, Protein Cafe), 1-click Turkish Excel UTF-8 BOM CSV exports across 5 tables, sidebar unread badge, and `Kafe & Yorumlar` admin moderation screen.
+- **Interactive SVG Complex Floor Plan & Live 5-Star Reviews (`front-page.php`):** Added 6-zone clickable architectural floor plan (`#kat-plani`) with live technical inspector and a live MySQL-backed 5-star review grid + submission form (`#yorumlar`).
+- **EV Charger Monitor, Hourly Crowd Forecast & Protein Cafe Pre-Order Cart (`page-tesis-olanaklari.php`):** Added 6× 22 kW EV charger status bays, interactive Weekday/Sat/Sun hourly occupancy forecast bars, and a macro-calculating post-workout cafe pre-order cart synced to MySQL (`POST /cafe-order`).
+- **Smart Package Finder Quiz, Comparison Matrix, Workout Log & Live Coach Sync (`page-uyelik.php`):** Added 3-step personalized package & PT recommendation quiz (`#paket-bulucu`), detailed comparison table, logged-in member view of Coach Nutrition Calendar + Advice + 1-on-1 Live Chat, and interactive Weekly Workout & Calorie Logger (`POST /workout-log`) with instant KPI badge updates.
+- **RFC 5545 `.ics` Calendar Export & WhatsApp Match Invite (`assets/js/main.js`, `assets/js/booking.js`):** Added 1-click `.ics` download and pre-filled WhatsApp match/appointment invite sharing on court bookings, PT appointments, and member dashboard rows.
+- **Database & REST API (`inc/database.php`, `inc/api-endpoints.php`):** Added 6 new MySQL tables (`coach_students`, `nutrition_plans`, `coach_messages`, `reviews`, `cafe_orders`, `workout_logs`) and 7 new REST endpoints with strict ownership & capability checks.
+
+## [1.7.2] — 2026-11-25
+- **WhatsApp FAB Motion Polish:** Upgraded floating WhatsApp button with dual staggered emerald sonar rings, diagonal glass sheen sweep, periodic chime icon nod synced with elastic notification badge pop, and hover Liquid Glass tooltip.
+
 ## [1.7.1] — 2026-11-25
 - **Responsive Hardening:** Fixed mobile `390px` grid overflow on `/antrenorler/` by enforcing `minmax(0, 1fr)` and `min-width: 0` across `.apex-panel`, `.apex-split-profile`, `.apex-split-booking`, and `.apex-table-wrap`.
 - **QA:** Verified `10/10` routes across Desktop (`1440×900`), Tablet (`768×1024`), and Mobile (`390×844`) with `0px` horizontal overflow and `0` local JS errors.

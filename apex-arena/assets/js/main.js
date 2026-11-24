@@ -436,4 +436,623 @@
       });
     }
   }
+
+  // =========================================================================
+  // 13. RFC 5545 .ics TAKVİM DOSYASI OLUŞTURUCU (Google / Apple / Outlook)
+  // =========================================================================
+  function pad2(n) {
+    return String(n).padStart(2, '0');
+  }
+  function escapeIcsText(str) {
+    return String(str || '').replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/,/g, '\\,').replace(/;/g, '\\;');
+  }
+  function parseDateYmd(str) {
+    if (!str) return null;
+    const iso = /^(\d{4})-(\d{2})-(\d{2})$/.exec(str.trim());
+    if (iso) return { y: +iso[1], m: +iso[2], d: +iso[3] };
+    const tr = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(str.trim());
+    if (tr) return { y: +tr[3], m: +tr[2], d: +tr[1] };
+    return null;
+  }
+  function downloadIcs({ title, date, time, hours, desc, location }) {
+    const dt = parseDateYmd(date) || (() => {
+      const now = new Date();
+      return { y: now.getFullYear(), m: now.getMonth() + 1, d: now.getDate() };
+    })();
+    const tm = /^(\d{1,2}):(\d{2})/.exec(String(time || '19:00'));
+    const hh = tm ? +tm[1] : 19;
+    const mm = tm ? +tm[2] : 0;
+    const durH = Math.max(1, parseInt(hours || 1, 10));
+
+    const start = new Date(dt.y, dt.m - 1, dt.d, hh, mm, 0);
+    const end = new Date(start.getTime() + durH * 60 * 60 * 1000);
+    const fmt = (d) => `${d.getFullYear()}${pad2(d.getMonth() + 1)}${pad2(d.getDate())}T${pad2(d.getHours())}${pad2(d.getMinutes())}00`;
+    const nowStamp = fmt(new Date());
+    const uid = `apex-${Date.now()}-${Math.random().toString(36).slice(2, 7)}@apexarena.com.tr`;
+
+    const ics = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//APEX ARENA Spor Kompleksi//Rezervasyon v2.0//TR',
+      'CALSCALE:GREGORIAN',
+      'METHOD:PUBLISH',
+      'BEGIN:VEVENT',
+      `UID:${uid}`,
+      `DTSTAMP:${nowStamp}`,
+      `DTSTART:${fmt(start)}`,
+      `DTEND:${fmt(end)}`,
+      `SUMMARY:${escapeIcsText(title || 'APEX ARENA Rezervasyonu')}`,
+      `LOCATION:${escapeIcsText(location || 'APEX ARENA Spor Kompleksi, Barbaros Mah. Spor Bulvarı No: 42, Ataşehir / İstanbul')}`,
+      `DESCRIPTION:${escapeIcsText(desc || 'APEX ARENA online rezervasyon kaydı.')}`,
+      'END:VEVENT',
+      'END:VCALENDAR',
+    ].join('\r\n');
+
+    const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `apex-arena-${dt.y}${pad2(dt.m)}${pad2(dt.d)}.ics`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.setTimeout(() => URL.revokeObjectURL(url), 1200);
+    showToast('📅 Takvim dosyası (.ics) indirildi!');
+  }
+  window.apexDownloadIcs = downloadIcs;
+
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-ics-btn]');
+    if (!btn) return;
+    downloadIcs({
+      title: btn.getAttribute('data-ics-title'),
+      date: btn.getAttribute('data-ics-date'),
+      time: btn.getAttribute('data-ics-time'),
+      hours: btn.getAttribute('data-ics-hours'),
+      desc: btn.getAttribute('data-ics-desc'),
+    });
+  });
+
+  // Yardımcı REST çağrısı (v2.0.0 modülleri için)
+  const apexCfg = window.APEX_CONFIG || { restUrl: '/wp-json/apex/v1/', nonce: '' };
+  async function apexApi(endpoint, options = {}) {
+    const res = await fetch(apexCfg.restUrl + endpoint, {
+      credentials: 'same-origin',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-WP-Nonce': apexCfg.nonce || '',
+        ...(options.headers || {}),
+      },
+      ...options,
+    });
+    const data = await res.json().catch(() => ({ success: false, message: 'Sunucu yanıtı okunamadı.' }));
+    return { ok: res.ok, data };
+  }
+  function escHtml(s) {
+    return String(s || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  // =========================================================================
+  // 14. İNTERAKTİF TESİS KAT PLANI (#kat-plani)
+  // =========================================================================
+  const fpZones = document.querySelectorAll('[data-fp-zone]');
+  const fpCta = document.getElementById('fp-d-cta');
+  if (fpZones.length > 0 && fpCta) {
+    const siteBase = (fpCta.getAttribute('href') || '').replace(/\/salon-kiralama\/.*$/, '');
+    const ZONE_INFO = {
+      basket1: {
+        tag: 'FIBA STANDARTI · ZEMİN KAT',
+        title: 'Arena Basketbol 1 (FIBA Parke)',
+        desc: '28×15m uluslararası FIBA ölçülerinde şok emici akçaağaç parke, 4 yönlü LED skorboard, 120 kişilik tribün ve isteğe bağlı lisanslı TBF hakem hizmeti.',
+        specs: ['🏀 28×15m FIBA', '⚖️ Hakem (+₺450)', '🚗 2 Saat Ücretsiz Park'],
+        cta: 'Bu Salonu Rezerve Et →',
+        url: siteBase + '/salon-kiralama/#rezervasyon',
+      },
+      basket2: {
+        tag: 'PERFORMANS SAHASI · ZEMİN KAT',
+        title: 'Arena Basketbol 2 (Performans)',
+        desc: '5v5 kurumsal ligler, özel antrenmanlar ve şut makineli teknik çalışmalar için akustik yalıtımlı FIBA parke basketbol salonu.',
+        specs: ['🏀 28×15m FIBA', '📺 4K Maç Kamerası', '⚖️ TBF Hakem Opsiyonu'],
+        cta: 'Müsait Saatleri Gör →',
+        url: siteBase + '/salon-kiralama/#rezervasyon',
+      },
+      voleybol: {
+        tag: 'CEV STANDARTI · ZEMİN KAT',
+        title: 'Arena Voleybol Pro (Taraflex)',
+        desc: '18×9m CEV onaylı kaymaz Taraflex zemin, 11 metre yüksek tavan açıklığı, profesyonel file gergi sistemi ve TVF hakem opsiyonu.',
+        specs: ['🏐 CEV Taraflex', '📏 11m Tavan Yüksekliği', '⚖️ TVF Hakem Opsiyonu'],
+        cta: 'Voleybol Sahası Kirala →',
+        url: siteBase + '/salon-kiralama/#rezervasyon',
+      },
+      pt: {
+        tag: '1. KAT · KUVVET & REFORMER STÜDYOSU',
+        title: 'PT & Fonksiyonel Performans Stüdyosu',
+        desc: 'Eleiko olimpik ağırlık istasyonları, Technogym Artis kardiyo hattı, Reformer Pilates stüdyosu ve 4 uluslararası sertifikalı birebir koç.',
+        specs: ['🏋️ 4 Sertifikalı Koç', '📊 InBody 770 Analizi', '🥗 Kişisel Beslenme Takvimi'],
+        cta: 'PT Randevusu Al →',
+        url: siteBase + '/pt-egitmenler/#randevu',
+      },
+      spa: {
+        tag: 'ZEMİN KAT · HİJYEN & TOPARLANMA',
+        title: 'RFID Soyunma Odaları, Yağmur Duş & Fin Saunası',
+        desc: '240 adet QR/RFID bileklikli akıllı dolap, 24 yüksek basınçlı termostatik yağmur duşu, 85°C kuru Fin saunası, şok duşları ve engelsiz özel kabin.',
+        specs: ['🔐 240 RFID Dolap', '🧖 85°C Fin Saunası', '♿ Engelsiz Kabin'],
+        cta: 'Tesis Olanaklarını İncele →',
+        url: siteBase + '/tesis-olanaklari/#soyunma',
+      },
+      cafe: {
+        tag: 'LOBİ & -1. KAT · BESLENME & OTOPARK',
+        title: 'Apex Protein Kafe & 180 Araçlık EV Otopark',
+        desc: 'Diyetisyen onaylı makro hesaplı shake ve fit bowl ön siparişi, 1 Gbps fiber lounge, plaka tanımalı kapalı otopark ve 6 adet 22 kW EV şarj istasyonu.',
+        specs: ['🥤 Makro Ön Sipariş', '⚡ 6× 22 kW EV Şarj', '🚗 180 Araçlık Otopark'],
+        cta: 'Kafe Menüsü & EV Durumu →',
+        url: siteBase + '/tesis-olanaklari/#kafe',
+      },
+    };
+
+    const activateZone = (zoneKey) => {
+      const info = ZONE_INFO[zoneKey];
+      if (!info) return;
+      fpZones.forEach((z) => z.classList.toggle('is-active', z.getAttribute('data-fp-zone') === zoneKey));
+      const elTag = document.getElementById('fp-d-tag');
+      const elTitle = document.getElementById('fp-d-title');
+      const elDesc = document.getElementById('fp-d-desc');
+      const elSpecs = document.getElementById('fp-d-specs');
+      if (elTag) elTag.textContent = info.tag;
+      if (elTitle) elTitle.textContent = info.title;
+      if (elDesc) elDesc.textContent = info.desc;
+      if (elSpecs) elSpecs.innerHTML = info.specs.map((sp) => `<span>${escHtml(sp)}</span>`).join('');
+      fpCta.textContent = info.cta;
+      fpCta.setAttribute('href', info.url);
+      announce(`${info.title} seçildi.`);
+    };
+
+    fpZones.forEach((z) => {
+      z.addEventListener('click', () => activateZone(z.getAttribute('data-fp-zone')));
+      z.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          activateZone(z.getAttribute('data-fp-zone'));
+        }
+      });
+    });
+  }
+
+  // =========================================================================
+  // 15. CANLI 5 YILDIZLI ÜYE DEĞERLENDİRME FORMU (#yorumlar)
+  // =========================================================================
+  const starPicker = document.getElementById('apex-star-picker');
+  const revRatingInp = document.getElementById('rev-rating');
+  if (starPicker && revRatingInp) {
+    const starBtns = starPicker.querySelectorAll('[data-star-val]');
+    const paintStars = (val) => {
+      revRatingInp.value = String(val);
+      starBtns.forEach((b) => {
+        const bv = parseInt(b.getAttribute('data-star-val'), 10);
+        b.classList.toggle('is-active', bv <= val);
+      });
+    };
+    starBtns.forEach((b) => {
+      b.addEventListener('click', () => paintStars(parseInt(b.getAttribute('data-star-val'), 10)));
+    });
+  }
+
+  const revForm = document.getElementById('apex-review-form');
+  if (revForm) {
+    const revOut = document.getElementById('rev-result');
+    const revGrid = document.getElementById('apex-reviews-grid');
+    revForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fd = new FormData(revForm);
+      const payload = {
+        author_name: fd.get('author_name'),
+        member_plan: fd.get('member_plan'),
+        rating: parseInt(fd.get('rating') || '5', 10),
+        comment: fd.get('comment'),
+      };
+      const btn = revForm.querySelector('button[type="submit"]');
+      btn.disabled = true;
+      btn.textContent = 'Yayınlanıyor...';
+      const { ok, data } = await apexApi('reviews', { method: 'POST', body: JSON.stringify(payload) });
+      btn.disabled = false;
+      btn.textContent = 'Değerlendirmeyi Yayınla';
+
+      if (ok && data.success && data.review) {
+        if (revOut) revOut.innerHTML = `<span style="color:#30d158;font-weight:700;">✓ ${escHtml(data.message)}</span>`;
+        const avgEl = document.getElementById('apex-rev-avg');
+        const cntEl = document.getElementById('apex-rev-count');
+        if (avgEl && data.average) avgEl.textContent = Number(data.average).toFixed(1);
+        if (cntEl && data.count) cntEl.textContent = String(data.count);
+        if (revGrid) {
+          const r = data.review;
+          const stars = '★'.repeat(r.rating) + '☆'.repeat(Math.max(0, 5 - r.rating));
+          const card = document.createElement('article');
+          card.className = 'apex-card apex-rev-card';
+          card.innerHTML = `<div class="apex-card-body">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+              <span class="apex-stars">${stars}</span>
+              <span class="apex-tag">${escHtml(r.member_plan)}</span>
+            </div>
+            <p style="margin:6px 0 0;font-size:0.92rem;color:var(--apex-text);">“${escHtml(r.comment)}”</p>
+            <div class="apex-card-foot">
+              <strong>${escHtml(r.author_name)}</strong>
+              <span class="apex-muted" style="font-size:0.78rem;">${escHtml(r.created_at)}</span>
+            </div>
+          </div>`;
+          revGrid.prepend(card);
+        }
+        revForm.reset();
+        if (revRatingInp) revRatingInp.value = '5';
+        if (starPicker) starPicker.querySelectorAll('[data-star-val]').forEach((b) => b.classList.add('is-active'));
+        showToast('★ Değerlendirmeniz anında yayınlandı!');
+      } else if (revOut) {
+        revOut.innerHTML = `<span style="color:#ff5b73;font-weight:600;">⚠️ ${escHtml(data.message || 'Yorum gönderilemedi.')}</span>`;
+      }
+    });
+  }
+
+  // =========================================================================
+  // 16. SAATLİK TESİS YOĞUNLUK TAHMİN GRAFİĞİ (#apex-crowd-bars)
+  // =========================================================================
+  const crowdBars = document.getElementById('apex-crowd-bars');
+  if (crowdBars) {
+    const CROWD_DATA = {
+      weekday: {
+        note: 'En sakin saatler: 09:00–12:00 ve 14:00–16:00 arası (%22–%38)',
+        hours: [
+          ['07', 42], ['08', 58], ['09', 34], ['10', 26], ['11', 28], ['12', 46],
+          ['13', 44], ['14', 29], ['15', 32], ['16', 54], ['17', 74], ['18', 92],
+          ['19', 96], ['20', 88], ['21', 64], ['22', 35],
+        ],
+      },
+      sat: {
+        note: 'Cumartesi öğleden sonra 15:00–18:00 arası salon ve fitness en sakin dönemdir.',
+        hours: [
+          ['08', 35], ['09', 56], ['10', 78], ['11', 86], ['12', 82], ['13', 68],
+          ['14', 52], ['15', 40], ['16', 44], ['17', 58], ['18', 72], ['19', 64],
+          ['20', 48], ['21', 30],
+        ],
+      },
+      sun: {
+        note: 'Pazar günleri özellikle 14:00 sonrası sauna, fitness ve basketbol salonları rahattır.',
+        hours: [
+          ['08', 24], ['09', 40], ['10', 64], ['11', 74], ['12', 70], ['13', 55],
+          ['14', 42], ['15', 36], ['16', 38], ['17', 48], ['18', 52], ['19', 44],
+          ['20', 30], ['21', 20],
+        ],
+      },
+    };
+    const nowHour = String(new Date().getHours()).padStart(2, '0');
+    const renderCrowd = (dayKey) => {
+      const cfg = CROWD_DATA[dayKey] || CROWD_DATA.weekday;
+      const noteEl = document.getElementById('apex-crowd-note');
+      if (noteEl) noteEl.textContent = cfg.note;
+      crowdBars.innerHTML = cfg.hours.map(([h, pct]) => {
+        const cls = pct >= 80 ? 'is-peak' : (pct >= 50 ? 'is-mid' : 'is-calm');
+        const isNow = h === nowHour;
+        return `<div class="apex-crowd-col ${isNow ? 'is-now' : ''}" role="listitem" title="${h}:00 — %${pct} tahmini doluluk">
+          <div class="apex-crowd-bar-wrap">
+            <div class="apex-crowd-bar ${cls}" style="height:${pct}%;"><span>%${pct}</span></div>
+          </div>
+          <span class="apex-crowd-lbl">${h}</span>
+        </div>`;
+      }).join('');
+    };
+    document.querySelectorAll('[data-crowd-day]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('[data-crowd-day]').forEach((b) => b.classList.toggle('is-active', b === btn));
+        renderCrowd(btn.getAttribute('data-crowd-day'));
+      });
+    });
+    renderCrowd('weekday');
+  }
+
+  // =========================================================================
+  // 17. APEX PROTEİN KAFE ANTRENMAN ÇIKIŞI ÖN SİPARİŞ SEPETİ (#apex-cafe-cart)
+  // =========================================================================
+  const cafeOrderForm = document.getElementById('apex-cafe-order-form');
+  if (cafeOrderForm) {
+    const cartItemsEl = document.getElementById('apex-cafe-cart-items');
+    const summaryEl = document.getElementById('apex-cafe-macro-summary');
+    const resultEl = document.getElementById('apex-cafe-order-result');
+    let cart = [];
+
+    const renderCart = () => {
+      let totalQty = 0;
+      let totalKcal = 0;
+      let totalPro = 0;
+      let totalPrice = 0;
+      cart.forEach((it) => {
+        totalQty += it.qty;
+        totalKcal += it.kcal * it.qty;
+        totalPro += it.protein * it.qty;
+        totalPrice += it.price * it.qty;
+      });
+      if (summaryEl) {
+        summaryEl.innerHTML = `
+          <span class="apex-tag">${totalQty} Ürün</span>
+          <span class="apex-tag apex-tag-volt">${totalKcal} kcal · ${totalPro}g Protein</span>
+          <span class="apex-tag" style="background:rgba(227,24,55,0.2);color:#fff;">Toplam: ₺${totalPrice.toLocaleString('tr-TR')}</span>
+        `;
+      }
+      if (!cartItemsEl) return;
+      if (cart.length === 0) {
+        cartItemsEl.innerHTML = '<span class="apex-muted">Yukarıdaki menüden dilediğiniz shake, fit bowl veya kahveyi sepete ekleyin.</span>';
+        return;
+      }
+      cartItemsEl.innerHTML = `<div class="apex-cart-list">${cart.map((it, idx) => `
+        <div class="apex-cart-row">
+          <div>
+            <strong>${escHtml(it.name)}</strong>
+            <small class="apex-muted" style="display:block;">${it.kcal * it.qty} kcal · ${it.protein * it.qty}g protein · ₺${(it.price * it.qty).toLocaleString('tr-TR')}</small>
+          </div>
+          <div class="apex-cart-qty">
+            <button type="button" class="apex-btn apex-btn-ghost apex-btn-sm" data-cart-dec="${idx}" aria-label="Adet azalt">−</button>
+            <span>${it.qty}</span>
+            <button type="button" class="apex-btn apex-btn-ghost apex-btn-sm" data-cart-inc="${idx}" aria-label="Adet artır">+</button>
+            <button type="button" class="apex-btn apex-btn-outline apex-btn-sm" data-cart-del="${idx}" aria-label="Ürünü sil">✕</button>
+          </div>
+        </div>
+      `).join('')}</div>`;
+    };
+
+    document.querySelectorAll('[data-cafe-add]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const name = btn.getAttribute('data-item-name');
+        const price = parseInt(btn.getAttribute('data-item-price') || '0', 10);
+        const kcal = parseInt(btn.getAttribute('data-item-kcal') || '0', 10);
+        const protein = parseInt(btn.getAttribute('data-item-protein') || '0', 10);
+        const existing = cart.find((x) => x.name === name);
+        if (existing) existing.qty = Math.min(10, existing.qty + 1);
+        else cart.push({ name, price, kcal, protein, qty: 1 });
+        renderCart();
+        showToast(`🥤 ${name} sepete eklendi.`);
+      });
+    });
+
+    if (cartItemsEl) {
+      cartItemsEl.addEventListener('click', (e) => {
+        const inc = e.target.closest('[data-cart-inc]');
+        const dec = e.target.closest('[data-cart-dec]');
+        const del = e.target.closest('[data-cart-del]');
+        if (inc) {
+          const i = +inc.getAttribute('data-cart-inc');
+          if (cart[i]) cart[i].qty = Math.min(10, cart[i].qty + 1);
+          renderCart();
+        } else if (dec) {
+          const i = +dec.getAttribute('data-cart-dec');
+          if (cart[i]) {
+            cart[i].qty -= 1;
+            if (cart[i].qty <= 0) cart.splice(i, 1);
+          }
+          renderCart();
+        } else if (del) {
+          cart.splice(+del.getAttribute('data-cart-del'), 1);
+          renderCart();
+        }
+      });
+    }
+
+    cafeOrderForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (cart.length === 0) {
+        if (resultEl) resultEl.innerHTML = '<div class="apex-alert apex-alert-error">⚠️ Lütfen önce yukarıdaki menüden sepete en az 1 ürün ekleyin.</div>';
+        return;
+      }
+      const fd = new FormData(cafeOrderForm);
+      const btn = cafeOrderForm.querySelector('button[type="submit"]');
+      btn.disabled = true;
+      btn.textContent = 'Baristaya İletiliyor...';
+      const { ok, data } = await apexApi('cafe-order', {
+        method: 'POST',
+        body: JSON.stringify({
+          customer_name: fd.get('customer_name'),
+          customer_phone: fd.get('customer_phone'),
+          pickup_time: fd.get('pickup_time'),
+          notes: fd.get('notes'),
+          items: cart,
+        }),
+      });
+      btn.disabled = false;
+      btn.textContent = 'Ön Siparişi Baristaya Gönder';
+      if (ok && data.success) {
+        if (resultEl) {
+          resultEl.innerHTML = `<div class="apex-alert apex-alert-success">✅ <strong>${escHtml(data.message)}</strong><br>Toplam: <strong>${escHtml(data.total_label)}</strong> · ${data.total_kcal} kcal · ${data.total_protein}g Protein</div>`;
+        }
+        cart = [];
+        renderCart();
+        cafeOrderForm.reset();
+        showToast(`✓ Kafe siparişiniz alındı: ${data.order_code}`);
+      } else if (resultEl) {
+        resultEl.innerHTML = `<div class="apex-alert apex-alert-error">⚠️ ${escHtml(data.message || 'Sipariş iletilemedi.')}</div>`;
+      }
+    });
+  }
+
+  // =========================================================================
+  // 18. 3 SORULUK AKILLI PAKET & PT BULUCU QUIZ (#paket-bulucu)
+  // =========================================================================
+  const quizBody = document.getElementById('apex-quiz-body');
+  if (quizBody) {
+    const stepLabel = document.getElementById('quiz-step-label');
+    const resultBox = document.getElementById('apex-quiz-result');
+    const answers = {};
+
+    const showStep = (stepNum) => {
+      quizBody.querySelectorAll('.apex-quiz-step').forEach((s) => {
+        s.classList.toggle('is-active', Number(s.getAttribute('data-quiz-step')) === stepNum);
+      });
+      if (resultBox) resultBox.hidden = true;
+      if (stepLabel) stepLabel.textContent = `Soru ${stepNum} / 3`;
+    };
+
+    const showQuizResult = () => {
+      quizBody.querySelectorAll('.apex-quiz-step').forEach((s) => s.classList.remove('is-active'));
+      if (stepLabel) stepLabel.textContent = 'Kişisel Önerin Hazır';
+
+      let planSlug = 'pro';
+      let planTitle = 'APEX PRO';
+      let priceTxt = '₺2.490 / ay';
+      let reason = 'Haftalık düzenli antrenman, sınırsız grup dersleri, %15 kafe ve %10 salon indirimi ile en dengeli paket.';
+      let coach = 'Elif Karaca (Fonksiyonel & HIIT)';
+
+      if (answers.pt === 'vip' || (answers.freq === '6' && answers.pt !== 'none')) {
+        planSlug = 'elite';
+        planTitle = 'APEX ELITE + PT';
+        priceTxt = '₺4.990 / ay';
+        reason = 'Ayda 8 birebir PT seansı, koçunun hazırladığı canlı beslenme takvimi, 1-1 koç sohbeti ve VIP otopark/sauna ayrıcalığı.';
+        coach = answers.goal === 'court' ? 'Emre Demir (Basketbol & Voleybol Performans)' : (answers.goal === 'wellness' ? 'Selin Yılmaz (Reformer & Postür)' : 'Kerem Alkan (Kuvvet & Hipertrofi)');
+      } else if (answers.pt === 'none' && answers.freq === '2') {
+        planSlug = 'classic';
+        planTitle = 'APEX CLASSIC';
+        priceTxt = '₺1.490 / ay';
+        reason = 'Haftada 2 gün 7/24 fitness, akıllı RFID dolap, yağmur duş, Fin saunası ve dijital QR kartı için en ekonomik başlangıç.';
+        coach = 'Başlangıç InBody Değerlendirmesi + Apex AI Koç';
+      } else {
+        if (answers.goal === 'court') coach = 'Emre Demir (Atletik Patlayıcılık & Salon Performansı)';
+        else if (answers.goal === 'muscle') coach = 'Kerem Alkan (Kuvvet & Hipertrofi)';
+        else if (answers.goal === 'wellness') coach = 'Selin Yılmaz (Reformer Pilates & Mobilite)';
+      }
+
+      if (resultBox) {
+        resultBox.hidden = false;
+        resultBox.innerHTML = `
+          <div class="apex-quiz-res-inner">
+            <div>
+              <span class="apex-eyebrow" style="margin-bottom:4px;">SANA EN UYGUN PAKET</span>
+              <h4 class="apex-h2" style="margin:0 0 6px;">${planTitle} <span style="color:var(--apex-crimson);font-size:1.15rem;">(${priceTxt})</span></h4>
+              <p class="apex-muted" style="margin:0 0 10px;">${reason}</p>
+              <div class="apex-tags"><span class="apex-tag apex-tag-volt">🏅 Önerilen Koç: ${coach}</span></div>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+              <button type="button" class="apex-btn apex-btn-primary" id="apex-quiz-apply-plan" data-slug="${planSlug}">Bu Paketi Seç &amp; Kayıt Ol →</button>
+              <button type="button" class="apex-btn apex-btn-outline apex-btn-sm" id="apex-quiz-reset">Testi Tekrarla</button>
+            </div>
+          </div>
+        `;
+        document.getElementById('apex-quiz-apply-plan')?.addEventListener('click', (ev) => {
+          const slug = ev.currentTarget.getAttribute('data-slug');
+          const sel = document.getElementById('mem-plan-select');
+          if (sel && slug) sel.value = slug;
+          setAuthMode('register');
+          document.getElementById('kayit')?.scrollIntoView({ behavior: 'smooth' });
+          showToast(`🎯 ${planTitle} kayıt formunda seçildi!`);
+        });
+        document.getElementById('apex-quiz-reset')?.addEventListener('click', () => showStep(1));
+      }
+    };
+
+    quizBody.querySelectorAll('[data-quiz-pick]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const key = btn.getAttribute('data-quiz-pick');
+        answers[key] = btn.getAttribute('data-val');
+        if (key === 'goal') showStep(2);
+        else if (key === 'freq') showStep(3);
+        else showQuizResult();
+      });
+    });
+  }
+
+  // =========================================================================
+  // 19. ÜYE PANELİ HAFTALIK ANTRENMAN KAYDI (#apex-workout-log-form)
+  // =========================================================================
+  const wkForm = document.getElementById('apex-workout-log-form');
+  if (wkForm) {
+    wkForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fd = new FormData(wkForm);
+      const btn = wkForm.querySelector('button[type="submit"]');
+      btn.disabled = true;
+      btn.textContent = 'Kaydediliyor...';
+      const { ok, data } = await apexApi('workout-log', {
+        method: 'POST',
+        body: JSON.stringify({
+          workout_type: fd.get('workout_type'),
+          duration_min: parseInt(fd.get('duration_min') || '60', 10),
+          calories: parseInt(fd.get('calories') || '480', 10),
+          notes: fd.get('notes'),
+        }),
+      });
+      btn.disabled = false;
+      btn.textContent = '+ Bugünkü Antrenmanı Kaydet';
+      if (ok && data.success && data.entry) {
+        const list = document.getElementById('apex-wk-list');
+        if (list) {
+          const pct = Math.max(12, Math.min(100, Math.round((data.entry.calories / 750) * 100)));
+          const row = document.createElement('div');
+          row.className = 'apex-wk-row';
+          row.innerHTML = `
+            <div style="display:flex;justify-content:space-between;font-size:0.86rem;margin-bottom:5px;">
+              <strong>${escHtml(data.entry.workout_type)} <small class="apex-muted">(Bugün)</small></strong>
+              <span>${data.entry.duration_min} dk · <strong style="color:var(--apex-crimson);">${data.entry.calories} kcal</strong></span>
+            </div>
+            <div style="height:7px;background:var(--apex-bg);border-radius:99px;overflow:hidden;">
+              <div style="width:${pct}%;height:100%;background:linear-gradient(90deg,#e31837,#f4e268);border-radius:99px;"></div>
+            </div>
+          `;
+          list.prepend(row);
+        }
+        const kpis = document.getElementById('apex-wk-kpis');
+        if (kpis) {
+          const ns = parseInt(kpis.dataset.sessions || '0', 10) + 1;
+          const nm = parseInt(kpis.dataset.minutes || '0', 10) + parseInt(data.entry.duration_min || '0', 10);
+          const nk = parseInt(kpis.dataset.kcal || '0', 10) + parseInt(data.entry.calories || '0', 10);
+          kpis.dataset.sessions = String(ns);
+          kpis.dataset.minutes = String(nm);
+          kpis.dataset.kcal = String(nk);
+          const eS = document.getElementById('apex-wk-kpi-sessions');
+          const eM = document.getElementById('apex-wk-kpi-min');
+          const eK = document.getElementById('apex-wk-kpi-kcal');
+          if (eS) eS.textContent = `${ns} Seans`;
+          if (eM) eM.textContent = `⏱ ${nm} dk`;
+          if (eK) eK.textContent = `🔥 ${nk.toLocaleString('tr-TR')} kcal`;
+        }
+        wkForm.reset();
+        showToast('🔥 ' + data.message);
+      } else {
+        showToast('⚠️ ' + (data.message || 'Antrenman kaydedilemedi.'));
+      }
+    });
+  }
+
+  // =========================================================================
+  // 20. ÜYE ↔ KOÇ BİREBİR CANLI MESAJLAŞMA (#apex-member-coach-chat-form)
+  // =========================================================================
+  const memberChatForm = document.getElementById('apex-member-coach-chat-form');
+  if (memberChatForm) {
+    const chatBox = document.getElementById('apex-member-chat-box');
+    const chatInput = document.getElementById('member-coach-msg-input');
+    if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+
+    memberChatForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const text = (chatInput?.value || '').trim();
+      if (!text) return;
+      const btn = memberChatForm.querySelector('button[type="submit"]');
+      btn.disabled = true;
+      const { ok, data } = await apexApi('member/message', {
+        method: 'POST',
+        body: JSON.stringify({ message: text }),
+      });
+      btn.disabled = false;
+      if (ok && data.success && data.item) {
+        if (chatBox) {
+          const b = document.createElement('div');
+          b.className = 'apex-mchat-bubble is-me';
+          b.innerHTML = `${escHtml(data.item.message)}<small>${escHtml(data.item.sender_name)} · ${escHtml(data.item.time)}</small>`;
+          chatBox.appendChild(b);
+          chatBox.scrollTop = chatBox.scrollHeight;
+        }
+        if (chatInput) chatInput.value = '';
+        showToast('💬 Mesajınız koçunuza iletildi!');
+      } else {
+        showToast('⚠️ ' + (data.message || 'Mesaj gönderilemedi.'));
+      }
+    });
+  }
 })();

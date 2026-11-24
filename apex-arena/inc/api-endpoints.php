@@ -59,6 +59,58 @@ add_action( 'rest_api_init', function() {
         'callback'            => 'apex_api_chat',
         'permission_callback' => '__return_true',
     ] );
+
+    // v2.0.0 — Üye Yorumları, Kafe Ön Siparişi, Antrenman Kaydı & Koç-Öğrenci Sistemi
+    register_rest_route( 'apex/v1', '/reviews', [
+        [
+            'methods'             => 'GET',
+            'callback'            => 'apex_api_get_reviews',
+            'permission_callback' => '__return_true',
+        ],
+        [
+            'methods'             => 'POST',
+            'callback'            => 'apex_api_submit_review',
+            'permission_callback' => '__return_true',
+        ],
+    ] );
+
+    register_rest_route( 'apex/v1', '/cafe-order', [
+        'methods'             => 'POST',
+        'callback'            => 'apex_api_submit_cafe_order',
+        'permission_callback' => '__return_true',
+    ] );
+
+    register_rest_route( 'apex/v1', '/workout-log', [
+        'methods'             => 'POST',
+        'callback'            => 'apex_api_add_workout_log',
+        'permission_callback' => function() {
+            return is_user_logged_in();
+        },
+    ] );
+
+    register_rest_route( 'apex/v1', '/member/message', [
+        'methods'             => 'POST',
+        'callback'            => 'apex_api_member_send_message',
+        'permission_callback' => function() {
+            return is_user_logged_in();
+        },
+    ] );
+
+    register_rest_route( 'apex/v1', '/coach/save-student', [
+        'methods'             => 'POST',
+        'callback'            => 'apex_api_coach_save_student',
+        'permission_callback' => function() {
+            return current_user_can( 'apex_coach_access' ) || current_user_can( 'manage_options' );
+        },
+    ] );
+
+    register_rest_route( 'apex/v1', '/coach/message', [
+        'methods'             => 'POST',
+        'callback'            => 'apex_api_coach_send_message',
+        'permission_callback' => function() {
+            return current_user_can( 'apex_coach_access' ) || current_user_can( 'manage_options' );
+        },
+    ] );
 } );
 
 /**
@@ -469,4 +521,352 @@ function apex_api_chat( WP_REST_Request $req ) {
 
     $res = apex_ai_handle_message( $message, $history, $session );
     return new WP_REST_Response( array_merge( [ 'success' => true ], $res ), 200 );
+}
+
+/**
+ * v2.0.0 — Üye Yorumları & Puanlama (GET / POST)
+ */
+function apex_api_get_reviews() {
+    global $wpdb;
+    $rows = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}apex_reviews WHERE status = 'published' ORDER BY id DESC LIMIT 30" );
+    $avg  = (float) $wpdb->get_var( "SELECT COALESCE(AVG(rating), 5) FROM {$wpdb->prefix}apex_reviews WHERE status = 'published'" );
+    return new WP_REST_Response( [
+        'success' => true,
+        'count'   => count( $rows ),
+        'average' => round( $avg, 1 ),
+        'reviews' => $rows,
+    ], 200 );
+}
+
+function apex_api_submit_review( WP_REST_Request $req ) {
+    global $wpdb;
+    $p       = $req->get_json_params();
+    $name    = sanitize_text_field( $p['author_name'] ?? '' );
+    $plan    = sanitize_text_field( $p['member_plan'] ?? 'APEX PRO' );
+    $rating  = max( 1, min( 5, absint( $p['rating'] ?? 5 ) ) );
+    $comment = sanitize_textarea_field( $p['comment'] ?? '' );
+
+    if ( ! $name || strlen( $comment ) < 8 ) {
+        return new WP_REST_Response( [ 'success' => false, 'message' => 'Lütfen adınızı ve en az 8 karakterlik yorumunuzu yazın.' ], 400 );
+    }
+
+    $wpdb->insert(
+        $wpdb->prefix . 'apex_reviews',
+        [
+            'author_name' => $name,
+            'member_plan' => $plan,
+            'rating'      => $rating,
+            'comment'     => $comment,
+            'status'      => 'published',
+        ],
+        [ '%s', '%s', '%d', '%s', '%s' ]
+    );
+
+    $avg   = (float) $wpdb->get_var( "SELECT COALESCE(AVG(rating), 5) FROM {$wpdb->prefix}apex_reviews WHERE status = 'published'" );
+    $count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}apex_reviews WHERE status = 'published'" );
+
+    return new WP_REST_Response( [
+        'success' => true,
+        'message' => 'Değerlendirmeniz yayınlandı! Görüşünüz için teşekkür ederiz.',
+        'review'  => [
+            'id'          => (int) $wpdb->insert_id,
+            'author_name' => $name,
+            'member_plan' => $plan,
+            'rating'      => $rating,
+            'comment'     => $comment,
+            'created_at'  => current_time( 'd.m.Y' ),
+        ],
+        'average' => round( $avg, 1 ),
+        'count'   => $count,
+    ], 201 );
+}
+
+/**
+ * v2.0.0 — Apex Protein Kafe Antrenman Çıkışı Ön Siparişi
+ */
+function apex_api_submit_cafe_order( WP_REST_Request $req ) {
+    global $wpdb;
+    $p      = $req->get_json_params();
+    $name   = sanitize_text_field( $p['customer_name'] ?? '' );
+    $phone  = sanitize_text_field( $p['customer_phone'] ?? '' );
+    $pickup = sanitize_text_field( $p['pickup_time'] ?? 'Antrenman Çıkışı (20 dk)' );
+    $notes  = sanitize_textarea_field( $p['notes'] ?? '' );
+    $items  = is_array( $p['items'] ?? null ) ? $p['items'] : [];
+
+    if ( ! $name || ! $phone || empty( $items ) ) {
+        return new WP_REST_Response( [ 'success' => false, 'message' => 'Sepetinizde en az 1 ürün olmalı ve ad/telefon bilgileri girilmelidir.' ], 400 );
+    }
+
+    $clean_items   = [];
+    $total_price   = 0;
+    $total_kcal    = 0;
+    $total_protein = 0;
+    foreach ( $items as $it ) {
+        $qty = max( 1, min( 10, absint( $it['qty'] ?? 1 ) ) );
+        $pr  = max( 0, absint( $it['price'] ?? 0 ) );
+        $kc  = max( 0, absint( $it['kcal'] ?? 0 ) );
+        $pro = max( 0, absint( $it['protein'] ?? 0 ) );
+        $clean_items[] = [
+            'name'    => sanitize_text_field( $it['name'] ?? '' ),
+            'qty'     => $qty,
+            'price'   => $pr,
+            'kcal'    => $kc,
+            'protein' => $pro,
+        ];
+        $total_price   += $pr * $qty;
+        $total_kcal    += $kc * $qty;
+        $total_protein += $pro * $qty;
+    }
+
+    $code = 'APX-KFE-' . strtoupper( substr( md5( uniqid( '', true ) ), 0, 5 ) );
+    $wpdb->insert(
+        $wpdb->prefix . 'apex_cafe_orders',
+        [
+            'order_code'    => $code,
+            'user_id'       => get_current_user_id(),
+            'customer_name' => $name,
+            'customer_phone'=> $phone,
+            'pickup_time'   => $pickup,
+            'items_json'    => wp_json_encode( $clean_items, JSON_UNESCAPED_UNICODE ),
+            'total_kcal'    => $total_kcal,
+            'total_protein' => $total_protein,
+            'total_price'   => $total_price,
+            'notes'         => $notes,
+            'status'        => 'preparing',
+        ],
+        [ '%s', '%d', '%s', '%s', '%s', '%s', '%d', '%d', '%d', '%s', '%s' ]
+    );
+
+    return new WP_REST_Response( [
+        'success'       => true,
+        'order_code'    => $code,
+        'total_label'   => apex_format_tl( $total_price ),
+        'total_kcal'    => $total_kcal,
+        'total_protein' => $total_protein,
+        'pickup_time'   => $pickup,
+        'message'       => "Siparişiniz alındı ({$code})! {$pickup} teslim alınmak üzere baristalarımız hazırlıyor.",
+    ], 201 );
+}
+
+/**
+ * v2.0.0 — Üye Paneli Antrenman Kaydı Ekleme
+ */
+function apex_api_add_workout_log( WP_REST_Request $req ) {
+    global $wpdb;
+    $p    = $req->get_json_params();
+    $uid  = get_current_user_id();
+    $type = sanitize_text_field( $p['workout_type'] ?? 'Fonksiyonel Antrenman' );
+    $dur  = max( 10, min( 240, absint( $p['duration_min'] ?? 60 ) ) );
+    $kcal = max( 40, min( 2500, absint( $p['calories'] ?? ( $dur * 8 ) ) ) );
+    $note = sanitize_text_field( $p['notes'] ?? '' );
+    $date = sanitize_text_field( $p['workout_date'] ?? current_time( 'Y-m-d' ) );
+
+    $wpdb->insert(
+        $wpdb->prefix . 'apex_workout_logs',
+        [
+            'user_id'      => $uid,
+            'workout_date' => $date,
+            'workout_type' => $type,
+            'duration_min' => $dur,
+            'calories'     => $kcal,
+            'notes'        => $note,
+        ],
+        [ '%d', '%s', '%s', '%d', '%d', '%s' ]
+    );
+
+    // İlgili koç-öğrenci ilerlemesini de +2% güncel tut
+    $wpdb->query( $wpdb->prepare(
+        "UPDATE {$wpdb->prefix}apex_coach_students SET sessions_done = LEAST(sessions_planned, sessions_done + 1), progress_pct = LEAST(100, progress_pct + 2), progress_trend = 'up', updated_at = NOW() WHERE student_user_id = %d",
+        $uid
+    ) );
+
+    return new WP_REST_Response( [
+        'success' => true,
+        'message' => "Harika! {$type} ({$dur} dk · {$kcal} kcal) antrenman günlüğüne eklendi.",
+        'entry'   => [
+            'workout_date' => date( 'd.m.Y', strtotime( $date ) ),
+            'workout_type' => $type,
+            'duration_min' => $dur,
+            'calories'     => $kcal,
+            'notes'        => $note,
+        ],
+    ], 201 );
+}
+
+/**
+ * v2.0.0 — Öğrenci → Koç Birebir Mesaj Gönderimi (Üye Panelinden)
+ */
+function apex_api_member_send_message( WP_REST_Request $req ) {
+    global $wpdb;
+    $p   = $req->get_json_params();
+    $uid = get_current_user_id();
+    $cu  = wp_get_current_user();
+    $msg = sanitize_textarea_field( $p['message'] ?? '' );
+
+    if ( ! $msg ) {
+        return new WP_REST_Response( [ 'success' => false, 'message' => 'Lütfen mesajınızı yazın.' ], 400 );
+    }
+
+    $student = $wpdb->get_row( $wpdb->prepare(
+        "SELECT * FROM {$wpdb->prefix}apex_coach_students WHERE student_user_id = %d OR student_email = %s LIMIT 1",
+        $uid, $cu->user_email
+    ) );
+
+    if ( ! $student ) {
+        return new WP_REST_Response( [ 'success' => false, 'message' => 'Henüz atanmış bir koçunuz bulunmuyor.' ], 404 );
+    }
+
+    $wpdb->insert(
+        $wpdb->prefix . 'apex_coach_messages',
+        [
+            'student_id'    => $student->id,
+            'coach_user_id' => $student->coach_user_id,
+            'sender_role'   => 'student',
+            'sender_name'   => $cu->display_name,
+            'message'       => $msg,
+            'is_read'       => 0,
+        ],
+        [ '%d', '%d', '%s', '%s', '%s', '%d' ]
+    );
+
+    return new WP_REST_Response( [
+        'success' => true,
+        'message' => 'Mesajınız koçunuza iletildi.',
+        'item'    => [
+            'sender_role' => 'student',
+            'sender_name' => $cu->display_name,
+            'message'     => $msg,
+            'time'        => current_time( 'd.m H:i' ),
+        ],
+    ], 201 );
+}
+
+/**
+ * v2.0.0 — Koç Panelinden Öğrenci Durumu + Öneri + 7 Günlük Beslenme Takvimi Kaydetme
+ * Sadece ilgili koçun kendi öğrencisi (veya Admin) güncellenebilir!
+ */
+function apex_api_coach_save_student( WP_REST_Request $req ) {
+    global $wpdb;
+    $p          = $req->get_json_params();
+    $student_id = absint( $p['student_id'] ?? 0 );
+    $uid        = get_current_user_id();
+    $is_admin   = current_user_can( 'manage_options' );
+
+    $student = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}apex_coach_students WHERE id = %d", $student_id ) );
+    if ( ! $student ) {
+        return new WP_REST_Response( [ 'success' => false, 'message' => 'Öğrenci kaydı bulunamadı.' ], 404 );
+    }
+    if ( ! $is_admin && (int) $student->coach_user_id !== $uid ) {
+        return new WP_REST_Response( [ 'success' => false, 'message' => 'Yetkisiz işlem: Yalnızca kendi öğrencilerinizi düzenleyebilirsiniz.' ], 403 );
+    }
+
+    $allowed_st = [ 'hedefte', 'dikkat', 'yeni', 'riskli' ];
+    $status     = in_array( $p['status'] ?? '', $allowed_st, true ) ? $p['status'] : $student->status;
+    $prog       = max( 0, min( 100, absint( $p['progress_pct'] ?? $student->progress_pct ) ) );
+    $adh        = max( 0, min( 100, absint( $p['adherence_pct'] ?? $student->adherence_pct ) ) );
+    $trend      = ( ( $p['progress_trend'] ?? 'up' ) === 'down' ) ? 'down' : 'up';
+    $cur_w      = (float) ( $p['current_weight'] ?? $student->current_weight );
+    $tar_w      = (float) ( $p['target_weight'] ?? $student->target_weight );
+    $advice     = sanitize_textarea_field( $p['coach_advice'] ?? $student->coach_advice );
+
+    $wpdb->update(
+        $wpdb->prefix . 'apex_coach_students',
+        [
+            'status'         => $status,
+            'progress_pct'   => $prog,
+            'progress_trend' => $trend,
+            'adherence_pct'  => $adh,
+            'current_weight' => $cur_w,
+            'target_weight'  => $tar_w,
+            'coach_advice'   => $advice,
+            'updated_at'     => current_time( 'mysql' ),
+        ],
+        [ 'id' => $student_id ]
+    );
+
+    // Beslenme takvimini de kaydet/güncelle
+    if ( isset( $p['nutrition'] ) && is_array( $p['nutrition'] ) ) {
+        $n     = $p['nutrition'];
+        $meals = [
+            'sabah'     => sanitize_textarea_field( $n['sabah'] ?? '' ),
+            'ara1'      => sanitize_textarea_field( $n['ara1'] ?? '' ),
+            'ogle'      => sanitize_textarea_field( $n['ogle'] ?? '' ),
+            'ant_sonra' => sanitize_textarea_field( $n['ant_sonra'] ?? '' ),
+            'aksam'     => sanitize_textarea_field( $n['aksam'] ?? '' ),
+        ];
+        $t_nut = $wpdb->prefix . 'apex_nutrition_plans';
+        $has   = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$t_nut} WHERE student_id = %d", $student_id ) );
+        $data  = [
+            'student_id'    => $student_id,
+            'coach_user_id' => (int) $student->coach_user_id,
+            'daily_kcal'    => max( 1000, min( 6000, absint( $n['daily_kcal'] ?? 2200 ) ) ),
+            'protein_g'     => max( 40, min( 350, absint( $n['protein_g'] ?? 160 ) ) ),
+            'carbs_g'       => max( 40, min( 600, absint( $n['carbs_g'] ?? 220 ) ) ),
+            'fat_g'         => max( 20, min( 200, absint( $n['fat_g'] ?? 65 ) ) ),
+            'water_l'       => max( 1.0, min( 7.0, (float) ( $n['water_l'] ?? 3.0 ) ) ),
+            'meals_json'    => wp_json_encode( $meals, JSON_UNESCAPED_UNICODE ),
+            'weekly_notes'  => sanitize_textarea_field( $n['weekly_notes'] ?? '' ),
+            'updated_at'    => current_time( 'mysql' ),
+        ];
+        if ( $has > 0 ) {
+            $wpdb->update( $t_nut, $data, [ 'student_id' => $student_id ] );
+        } else {
+            $wpdb->insert( $t_nut, $data );
+        }
+    }
+
+    return new WP_REST_Response( [
+        'success' => true,
+        'message' => "{$student->student_name} için durum, koç önerisi ve beslenme takvimi güncellendi (Üye paneline anında yansıdı).",
+    ], 200 );
+}
+
+/**
+ * v2.0.0 — Koç → Öğrenci Birebir Mesaj Gönderimi (Koç Panelinden)
+ */
+function apex_api_coach_send_message( WP_REST_Request $req ) {
+    global $wpdb;
+    $p          = $req->get_json_params();
+    $student_id = absint( $p['student_id'] ?? 0 );
+    $msg        = sanitize_textarea_field( $p['message'] ?? '' );
+    $uid        = get_current_user_id();
+    $cu         = wp_get_current_user();
+    $is_admin   = current_user_can( 'manage_options' );
+
+    if ( ! $student_id || ! $msg ) {
+        return new WP_REST_Response( [ 'success' => false, 'message' => 'Öğrenci ve mesaj alanı zorunludur.' ], 400 );
+    }
+
+    $student = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}apex_coach_students WHERE id = %d", $student_id ) );
+    if ( ! $student ) {
+        return new WP_REST_Response( [ 'success' => false, 'message' => 'Öğrenci bulunamadı.' ], 404 );
+    }
+    if ( ! $is_admin && (int) $student->coach_user_id !== $uid ) {
+        return new WP_REST_Response( [ 'success' => false, 'message' => 'Yetkisiz işlem: Yalnızca kendi öğrencilerinize mesaj gönderebilirsiniz.' ], 403 );
+    }
+
+    $sender = $is_admin && (int) $student->coach_user_id !== $uid ? ( $student->coach_name . ' (Yönetim)' ) : $cu->display_name;
+    $wpdb->insert(
+        $wpdb->prefix . 'apex_coach_messages',
+        [
+            'student_id'    => $student_id,
+            'coach_user_id' => (int) $student->coach_user_id,
+            'sender_role'   => 'coach',
+            'sender_name'   => $sender,
+            'message'       => $msg,
+            'is_read'       => 0,
+        ],
+        [ '%d', '%d', '%s', '%s', '%s', '%d' ]
+    );
+
+    return new WP_REST_Response( [
+        'success' => true,
+        'message' => 'Mesaj öğrenciye iletildi.',
+        'item'    => [
+            'sender_role' => 'coach',
+            'sender_name' => $sender,
+            'message'     => $msg,
+            'time'        => current_time( 'd.m H:i' ),
+        ],
+    ], 201 );
 }

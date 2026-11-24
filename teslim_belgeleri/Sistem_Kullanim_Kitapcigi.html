@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>APEX ARENA — Sistem Kullanım Kitapçığı (v1.7.1)</title>
+<title>APEX ARENA — Sistem Kullanım Kitapçığı (v2.0.0)</title>
 <style>
   :root { --bg:#0a0a0c; --card:#141418; --text:#f5f5f7; --muted:#a1a1aa; --red:#e31837; --border:rgba(255,255,255,0.12); }
   * { box-sizing:border-box; }
   body { margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:var(--bg); color:var(--text); line-height:1.6; padding:36px 20px; }
-  .wrap { max-width:960px; margin:0 auto; }
+  .wrap { max-width:980px; margin:0 auto; }
   .hero { background:linear-gradient(135deg,#18181d,#240a11); border:1px solid var(--border); border-radius:20px; padding:34px 32px; margin-bottom:28px; }
   .badge { display:inline-block; background:rgba(227,24,55,0.18); border:1px solid rgba(227,24,55,0.45); color:#ff6b81; font-size:12px; font-weight:700; letter-spacing:.08em; padding:4px 12px; border-radius:999px; text-transform:uppercase; }
   h1 { margin:12px 0 8px; font-size:32px; letter-spacing:-0.02em; }
@@ -27,9 +27,9 @@
 <body>
 <div class="wrap">
   <header class="hero">
-    <span class="badge">WordPress Özel Tema · v1.7.1</span>
+    <span class="badge">WordPress Özel Tema · v2.0.0</span>
     <h1>APEX ARENA — Spor ve Performans Kompleksi</h1>
-    <p>Sistem Kullanım Kitapçığı, Kurulum Rehberi ve Modül Dokümantasyonu</p>
+    <p>Sistem Kullanım Kitapçığı, Koç Grafik Portalı &amp; Modül Dokümantasyonu</p>
     <p style="margin:10px 0 0;font-size:13px;">
       <strong>Yerel URL:</strong> <code>http://localhost/spor_kompleksi/wordpress/</code> ·
       <strong>GitHub:</strong> <a href="https://github.com/ibrahimkorkut/spor_kompleksi">github.com/ibrahimkorkut/spor_kompleksi</a>
@@ -37,12 +37,14 @@
   </header>
 
   <section class="card">
-    <h2 style="margin-top:0;">1. Test ve Yönetim Giriş Bilgileri</h2>
+    <h2 style="margin-top:0;">1. Test, Koç ve Yönetim Giriş Bilgileri</h2>
     <table>
-      <thead><tr><th>Rol</th><th>Giriş Adresi</th><th>Kullanıcı Adı</th><th>Şifre</th></tr></thead>
+      <thead><tr><th>Rol</th><th>Giriş Adresi</th><th>Kullanıcı Adı</th><th>Şifre</th><th>Yetki Kapsamı</th></tr></thead>
       <tbody>
-        <tr><td><strong>WordPress Yönetici</strong></td><td><code>/wp-login.php</code> (Özel Koyu APEX Girişi)</td><td><code>root</code></td><td><code>korkut2006</code></td></tr>
-        <tr><td><strong>Demo Üye (QR &amp; Panel)</strong></td><td><code>/uyelik/#giris</code></td><td><code>uye_demo</code></td><td><code>ApexUye2026!</code></td></tr>
+        <tr><td><strong>WordPress Yönetici</strong></td><td><code>/wp-login.php</code></td><td><code>root</code></td><td><code>korkut2006</code></td><td>Tam yönetim, Gelir/CSV, tüm koçlar</td></tr>
+        <tr><td><strong>Koç — Kerem Alkan</strong></td><td><code>/wp-login.php</code></td><td><code>koc_kerem</code></td><td><code>ApexKoc2026!</code></td><td>Sadece kendi 5 öğrencisi (Rol izolasyonlu)</td></tr>
+        <tr><td><strong>Koç — Elif Karaca</strong></td><td><code>/wp-login.php</code></td><td><code>koc_elif</code></td><td><code>ApexKoc2026!</code></td><td>Sadece kendi 2 öğrencisi (Rol izolasyonlu)</td></tr>
+        <tr><td><strong>Demo Üye (QR &amp; Koç)</strong></td><td><code>/uyelik/#giris</code></td><td><code>uye_demo</code></td><td><code>ApexUye2026!</code></td><td>QR Kart, Koç Beslenme Takvimi, 1-1 Sohbet</td></tr>
       </tbody>
     </table>
   </section>
@@ -58,25 +60,25 @@
   </section>
 
   <section class="card">
-    <h2 style="margin-top:0;">3. Başlıca Özellikler &amp; Yenilikler (v1.7.1)</h2>
+    <h2 style="margin-top:0;">3. Başlıca Özellikler &amp; v2.0.0 Yenilikleri</h2>
     <ul>
-      <li><strong>60/120 FPS Scroll-Driven Mimari Video:</strong> 240 HD WebP kare, off-main-thread GPU <code>createImageBitmap</code>, O(1) LRU önbellek, sıfır zorunlu layout ve mobil adaptif akış.</li>
-      <li><strong>3D Cast-Iron Dumbbell (WebGL):</strong> Three.js prosedürel CAD dambıl, <em>HAREKETİN YENİ MERKEZİ</em> kinetik tipografi, lazy WebGL yükleme ve görünüm dışı otomatik uyku modu.</li>
-      <li><strong>Salon Kiralama &amp; Lisanslı Hakem:</strong> 2 FIBA Basketbol + 1 CEV Voleybol salonu, canlı çakışma kontrolü ve +₺450 hakem opsiyonu.</li>
-      <li><strong>PT Eğitmenler &amp; Antrenörler:</strong> Bireysel/Grupsal PT paketleri, haftalık ders tablosu, sertifika doğrulama modalı ve online randevu takvimi.</li>
-      <li><strong>Üyelik &amp; QR Kart:</strong> Çift yönlü kavisli kayar Giriş/Kayıt kartı, dijital QR üyelik kartı ve VKİ/Kalori hesaplayıcı.</li>
-      <li><strong>İletişim, Gerçek Google Maps &amp; WhatsApp Hattı:</strong> İki sütunlu yeni iletişim tasarımı, tek tıkla panoya kopyalama + toast bildirimi, canlı <em>Şu An Açık/Kapalı</em> durum rozeti, gerçek Ataşehir/İstanbul Google Harita embed ve yüzen WhatsApp destek butonu.</li>
-      <li><strong>Erişilebilirlik, SEO &amp; Mikro-Etkileşimler:</strong> WCAG 2.2 AA/AAA paneli, KVKK/çerez yönetimi, Yoast SEO (<code>tr_TR</code>), üst scroll ilerleme çizgisi, canlı halkalı Yukarı Çık butonu ve <code>Ctrl+K</code> klavye arama kısayolu.</li>
+      <li><strong>Koça Özel Grafiksel Yönetim Paneli:</strong> <code>apex_coach</code> özel rolüyle koçlar sadece kendi öğrencilerini görür. 5 kartlık koyu SVG analiz paneli (Sütun, Alan/Çizgi, Pasta/Donut, Program Uyumu, Öğrenci Durum Tablosu) + 5 öğünlük Beslenme Takvimi + Koç Önerisi + Birebir Canlı Mesajlaşma içerir.</li>
+      <li><strong>Admin Gelir Grafiği &amp; Excel/CSV Rapor Merkezi:</strong> Canlı MySQL gelir dağılımı, Türkçe Excel uyumlu UTF-8 BOM CSV indirmeleri (<code>Salonlar</code>, <code>PT</code>, <code>Üyelikler</code>, <code>Kafe</code>, <code>Yorumlar</code>) ve <code>Kafe &amp; Yorumlar</code> moderasyon ekranı.</li>
+      <li><strong>İnteraktif SVG Tesis Kat Planı &amp; Canlı 5 Yıldızlı Yorumlar:</strong> Ana sayfada 6 bölgeli tıklanabilir kompleks kat planı ve MySQL'e anlık kaydedilen üye puanlama sistemi.</li>
+      <li><strong>EV Şarj Monitörü, Saatlik Yoğunluk Grafiği &amp; Protein Kafe Sepeti:</strong> 6× 22 kW EV şarj durumu, Hafta İçi/Cmt/Paz saatlik doluluk barları ve makro hesaplı antrenman çıkışı kafe ön siparişi.</li>
+      <li><strong>Akıllı 3 Soruluk Paket Bulucu, Üye Antrenman Günlüğü &amp; <code>.ics</code> + WhatsApp Daveti:</strong> Kişisel paket/PT önerisi, detaylı karşılaştırma matrisi, Google/Apple takvim (<code>.ics</code>) indirme ve tek tıkla WhatsApp maç daveti paylaşımı.</li>
+      <li><strong>60/120 FPS Scroll Mimari Tur Videosu &amp; 3D Dumbbell:</strong> 240 HD WebP kare, off-main-thread GPU <code>createImageBitmap</code> ve Three.js prosedürel 3D cast-iron dumbbell sahnesi.</li>
+      <li><strong>Gemini 2.5 Flash AI Spor Koçu, Gerçek Google Maps, WCAG 2.2 AA/AAA &amp; Yoast SEO:</strong> Animasyonlu WhatsApp hattı, <code>Ctrl+K</code> arama, okuma ilerleme çizgisi ve canlı açık/kapalı durum rozeti.</li>
     </ul>
   </section>
 
   <section class="card">
     <h2 style="margin-top:0;">4. Teslim Dosyaları İçeriği</h2>
     <ul>
-      <li><code>apex-arena-envato-theme.zip</code> — Kuruluma hazır WordPress özel tema arşivi (v1.7.1)</li>
-      <li><code>spor_kompleksi_wp.sql</code> — Güncel, API anahtarı temizlenmiş MySQL veritabanı yedeği</li>
+      <li><code>apex-arena-envato-theme.zip</code> — Kuruluma hazır WordPress özel tema arşivi (v2.0.0)</li>
+      <li><code>spor_kompleksi_wp.sql</code> — Güncel, 11 özel tablolu ve API anahtarı temizlenmiş MySQL yedeği</li>
       <li><code>apex-arena-wordpress-export.xml</code> — WordPress WXR 1.2 içerik dışa aktarımı</li>
-      <li><code>ekran_goruntuleri/</code> — Masaüstü ve mobil güncel uygulama ekran görüntüleri</li>
+      <li><code>ekran_goruntuleri/</code> — Koç Grafik Paneli, Kat Planı, Kafe Sepeti, Üye Sohbeti ve Mobil 390px dahil güncel ekran görüntüleri</li>
     </ul>
   </section>
 </div>

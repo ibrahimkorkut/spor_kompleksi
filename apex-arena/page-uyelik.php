@@ -52,6 +52,9 @@ $cu     = $logged ? wp_get_current_user() : null;
                 <div style="display:flex;gap:10px;flex-wrap:wrap;">
                     <a href="<?php echo esc_url( home_url( '/salon-kiralama/#rezervasyon' ) ); ?>" class="apex-btn apex-btn-primary apex-btn-sm">+ YENİ SALON REZERVASYONU</a>
                     <a href="<?php echo esc_url( home_url( '/pt-egitmenler/#randevu' ) ); ?>" class="apex-btn apex-btn-volt apex-btn-sm">+ YENİ PT RANDEVUSU</a>
+                    <?php if ( current_user_can( 'apex_access_coach_portal' ) || current_user_can( 'manage_options' ) ) : ?>
+                        <a href="<?php echo esc_url( admin_url( 'admin.php?page=apex-coach-portal' ) ); ?>" class="apex-btn apex-btn-ghost apex-btn-sm">📊 KOÇ PANELİ</a>
+                    <?php endif; ?>
                     <a href="<?php echo esc_url( wp_logout_url( home_url( '/uyelik/' ) ) ); ?>" class="apex-btn apex-btn-outline apex-btn-sm">ÇIKIŞ YAP</a>
                 </div>
             </div>
@@ -79,7 +82,16 @@ $cu     = $logged ? wp_get_current_user() : null;
                                 </div>
                             </div>
                             <?php if ( $b->status !== 'cancelled' ) : ?>
-                                <button type="button" class="apex-btn apex-btn-outline apex-btn-sm" data-cancel-booking="<?php echo esc_attr( $b->id ); ?>" data-booking-kind="court">İPTAL ET</button>
+                                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                                    <button type="button" class="apex-btn apex-btn-ghost apex-btn-sm"
+                                        data-ics-btn
+                                        data-ics-title="<?php echo esc_attr( 'APEX ARENA — ' . $b->court_name ); ?>"
+                                        data-ics-date="<?php echo esc_attr( $b->booking_date ); ?>"
+                                        data-ics-time="<?php echo esc_attr( $b->time_slot ); ?>"
+                                        data-ics-hours="<?php echo esc_attr( $b->duration_hours ); ?>"
+                                        data-ics-desc="<?php echo esc_attr( 'Rezervasyon Kodu: ' . $b->booking_code . ( $b->needs_referee ? ' · Lisanslı Hakem Dahil' : '' ) ); ?>">📅 .ics</button>
+                                    <button type="button" class="apex-btn apex-btn-outline apex-btn-sm" data-cancel-booking="<?php echo esc_attr( $b->id ); ?>" data-booking-kind="court">İPTAL ET</button>
+                                </div>
                             <?php endif; ?>
                         </div>
                         <?php endforeach; ?>
@@ -101,12 +113,171 @@ $cu     = $logged ? wp_get_current_user() : null;
                                 <div style="font-size:0.84rem;margin-top:4px;">📅 <?php echo esc_html( date( 'd.m.Y', strtotime( $pt->appointment_date ) ) . ' · ' . $pt->time_slot ); ?> · Durum: <strong><?php echo esc_html( strtoupper( $pt->status ) ); ?></strong></div>
                             </div>
                             <?php if ( $pt->status !== 'cancelled' ) : ?>
-                                <button type="button" class="apex-btn apex-btn-outline apex-btn-sm" data-cancel-booking="<?php echo esc_attr( $pt->id ); ?>" data-booking-kind="pt">İPTAL ET</button>
+                                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                                    <button type="button" class="apex-btn apex-btn-ghost apex-btn-sm"
+                                        data-ics-btn
+                                        data-ics-title="<?php echo esc_attr( 'APEX ARENA PT — ' . $pt->trainer_name ); ?>"
+                                        data-ics-date="<?php echo esc_attr( $pt->appointment_date ); ?>"
+                                        data-ics-time="<?php echo esc_attr( $pt->time_slot ); ?>"
+                                        data-ics-hours="1"
+                                        data-ics-desc="<?php echo esc_attr( 'PT Randevu Kodu: ' . $pt->booking_code . ' · ' . $pt->package_name ); ?>">📅 .ics</button>
+                                    <button type="button" class="apex-btn apex-btn-outline apex-btn-sm" data-cancel-booking="<?php echo esc_attr( $pt->id ); ?>" data-booking-kind="pt">İPTAL ET</button>
+                                </div>
                             <?php endif; ?>
                         </div>
                         <?php endforeach; ?>
                     </div>
                 <?php endif; ?>
+            </div>
+        </div>
+
+        <?php
+        // v2.0.0 — Canlı Koç Takibi, Beslenme Takvimi, 1-1 Koç Mesajlaşması & Haftalık Antrenman Günlüğü
+        $my_coach_rec = $wpdb->get_row( $wpdb->prepare(
+            "SELECT * FROM {$wpdb->prefix}apex_coach_students WHERE student_user_id = %d OR student_email = %s LIMIT 1",
+            $cu->ID, $cu->user_email
+        ) );
+        $my_nut = $my_coach_rec ? $wpdb->get_row( $wpdb->prepare(
+            "SELECT * FROM {$wpdb->prefix}apex_nutrition_plans WHERE student_id = %d LIMIT 1",
+            $my_coach_rec->id
+        ) ) : null;
+        $my_meals = $my_nut ? ( json_decode( (string) $my_nut->meals_json, true ) ?: [] ) : [];
+        $my_cmsgs = $my_coach_rec ? $wpdb->get_results( $wpdb->prepare(
+            "SELECT sender_role, sender_name, message, DATE_FORMAT(created_at, '%%d.%%m %%H:%%i') AS time FROM {$wpdb->prefix}apex_coach_messages WHERE student_id = %d ORDER BY id ASC LIMIT 40",
+            $my_coach_rec->id
+        ) ) : [];
+        $my_workouts = $wpdb->get_results( $wpdb->prepare(
+            "SELECT * FROM {$wpdb->prefix}apex_workout_logs WHERE user_id = %d ORDER BY workout_date DESC, id DESC LIMIT 7",
+            $cu->ID
+        ) );
+        $total_wk_min  = array_sum( array_map( fn( $w ) => (int) $w->duration_min, $my_workouts ) );
+        $total_wk_kcal = array_sum( array_map( fn( $w ) => (int) $w->calories, $my_workouts ) );
+        ?>
+
+        <!-- KOÇUMUN BESLENME TAKVİMİ, ÖNERİSİ & BİREBİR MESAJLAŞMA (CANLI SENKRON) -->
+        <?php if ( $my_coach_rec ) :
+            $sm = function_exists( 'apex_coach_status_meta' ) ? apex_coach_status_meta( $my_coach_rec->status ) : [ 'label' => 'Hedefte', 'color' => '#30d158', 'bg' => 'rgba(48,209,88,0.16)' ];
+        ?>
+        <div class="apex-grid-2" style="align-items:start;" id="koc-takip">
+            <div class="apex-panel">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:14px;">
+                    <div>
+                        <span class="apex-eyebrow" style="margin-bottom:4px;">KOÇUM: <?php echo esc_html( strtoupper( $my_coach_rec->coach_name ) ); ?></span>
+                        <h3 class="apex-h3" style="margin:0;">🥗 Beslenme Takvimim &amp; Koç Önerisi</h3>
+                    </div>
+                    <span class="apex-tag" style="background:<?php echo esc_attr( $sm['bg'] ); ?>;color:<?php echo esc_attr( $sm['color'] ); ?>;border:1px solid <?php echo esc_attr( $sm['color'] ); ?>;">
+                        <?php echo esc_html( $sm['label'] ); ?> · %<?php echo esc_html( $my_coach_rec->progress_pct ); ?>
+                    </span>
+                </div>
+
+                <?php if ( ! empty( $my_coach_rec->coach_advice ) ) : ?>
+                <div class="apex-coach-advice-box">
+                    <strong>💡 <?php echo esc_html( $my_coach_rec->coach_name ); ?>’ın Güncel Önerisi:</strong>
+                    <p style="margin:6px 0 0;"><?php echo esc_html( $my_coach_rec->coach_advice ); ?></p>
+                </div>
+                <?php endif; ?>
+
+                <?php if ( $my_nut ) : ?>
+                <div class="apex-tags" style="margin:14px 0;">
+                    <span class="apex-tag apex-tag-volt">🔥 <?php echo esc_html( $my_nut->daily_kcal ); ?> kcal</span>
+                    <span class="apex-tag">🥩 <?php echo esc_html( $my_nut->protein_g ); ?>g Protein</span>
+                    <span class="apex-tag">🍚 <?php echo esc_html( $my_nut->carbs_g ); ?>g Karb</span>
+                    <span class="apex-tag">🥑 <?php echo esc_html( $my_nut->fat_g ); ?>g Yağ</span>
+                    <span class="apex-tag">💧 <?php echo esc_html( $my_nut->water_l ); ?>L Su</span>
+                </div>
+
+                <div class="apex-meal-list">
+                    <?php
+                    $meal_labels = [
+                        'sabah'     => '08:00 · Kahvaltı',
+                        'ara1'      => '11:00 · Ara Öğün',
+                        'ogle'      => '13:30 · Öğle Yemeği',
+                        'ant_sonra' => 'Antrenman Öncesi / Sonrası',
+                        'aksam'     => '19:30 · Akşam Yemeği',
+                    ];
+                    foreach ( $meal_labels as $mk => $ml ) :
+                        if ( empty( $my_meals[ $mk ] ) ) continue;
+                    ?>
+                    <div class="apex-meal-row">
+                        <strong><?php echo esc_html( $ml ); ?></strong>
+                        <span><?php echo esc_html( $my_meals[ $mk ] ); ?></span>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+                <?php if ( ! empty( $my_nut->weekly_notes ) ) : ?>
+                    <small class="apex-muted" style="display:block;margin-top:10px;">📌 <?php echo esc_html( $my_nut->weekly_notes ); ?></small>
+                <?php endif; ?>
+                <?php endif; ?>
+            </div>
+
+            <div class="apex-panel">
+                <span class="apex-eyebrow" style="margin-bottom:4px;">BİREBİR CANLI İLETİŞİM</span>
+                <h3 class="apex-h3" style="margin:0 0 14px;">💬 Koçumla Mesajlaş (<?php echo esc_html( $my_coach_rec->coach_name ); ?>)</h3>
+                <div class="apex-member-chat-box" id="apex-member-chat-box" aria-live="polite">
+                    <?php foreach ( $my_cmsgs as $cm ) : ?>
+                    <div class="apex-mchat-bubble <?php echo $cm->sender_role === 'student' ? 'is-me' : 'is-coach'; ?>">
+                        <?php echo esc_html( $cm->message ); ?>
+                        <small><?php echo esc_html( $cm->sender_name . ' · ' . $cm->time ); ?></small>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+                <form id="apex-member-coach-chat-form" style="display:flex;gap:8px;margin-top:12px;" novalidate>
+                    <input type="text" id="member-coach-msg-input" placeholder="Koçuna beslenme veya antrenman hakkında mesaj yaz..." style="flex:1;background:var(--apex-bg);border:1px solid var(--apex-border-strong);border-radius:999px;padding:10px 16px;color:var(--apex-text);font-size:0.88rem;" required>
+                    <button type="submit" class="apex-btn apex-btn-primary apex-btn-sm">Gönder</button>
+                </form>
+            </div>
+        </div>
+        <?php endif; ?>
+
+        <!-- HAFTALIK ANTRENMAN & HEDEF TAKİBİ (v2.0.0) -->
+        <div class="apex-panel" id="antrenman-takip">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px;">
+                <div>
+                    <span class="apex-eyebrow" style="margin-bottom:4px;">KİŞİSEL PERFORMANS GÜNLÜĞÜ</span>
+                    <h3 class="apex-h3" style="margin:0;">📈 Haftalık Antrenman &amp; Kalori Takibi</h3>
+                </div>
+                <div class="apex-tags" id="apex-wk-kpis" data-sessions="<?php echo count( $my_workouts ); ?>" data-minutes="<?php echo esc_attr( $total_wk_min ); ?>" data-kcal="<?php echo esc_attr( $total_wk_kcal ); ?>">
+                    <span class="apex-tag apex-tag-volt" id="apex-wk-kpi-sessions"><?php echo count( $my_workouts ); ?> Seans</span>
+                    <span class="apex-tag" id="apex-wk-kpi-min">⏱ <?php echo esc_html( $total_wk_min ); ?> dk</span>
+                    <span class="apex-tag" id="apex-wk-kpi-kcal">🔥 <?php echo esc_html( number_format( $total_wk_kcal, 0, ',', '.' ) ); ?> kcal</span>
+                </div>
+            </div>
+
+            <div class="apex-grid-2" style="align-items:start;">
+                <div>
+                    <div class="apex-wk-bars" id="apex-wk-list">
+                        <?php foreach ( $my_workouts as $wk ) :
+                            $pct = min( 100, round( ( (int) $wk->calories / 750 ) * 100 ) );
+                        ?>
+                        <div class="apex-wk-row">
+                            <div style="display:flex;justify-content:space-between;font-size:0.86rem;margin-bottom:5px;">
+                                <strong><?php echo esc_html( $wk->workout_type ); ?> <small class="apex-muted">(<?php echo esc_html( date( 'd.m', strtotime( $wk->workout_date ) ) ); ?>)</small></strong>
+                                <span><?php echo esc_html( $wk->duration_min ); ?> dk · <strong style="color:var(--apex-crimson);"><?php echo esc_html( $wk->calories ); ?> kcal</strong></span>
+                            </div>
+                            <div style="height:7px;background:var(--apex-bg);border-radius:99px;overflow:hidden;">
+                                <div style="width:<?php echo esc_attr( max( 12, $pct ) ); ?>%;height:100%;background:linear-gradient(90deg,#e31837,#f4e268);border-radius:99px;"></div>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <form id="apex-workout-log-form" class="apex-form-grid" novalidate>
+                    <div class="apex-field">
+                        <label for="wk-type">Antrenman Türü</label>
+                        <select id="wk-type" name="workout_type">
+                            <option value="Kuvvet & Hipertrofi">Kuvvet &amp; Hipertrofi</option>
+                            <option value="Basketbol / Voleybol Maç">Basketbol / Voleybol Maç</option>
+                            <option value="HIIT & Kardiyo">HIIT &amp; Kardiyo</option>
+                            <option value="Reformer Pilates & Mobilite">Reformer Pilates &amp; Mobilite</option>
+                        </select>
+                    </div>
+                    <div class="apex-field"><label for="wk-dur">Süre (dk)</label><input type="number" id="wk-dur" name="duration_min" value="60" min="15" max="240"></div>
+                    <div class="apex-field"><label for="wk-kcal">Yakılan Kalori</label><input type="number" id="wk-kcal" name="calories" value="520" min="50" max="2000"></div>
+                    <div class="apex-field"><label for="wk-note">Kısa Not</label><input type="text" id="wk-note" name="notes" placeholder="Örn. Yeni PR!"></div>
+                    <div class="apex-field apex-field-full">
+                        <button type="submit" class="apex-btn apex-btn-primary apex-btn-sm">+ Bugünkü Antrenmanı Kaydet</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -151,6 +322,68 @@ $cu     = $logged ? wp_get_current_user() : null;
                 </div>
             </article>
             <?php endforeach; ?>
+        </div>
+
+        <!-- 1B. 3 Soruluk Akıllı Paket & PT Bulucu Quiz (v2.0.0) -->
+        <div class="apex-panel apex-quiz-card" id="paket-bulucu" style="margin-top:36px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px;">
+                <div>
+                    <span class="apex-eyebrow" style="margin-bottom:4px;">30 SANİYEDE KİŞİSEL ÖNERİ</span>
+                    <h3 class="apex-h3" style="margin:0;">🎯 Akıllı Üyelik &amp; PT Paketi Bulucu</h3>
+                </div>
+                <span class="apex-tag apex-tag-volt" id="quiz-step-label">Soru 1 / 3</span>
+            </div>
+
+            <div id="apex-quiz-body">
+                <div class="apex-quiz-step is-active" data-quiz-step="1">
+                    <p style="margin:0 0 12px;font-weight:700;">1. Birincil spor hedefin hangisi?</p>
+                    <div class="apex-quiz-opts">
+                        <button type="button" class="apex-quiz-opt" data-quiz-pick="goal" data-val="muscle">💪 Kas Kütlesi &amp; Kuvvet Kazanımı</button>
+                        <button type="button" class="apex-quiz-opt" data-quiz-pick="goal" data-val="fatloss">🔥 Yağ Yakımı &amp; Sıkılaşma</button>
+                        <button type="button" class="apex-quiz-opt" data-quiz-pick="goal" data-val="court">🏀 Basketbol / Voleybol Performansı</button>
+                        <button type="button" class="apex-quiz-opt" data-quiz-pick="goal" data-val="wellness">🧘 Genel Sağlık, Postür &amp; Sauna</button>
+                    </div>
+                </div>
+                <div class="apex-quiz-step" data-quiz-step="2">
+                    <p style="margin:0 0 12px;font-weight:700;">2. Haftada kaç gün tesise gelmeyi planlıyorsun?</p>
+                    <div class="apex-quiz-opts">
+                        <button type="button" class="apex-quiz-opt" data-quiz-pick="freq" data-val="2">2 Gün / Hafta (Başlangıç)</button>
+                        <button type="button" class="apex-quiz-opt" data-quiz-pick="freq" data-val="4">3–4 Gün / Hafta (Düzenli)</button>
+                        <button type="button" class="apex-quiz-opt" data-quiz-pick="freq" data-val="6">5+ Gün / Hafta (Yoğun Performans)</button>
+                    </div>
+                </div>
+                <div class="apex-quiz-step" data-quiz-step="3">
+                    <p style="margin:0 0 12px;font-weight:700;">3. Birebir koç, beslenme takvimi ve salon ayrıcalığı istiyor musun?</p>
+                    <div class="apex-quiz-opts">
+                        <button type="button" class="apex-quiz-opt" data-quiz-pick="pt" data-val="none">Sadece kendi programımla çalışacağım</button>
+                        <button type="button" class="apex-quiz-opt" data-quiz-pick="pt" data-val="group">Grup dersleri + ara sıra salon/kafe avantajı</button>
+                        <button type="button" class="apex-quiz-opt" data-quiz-pick="pt" data-val="vip">Birebir PT koç, özel beslenme takvimi &amp; VIP</button>
+                    </div>
+                </div>
+                <div class="apex-quiz-result" id="apex-quiz-result" hidden></div>
+            </div>
+        </div>
+
+        <!-- 1C. Detaylı Paket Karşılaştırma Matrisi (v2.0.0) -->
+        <div style="margin-top:32px;">
+            <h3 class="apex-h3" style="margin-bottom:14px;">Detaylı Paket Karşılaştırma Tablosu</h3>
+            <div class="apex-table-wrap">
+                <table class="apex-table">
+                    <thead>
+                        <tr><th>Özellik / Ayrıcalık</th><th>APEX CLASSIC</th><th>APEX PRO</th><th>APEX ELITE + PT</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Fitness, Kardiyo &amp; Fonksiyonel Alan</td><td>✓ 7/24</td><td>✓ 7/24</td><td>✓ 7/24 VIP</td></tr>
+                        <tr><td>RFID Akıllı Dolap, Yağmur Duş &amp; Fin Saunası</td><td>✓ Dahil</td><td>✓ Dahil</td><td>✓ Özel Dolap + Havlu</td></tr>
+                        <tr><td>Dijital QR Giriş Kartı &amp; Online Üye Paneli</td><td>✓</td><td>✓</td><td>✓</td></tr>
+                        <tr><td>Grup Dersleri (HIIT, Reformer, Core)</td><td>Ek Ücretli</td><td>✓ Sınırsız</td><td>✓ Sınırsız Öncelikli</td></tr>
+                        <tr><td>Kapalı Otopark &amp; EV Şarj İndirimi</td><td>İlk 2 Saat</td><td>İlk 3 Saat</td><td>Sınırsız Ücretsiz</td></tr>
+                        <tr><td>Apex Protein Kafe İndirimi</td><td>%5</td><td>%15</td><td>%25</td></tr>
+                        <tr><td>Birebir PT Seansı &amp; Koç Beslenme Takvimi</td><td>Opsiyonel</td><td>Aylık InBody</td><td>✓ Ayda 8 PT + Canlı Koç Paneli</td></tr>
+                        <tr><td>Basketbol / Voleybol Salon Kiralama Önceliği</td><td>Standart</td><td>%10 İndirimli</td><td>%20 İndirim + 1 Ücretsiz Maç</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </section>

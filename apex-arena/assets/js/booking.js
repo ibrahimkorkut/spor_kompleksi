@@ -124,7 +124,27 @@
       btn.textContent = 'SALON REZERVASYONUNU ONAYLA';
 
       if (ok && data.success) {
-        resBox.innerHTML = `<div class="apex-alert apex-alert-success">✅ <strong>${data.message}</strong><br>${data.court_name} · ${data.date} ${data.time_slot} · ${data.referee ? '⚖️ Hakem Dahil · ' : ''}Toplam: <strong>${data.total_label}</strong></div>`;
+        const waMsg = encodeURIComponent(
+          `🏀 APEX ARENA Maç Daveti!\nSalon: ${data.court_name}\nTarih & Saat: ${data.date} · ${data.time_slot} (${payload.duration} saat)${data.referee ? '\n⚖️ Lisanslı Hakem Dahil' : ''}\nKod: ${data.booking_code}\nKonum: Barbaros Mah. Spor Bulvarı No: 42, Ataşehir / İstanbul`
+        );
+        resBox.innerHTML = `<div class="apex-alert apex-alert-success">
+          ✅ <strong>${data.message}</strong><br>${data.court_name} · ${data.date} ${data.time_slot} · ${data.referee ? '⚖️ Hakem Dahil · ' : ''}Toplam: <strong>${data.total_label}</strong>
+          <div class="apex-confirm-actions">
+            <button type="button" class="apex-btn apex-btn-ghost apex-btn-sm" id="apex-court-ics-dl">📅 Takvime Ekle (.ics)</button>
+            <a href="https://wa.me/?text=${waMsg}" target="_blank" rel="noopener noreferrer" class="apex-btn apex-btn-sm apex-btn-wa-share">💬 WhatsApp ile Maç Daveti Paylaş</a>
+          </div>
+        </div>`;
+        document.getElementById('apex-court-ics-dl')?.addEventListener('click', () => {
+          if (window.apexDownloadIcs) {
+            window.apexDownloadIcs({
+              title: `APEX ARENA — ${data.court_name}`,
+              date: payload.date,
+              time: data.time_slot,
+              hours: payload.duration,
+              desc: `Rezervasyon Kodu: ${data.booking_code} · ${data.referee ? 'Lisanslı Hakem Dahil · ' : ''}Toplam: ${data.total_label}`,
+            });
+          }
+        });
         if (window.apexToast) window.apexToast(`✓ ${data.court_name} rezervasyonunuz onaylandı!`);
         loadCourtSlots();
       } else {
@@ -208,7 +228,28 @@
       btn.textContent = 'ONLİNE PT RANDEVUSUNU ONAYLA';
 
       if (ok && data.success) {
-        resBox.innerHTML = `<div class="apex-alert apex-alert-success">✅ <strong>${data.message}</strong><br>${data.trainer_name} · ${data.package_name} · ${data.date} ${data.time_slot}</div>`;
+        const waPtMsg = encodeURIComponent(
+          `🏋️ APEX ARENA PT Randevum Onaylandı!\nAntrenör: ${data.trainer_name}\nPaket: ${data.package_name}\nTarih & Saat: ${data.date} · ${data.time_slot}\nKod: ${data.booking_code}`
+        );
+        resBox.innerHTML = `<div class="apex-alert apex-alert-success">
+          ✅ <strong>${data.message}</strong><br>${data.trainer_name} · ${data.package_name} · ${data.date} ${data.time_slot}
+          <div class="apex-confirm-actions">
+            <button type="button" class="apex-btn apex-btn-ghost apex-btn-sm" id="apex-pt-ics-dl">📅 Takvime Ekle (.ics)</button>
+            <a href="https://wa.me/?text=${waPtMsg}" target="_blank" rel="noopener noreferrer" class="apex-btn apex-btn-sm apex-btn-wa-share">💬 WhatsApp’ta Paylaş</a>
+          </div>
+        </div>`;
+        document.getElementById('apex-pt-ics-dl')?.addEventListener('click', () => {
+          if (window.apexDownloadIcs) {
+            window.apexDownloadIcs({
+              title: `APEX ARENA PT — ${data.trainer_name}`,
+              date: payload.date,
+              time: data.time_slot,
+              hours: 1,
+              desc: `PT Randevu Kodu: ${data.booking_code} · Paket: ${data.package_name}`,
+            });
+          }
+        });
+        if (window.apexToast) window.apexToast(`✓ ${data.trainer_name} PT randevunuz onaylandı!`);
         loadPtSlots();
       } else {
         resBox.innerHTML = `<div class="apex-alert apex-alert-error">⚠️ ${data.message || 'Randevu oluşturulamadı.'}</div>`;

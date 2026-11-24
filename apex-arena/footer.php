@@ -103,8 +103,12 @@ $settings = apex_get_settings();
             <div class="apex-footer-bottom-links">
                 <?php
                 $apex_admin_target = admin_url( 'admin.php?page=apex-arena-dashboard' );
+                $apex_coach_target = admin_url( 'admin.php?page=apex-coach-portal' );
                 $apex_panel_url    = current_user_can( 'manage_options' ) ? $apex_admin_target : wp_login_url( $apex_admin_target, true );
+                $apex_coach_url    = ( current_user_can( 'apex_coach_access' ) || current_user_can( 'manage_options' ) ) ? $apex_coach_target : wp_login_url( $apex_coach_target, true );
                 ?>
+                <a href="<?php echo esc_url( $apex_coach_url ); ?>">Koç Paneli</a>
+                <span aria-hidden="true">·</span>
                 <a href="<?php echo esc_url( $apex_panel_url ); ?>">Yönetim Paneli</a>
                 <span aria-hidden="true">·</span>
                 <button type="button" class="apex-footer-btn-link" data-open-a11y>Erişilebilirlik Merkezi</button>

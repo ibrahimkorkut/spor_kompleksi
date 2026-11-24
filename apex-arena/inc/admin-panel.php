@@ -10,10 +10,53 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+/**
+ * Tek Tıkla UTF-8 Excel / CSV Rapor İndirme (v2.0.0)
+ */
+add_action( 'admin_init', function() {
+    if ( ! isset( $_GET['apex_export_csv'] ) || ! current_user_can( 'manage_options' ) ) {
+        return;
+    }
+    check_admin_referer( 'apex_csv_export' );
+    global $wpdb;
+    $kind = sanitize_key( wp_unslash( $_GET['apex_export_csv'] ) );
+
+    $configs = [
+        'courts'      => [ 'table' => 'apex_court_bookings',          'file' => 'apex-salon-rezervasyonlari.csv' ],
+        'pt'          => [ 'table' => 'apex_pt_appointments',         'file' => 'apex-pt-randevulari.csv' ],
+        'memberships' => [ 'table' => 'apex_membership_applications', 'file' => 'apex-uyelikler.csv' ],
+        'cafe'        => [ 'table' => 'apex_cafe_orders',             'file' => 'apex-kafe-siparisleri.csv' ],
+        'reviews'     => [ 'table' => 'apex_reviews',                 'file' => 'apex-uye-yorumlari.csv' ],
+    ];
+    if ( ! isset( $configs[ $kind ] ) ) {
+        return;
+    }
+
+    $rows = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}{$configs[$kind]['table']} ORDER BY id DESC", ARRAY_A );
+    header( 'Content-Type: text/csv; charset=UTF-8' );
+    header( 'Content-Disposition: attachment; filename="' . $configs[ $kind ]['file'] . '"' );
+    echo "\xEF\xBB\xBF"; // Excel Türkçe UTF-8 BOM
+    $out = fopen( 'php://output', 'w' );
+    if ( ! empty( $rows ) ) {
+        fputcsv( $out, array_keys( $rows[0] ), ';' );
+        foreach ( $rows as $row ) {
+            fputcsv( $out, array_values( $row ), ';' );
+        }
+    }
+    fclose( $out );
+    exit;
+} );
+
 add_action( 'admin_menu', function() {
+    global $wpdb;
+    $pending_cafe = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}apex_cafe_orders WHERE status = 'preparing'" );
+    $new_msgs     = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}apex_contact_messages WHERE status = 'new'" );
+    $badge_total  = $pending_cafe + $new_msgs;
+    $menu_title   = $badge_total > 0 ? sprintf( 'APEX ARENA <span class="update-plugins count-%1$d"><span class="plugin-count">%1$d</span></span>', $badge_total ) : 'APEX ARENA';
+
     add_menu_page(
         'APEX ARENA Yönetim',
-        'APEX ARENA',
+        $menu_title,
         'manage_options',
         'apex-arena-dashboard',
         'apex_admin_dashboard_page',
@@ -23,7 +66,8 @@ add_action( 'admin_menu', function() {
     add_submenu_page( 'apex-arena-dashboard', 'Genel Bakış', 'Genel Bakış', 'manage_options', 'apex-arena-dashboard', 'apex_admin_dashboard_page' );
     add_submenu_page( 'apex-arena-dashboard', 'Salon Rezervasyonları', 'Salon Rezervasyonları', 'manage_options', 'apex-court-bookings', 'apex_admin_court_bookings_page' );
     add_submenu_page( 'apex-arena-dashboard', 'PT Randevuları', 'PT Randevuları', 'manage_options', 'apex-pt-appointments', 'apex_admin_pt_appointments_page' );
-    add_submenu_page( 'apex-arena-dashboard', 'Üyelik Başvuruları', 'Üyelikler', 'manage_options', 'apex-memberships', 'apex_admin_memberships_page' );
+    add_submenu_page( 'apex-arena-dashboard', 'Üyelik Başvuruları', 'Üyelikler & Mesajlar', 'manage_options', 'apex-memberships', 'apex_admin_memberships_page' );
+    add_submenu_page( 'apex-arena-dashboard', 'Kafe Siparişleri & Yorumlar', 'Kafe & Yorumlar', 'manage_options', 'apex-cafe-reviews', 'apex_admin_cafe_reviews_page' );
     add_submenu_page( 'apex-arena-dashboard', 'AI Chatbot & Tesis Ayarları', 'AI & Ayarlar', 'manage_options', 'apex-settings', 'apex_admin_settings_page' );
 } );
 
@@ -37,10 +81,16 @@ function apex_admin_dashboard_page() {
     $pt_count    = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}apex_pt_appointments WHERE status != 'cancelled'" );
     $mem_count   = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}apex_membership_applications WHERE status = 'active'" );
     $chat_count  = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}apex_chatbot_logs" );
-    $revenue     = (int) $wpdb->get_var( "SELECT COALESCE(SUM(total_price),0) FROM {$wpdb->prefix}apex_court_bookings WHERE status != 'cancelled'" )
-                 + (int) $wpdb->get_var( "SELECT COALESCE(SUM(price),0) FROM {$wpdb->prefix}apex_pt_appointments WHERE status != 'cancelled'" )
-                 + (int) $wpdb->get_var( "SELECT COALESCE(SUM(price),0) FROM {$wpdb->prefix}apex_membership_applications WHERE status = 'active'" );
-    $ai_mode = apex_get_effective_ai_mode();
+    $rev_court   = (int) $wpdb->get_var( "SELECT COALESCE(SUM(total_price),0) FROM {$wpdb->prefix}apex_court_bookings WHERE status != 'cancelled'" );
+    $rev_pt      = (int) $wpdb->get_var( "SELECT COALESCE(SUM(price),0) FROM {$wpdb->prefix}apex_pt_appointments WHERE status != 'cancelled'" );
+    $rev_mem     = (int) $wpdb->get_var( "SELECT COALESCE(SUM(price),0) FROM {$wpdb->prefix}apex_membership_applications WHERE status = 'active'" );
+    $rev_cafe    = (int) $wpdb->get_var( "SELECT COALESCE(SUM(total_price),0) FROM {$wpdb->prefix}apex_cafe_orders WHERE status != 'cancelled'" );
+    $cafe_count  = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}apex_cafe_orders WHERE status != 'cancelled'" );
+    $rev_avg     = round( (float) $wpdb->get_var( "SELECT COALESCE(AVG(rating), 5) FROM {$wpdb->prefix}apex_reviews WHERE status = 'published'" ), 1 );
+    $revenue     = $rev_court + $rev_pt + $rev_mem + $rev_cafe;
+    $max_rev     = max( 1, $rev_court, $rev_pt, $rev_mem, $rev_cafe );
+    $csv_nonce   = wp_create_nonce( 'apex_csv_export' );
+    $ai_mode     = apex_get_effective_ai_mode();
     $ai_mode_lbl = $ai_mode === 'gemini-live' ? 'Gemini 2.5 Flash (Canlı)' : ( $ai_mode === 'openai-live' ? 'OpenAI (Canlı)' : 'Hibrit WP DB' );
     ?>
     <div class="wrap apex-admin-wrap" style="max-width:1200px;">
@@ -79,6 +129,52 @@ function apex_admin_dashboard_page() {
                 <div style="font-size:11.5px;color:#989ea9;text-transform:uppercase;letter-spacing:0.06em;">Toplam İşlem Hacmi</div>
                 <div style="font-size:28px;font-weight:800;margin-top:8px;"><?php echo esc_html( apex_format_tl( $revenue ) ); ?></div>
                 <div style="font-size:12px;color:#f4e268;margin-top:4px;">AI Sohbet: <?php echo esc_html( $chat_count ); ?> · <?php echo esc_html( $ai_mode_lbl ); ?></div>
+            </div>
+        </div>
+
+        <!-- Gelir & Operasyon Analitik Grafiği + Tek Tıkla Excel/CSV Dışa Aktarma (v2.0.0) -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px;margin:0 0 22px;">
+            <div style="background:#0f1116;color:#fff;padding:22px 24px;border-radius:14px;border:1px solid rgba(255,255,255,0.08);">
+                <div style="font-size:11.5px;color:#989ea9;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:14px;">GELİR DAĞILIMI (CANLI MYSQL)</div>
+                <?php
+                $bars = [
+                    [ 'Salon Kiralama (+Hakem)', $rev_court, '#E31837' ],
+                    [ 'PT Antrenmanları',        $rev_pt,    '#30d158' ],
+                    [ 'Dijital Üyelikler',       $rev_mem,   '#38BDF8' ],
+                    [ 'Protein Kafe (' . $cafe_count . ' sipariş)', $rev_cafe, '#f4e268' ],
+                ];
+                foreach ( $bars as $br ) :
+                    $w = round( ( $br[1] / $max_rev ) * 100 );
+                ?>
+                <div style="margin-bottom:12px;">
+                    <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:5px;">
+                        <span><?php echo esc_html( $br[0] ); ?></span>
+                        <strong><?php echo esc_html( apex_format_tl( $br[1] ) ); ?></strong>
+                    </div>
+                    <div style="height:8px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;">
+                        <div style="width:<?php echo esc_attr( max( 4, $w ) ); ?>%;height:100%;background:<?php echo esc_attr( $br[2] ); ?>;border-radius:99px;"></div>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+                <div style="font-size:12px;color:#989ea9;margin-top:8px;">Üye Memnuniyeti: <strong style="color:#f4e268;">★ <?php echo esc_html( $rev_avg ); ?> / 5.0</strong></div>
+            </div>
+
+            <div style="background:#0f1116;color:#fff;padding:22px 24px;border-radius:14px;border:1px solid rgba(255,255,255,0.08);display:flex;flex-direction:column;justify-content:space-between;">
+                <div>
+                    <div style="font-size:11.5px;color:#989ea9;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;">EXCEL / CSV RAPOR MERKEZİ &amp; KOÇ PORTALI</div>
+                    <p style="font-size:13px;color:#989ea9;margin:0 0 14px;">Tüm rezervasyon, PT, üyelik, kafe ve yorum verilerini Türkçe Excel uyumlu (UTF-8 BOM) CSV olarak tek tıkla indirin.</p>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
+                        <a href="<?php echo esc_url( admin_url( "admin.php?page=apex-arena-dashboard&apex_export_csv=courts&_wpnonce={$csv_nonce}" ) ); ?>" class="button" style="background:rgba(255,255,255,0.08);color:#fff;border-color:rgba(255,255,255,0.16);border-radius:8px;">⬇ Salonlar CSV</a>
+                        <a href="<?php echo esc_url( admin_url( "admin.php?page=apex-arena-dashboard&apex_export_csv=pt&_wpnonce={$csv_nonce}" ) ); ?>" class="button" style="background:rgba(255,255,255,0.08);color:#fff;border-color:rgba(255,255,255,0.16);border-radius:8px;">⬇ PT CSV</a>
+                        <a href="<?php echo esc_url( admin_url( "admin.php?page=apex-arena-dashboard&apex_export_csv=memberships&_wpnonce={$csv_nonce}" ) ); ?>" class="button" style="background:rgba(255,255,255,0.08);color:#fff;border-color:rgba(255,255,255,0.16);border-radius:8px;">⬇ Üyelikler CSV</a>
+                        <a href="<?php echo esc_url( admin_url( "admin.php?page=apex-arena-dashboard&apex_export_csv=cafe&_wpnonce={$csv_nonce}" ) ); ?>" class="button" style="background:rgba(255,255,255,0.08);color:#fff;border-color:rgba(255,255,255,0.16);border-radius:8px;">⬇ Kafe CSV</a>
+                        <a href="<?php echo esc_url( admin_url( "admin.php?page=apex-arena-dashboard&apex_export_csv=reviews&_wpnonce={$csv_nonce}" ) ); ?>" class="button" style="background:rgba(255,255,255,0.08);color:#fff;border-color:rgba(255,255,255,0.16);border-radius:8px;">⬇ Yorumlar CSV</a>
+                    </div>
+                </div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                    <a href="<?php echo esc_url( admin_url( 'admin.php?page=apex-coach-portal' ) ); ?>" class="button button-primary" style="background:#E31837;border-color:#E31837;border-radius:8px;padding:4px 16px;">📊 Koç Grafik &amp; Öğrenci Panelini Aç →</a>
+                    <a href="<?php echo esc_url( admin_url( 'admin.php?page=apex-cafe-reviews' ) ); ?>" class="button" style="background:rgba(255,255,255,0.08);color:#fff;border-color:rgba(255,255,255,0.16);border-radius:8px;padding:4px 14px;">Kafe &amp; Yorumlar</a>
+                </div>
             </div>
         </div>
 
@@ -287,6 +383,86 @@ function apex_admin_settings_page() {
             </table>
             <p class="submit"><button type="submit" name="apex_save_settings" class="button button-primary button-large">Ayarları Kaydet</button></p>
         </form>
+    </div>
+    <?php
+}
+
+/**
+ * Kafe Ön Siparişleri & Üye Yorumları Yönetim Sayfası (v2.0.0)
+ */
+function apex_admin_cafe_reviews_page() {
+    global $wpdb;
+    $t_cafe = $wpdb->prefix . 'apex_cafe_orders';
+    $t_rev  = $wpdb->prefix . 'apex_reviews';
+
+    if ( isset( $_GET['cafe_status'], $_GET['id'], $_GET['_wpnonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'apex_cr_act' ) ) {
+        $st = sanitize_key( $_GET['cafe_status'] );
+        if ( in_array( $st, [ 'preparing', 'ready', 'completed', 'cancelled' ], true ) ) {
+            $wpdb->update( $t_cafe, [ 'status' => $st ], [ 'id' => absint( $_GET['id'] ) ] );
+            echo '<div class="notice notice-success"><p>Kafe sipariş durumu güncellendi.</p></div>';
+        }
+    }
+    if ( isset( $_GET['rev_status'], $_GET['id'], $_GET['_wpnonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'apex_cr_act' ) ) {
+        $st = sanitize_key( $_GET['rev_status'] );
+        if ( in_array( $st, [ 'published', 'hidden' ], true ) ) {
+            $wpdb->update( $t_rev, [ 'status' => $st ], [ 'id' => absint( $_GET['id'] ) ] );
+            echo '<div class="notice notice-success"><p>Yorum yayın durumu güncellendi.</p></div>';
+        }
+    }
+
+    $orders  = $wpdb->get_results( "SELECT * FROM {$t_cafe} ORDER BY id DESC LIMIT 50" );
+    $reviews = $wpdb->get_results( "SELECT * FROM {$t_rev} ORDER BY id DESC LIMIT 50" );
+    $nonce   = wp_create_nonce( 'apex_cr_act' );
+    ?>
+    <div class="wrap">
+        <h1>Apex Protein Kafe Ön Siparişleri</h1>
+        <table class="wp-list-table widefat fixed striped">
+            <thead><tr><th>Kod</th><th>Müşteri</th><th>Teslim Zamanı</th><th>Ürünler &amp; Makro</th><th>Tutar</th><th>Durum</th><th>İşlem</th></tr></thead>
+            <tbody>
+            <?php if ( empty( $orders ) ) : ?>
+                <tr><td colspan="7">Henüz kafe ön siparişi yok.</td></tr>
+            <?php else : foreach ( $orders as $o ) :
+                $its = json_decode( (string) $o->items_json, true ) ?: [];
+                $lbl = implode( ', ', array_map( fn( $x ) => ( $x['qty'] ?? 1 ) . 'x ' . ( $x['name'] ?? '' ), $its ) );
+            ?>
+                <tr>
+                    <td><strong><?php echo esc_html( $o->order_code ); ?></strong></td>
+                    <td><?php echo esc_html( $o->customer_name ); ?><br><small><?php echo esc_html( $o->customer_phone ); ?></small></td>
+                    <td><?php echo esc_html( $o->pickup_time ); ?></td>
+                    <td><?php echo esc_html( $lbl ); ?><br><small><?php echo esc_html( $o->total_kcal ); ?> kcal · <?php echo esc_html( $o->total_protein ); ?>g protein</small></td>
+                    <td><strong><?php echo esc_html( apex_format_tl( $o->total_price ) ); ?></strong></td>
+                    <td><strong><?php echo esc_html( strtoupper( $o->status ) ); ?></strong></td>
+                    <td>
+                        <a class="button button-small" href="<?php echo esc_url( admin_url( "admin.php?page=apex-cafe-reviews&cafe_status=ready&id={$o->id}&_wpnonce={$nonce}" ) ); ?>">Hazır</a>
+                        <a class="button button-small" href="<?php echo esc_url( admin_url( "admin.php?page=apex-cafe-reviews&cafe_status=completed&id={$o->id}&_wpnonce={$nonce}" ) ); ?>">Teslim</a>
+                    </td>
+                </tr>
+            <?php endforeach; endif; ?>
+            </tbody>
+        </table>
+
+        <h2 style="margin-top:32px;">Üye Yorumları &amp; Puanlamalar</h2>
+        <table class="wp-list-table widefat fixed striped">
+            <thead><tr><th>Üye</th><th>Paket</th><th>Puan</th><th>Yorum</th><th>Durum</th><th>İşlem</th></tr></thead>
+            <tbody>
+            <?php foreach ( $reviews as $rv ) : ?>
+                <tr>
+                    <td><strong><?php echo esc_html( $rv->author_name ); ?></strong></td>
+                    <td><?php echo esc_html( $rv->member_plan ); ?></td>
+                    <td>★ <?php echo esc_html( $rv->rating ); ?> / 5</td>
+                    <td><?php echo esc_html( $rv->comment ); ?></td>
+                    <td><?php echo esc_html( strtoupper( $rv->status ) ); ?></td>
+                    <td>
+                        <?php if ( $rv->status === 'published' ) : ?>
+                            <a class="button button-small" href="<?php echo esc_url( admin_url( "admin.php?page=apex-cafe-reviews&rev_status=hidden&id={$rv->id}&_wpnonce={$nonce}" ) ); ?>">Gizle</a>
+                        <?php else : ?>
+                            <a class="button button-small" href="<?php echo esc_url( admin_url( "admin.php?page=apex-cafe-reviews&rev_status=published&id={$rv->id}&_wpnonce={$nonce}" ) ); ?>">Yayınla</a>
+                        <?php endif; ?>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
     </div>
     <?php
 }

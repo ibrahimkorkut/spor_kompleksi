@@ -2873,3 +2873,411 @@ html.a11y-reduce-motion .apex-reveal {
   .apex-cinema-track-meta { font-size: 0.68rem; white-space: nowrap; }
   .apex-cinema-track-meta [data-cinema-status] { display: none; }
 }
+
+/* ==========================================================================
+   APEX ARENA v2.0.0 — İNTERAKTİF KAT PLANI, YORUMLAR, EV/YOĞUNLUK, KAFE SEPETİ,
+   AKILLI QUİZ, KOÇ BESLENME & MESAJLAŞMA, .ICS + WHATSAPP DAVETİ
+   ========================================================================== */
+
+/* 1. İnteraktif SVG Tesis Kat Planı */
+.apex-fp-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: stretch;
+}
+.apex-fp-map-card {
+  background: var(--apex-surface);
+  border: 1px solid var(--apex-border);
+  border-radius: var(--apex-radius-lg);
+  padding: 18px;
+  min-width: 0;
+  max-width: 100%;
+}
+.apex-fp-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.apex-fp-zone {
+  cursor: pointer;
+  outline: none;
+}
+.apex-fp-zone rect {
+  fill: #151720;
+  stroke: rgba(255, 255, 255, 0.14);
+  stroke-width: 1.5;
+  transition: fill 0.2s ease, stroke 0.2s ease;
+}
+.apex-fp-zone:hover rect,
+.apex-fp-zone:focus-visible rect {
+  fill: rgba(227, 24, 55, 0.14);
+  stroke: rgba(227, 24, 55, 0.72);
+}
+.apex-fp-zone.is-active rect {
+  fill: rgba(227, 24, 55, 0.22);
+  stroke: #e31837;
+  stroke-width: 2.2;
+}
+.apex-fp-zone .fp-lbl {
+  fill: #ffffff;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+}
+.apex-fp-zone .fp-sub {
+  fill: #9fa3b2;
+  font-size: 11px;
+  font-weight: 500;
+}
+.apex-fp-zone .fp-chip {
+  fill: #f4e268;
+  font-size: 11px;
+  font-weight: 700;
+}
+.apex-fp-zone.is-active .fp-chip {
+  fill: #30d158;
+}
+.apex-fp-detail {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  max-width: 100%;
+}
+.apex-fp-specs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.apex-fp-specs span {
+  padding: 6px 12px;
+  border-radius: var(--apex-radius-pill);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--apex-border);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--apex-text);
+}
+
+/* 2. Canlı 5 Yıldızlı Üye Değerlendirmeleri */
+.apex-rev-summary {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 18px;
+  background: var(--apex-surface);
+  border: 1px solid var(--apex-border);
+  border-radius: var(--apex-radius-md);
+}
+.apex-rev-score {
+  font-size: 2.2rem;
+  font-weight: 800;
+  line-height: 1;
+  color: #ffffff;
+}
+.apex-stars {
+  color: #f4c430;
+  letter-spacing: 0.08em;
+  font-size: 1rem;
+}
+.apex-star-picker {
+  display: inline-flex;
+  gap: 4px;
+  padding: 6px 12px;
+  border-radius: var(--apex-radius-pill);
+  background: var(--apex-bg);
+  border: 1px solid var(--apex-border);
+}
+.apex-star-btn {
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.25);
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 4px;
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+.apex-star-btn.is-active,
+.apex-star-btn:hover {
+  color: #f4c430;
+  transform: scale(1.12);
+}
+
+/* 3. EV Şarj İstasyonları & Saatlik Yoğunluk Grafiği */
+.apex-ev-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+.apex-ev-bay {
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--apex-border);
+  background: var(--apex-bg);
+  font-size: 0.78rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.apex-ev-bay.is-free {
+  border-color: rgba(48, 209, 88, 0.35);
+  background: rgba(48, 209, 88, 0.08);
+}
+.apex-ev-bay.is-free strong { color: #30d158; }
+.apex-ev-bay.is-busy {
+  border-color: rgba(255, 159, 10, 0.35);
+  background: rgba(255, 159, 10, 0.08);
+}
+.apex-ev-bay.is-busy strong { color: #ff9f0a; }
+.apex-ev-bay span { color: var(--apex-text-muted); font-size: 0.72rem; }
+
+.apex-crowd-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
+  height: 120px;
+  padding-top: 18px;
+  overflow-x: auto;
+}
+.apex-crowd-col {
+  flex: 1 1 0;
+  min-width: 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+.apex-crowd-bar-wrap {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.apex-crowd-bar {
+  width: 100%;
+  border-radius: 6px 6px 2px 2px;
+  position: relative;
+  transition: height 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.apex-crowd-bar span {
+  position: absolute;
+  top: -17px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.62rem;
+  color: var(--apex-text-muted);
+  opacity: 0;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.apex-crowd-col:hover .apex-crowd-bar span,
+.apex-crowd-col.is-now .apex-crowd-bar span {
+  opacity: 1;
+  color: #ffffff;
+  font-weight: 700;
+}
+.apex-crowd-bar.is-calm { background: linear-gradient(180deg, #30d158, #198754); }
+.apex-crowd-bar.is-mid { background: linear-gradient(180deg, #f4c430, #d97706); }
+.apex-crowd-bar.is-peak { background: linear-gradient(180deg, #ff3b5c, #b50f29); }
+.apex-crowd-lbl {
+  font-size: 0.68rem;
+  color: var(--apex-text-muted);
+  font-weight: 600;
+}
+.apex-crowd-col.is-now .apex-crowd-lbl {
+  color: var(--apex-volt);
+  font-weight: 800;
+}
+
+/* 4. Kafe Ön Sipariş Sepeti */
+.apex-cart-list {
+  display: grid;
+  gap: 10px;
+}
+.apex-cart-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--apex-bg);
+  border: 1px solid var(--apex-border);
+}
+.apex-cart-qty {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.apex-cart-qty span {
+  min-width: 22px;
+  text-align: center;
+  font-weight: 700;
+}
+
+/* 5. Üye Paneli Koç Beslenme Takvimi, Öneri, 1-1 Sohbet & Antrenman Günlüğü */
+.apex-coach-advice-box {
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(227, 24, 55, 0.1);
+  border: 1px solid rgba(227, 24, 55, 0.34);
+  font-size: 0.89rem;
+  line-height: 1.55;
+}
+.apex-meal-list {
+  display: grid;
+  gap: 8px;
+}
+.apex-meal-row {
+  padding: 11px 14px;
+  border-radius: 10px;
+  background: var(--apex-bg);
+  border: 1px solid var(--apex-border);
+  display: grid;
+  gap: 3px;
+}
+.apex-meal-row strong {
+  font-size: 0.78rem;
+  color: var(--apex-volt);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+.apex-meal-row span {
+  font-size: 0.87rem;
+  color: var(--apex-text);
+}
+.apex-member-chat-box {
+  height: 310px;
+  overflow-y: auto;
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--apex-bg);
+  border: 1px solid var(--apex-border);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.apex-mchat-bubble {
+  max-width: 85%;
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-size: 0.87rem;
+  line-height: 1.48;
+  word-break: break-word;
+}
+.apex-mchat-bubble small {
+  display: block;
+  margin-top: 5px;
+  font-size: 0.7rem;
+  opacity: 0.74;
+}
+.apex-mchat-bubble.is-coach {
+  align-self: flex-start;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--apex-border);
+  border-bottom-left-radius: 4px;
+}
+.apex-mchat-bubble.is-me {
+  align-self: flex-end;
+  background: var(--apex-crimson);
+  color: #ffffff;
+  border-bottom-right-radius: 4px;
+}
+.apex-wk-bars {
+  display: grid;
+  gap: 12px;
+}
+.apex-wk-row {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid var(--apex-border);
+}
+
+/* 6. Akıllı Paket & PT Bulucu Quiz */
+.apex-quiz-step {
+  display: none;
+}
+.apex-quiz-step.is-active {
+  display: block;
+}
+.apex-quiz-opts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.apex-quiz-opt {
+  text-align: left;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--apex-border-strong);
+  background: var(--apex-bg);
+  color: var(--apex-text);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+.apex-quiz-opt:hover,
+.apex-quiz-opt:focus-visible {
+  border-color: var(--apex-crimson);
+  background: rgba(227, 24, 55, 0.14);
+  transform: translateY(-1px);
+}
+.apex-quiz-res-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 18px;
+  border-radius: 14px;
+  background: rgba(227, 24, 55, 0.08);
+  border: 1px solid rgba(227, 24, 55, 0.36);
+}
+
+/* 7. Rezervasyon Onay Aksiyonları (.ics + WhatsApp Daveti) */
+.apex-confirm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.apex-btn-wa-share {
+  background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.apex-btn-wa-share:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 960px) {
+  .apex-fp-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .apex-ev-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .apex-quiz-opts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .apex-panel,
+  .apex-card {
+    min-width: 0;
+    max-width: 100%;
+  }
+}

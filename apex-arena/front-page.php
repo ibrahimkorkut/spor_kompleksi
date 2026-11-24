@@ -421,4 +421,162 @@ $hero_sub   = get_theme_mod( 'apex_hero_subtitle', 'İki FIBA basketbol salonu, 
 </section>
 <?php endif; ?>
 
+<!-- 8. İNTERAKTİF TESİS KAT PLANI & BÖLGE KEŞFİ (v2.0.0) -->
+<section class="apex-section" id="kat-plani" aria-labelledby="home-floorplan-title">
+    <div class="apex-container">
+        <div class="apex-section-head">
+            <div>
+                <span class="apex-eyebrow">İNTERAKTİF MİMARİ KAT PLANI · 14.500 M²</span>
+                <h2 id="home-floorplan-title" class="apex-h2">Kompleksi Haritada Keşfet</h2>
+            </div>
+            <p class="apex-muted" style="max-width:44ch;margin:0;">Kat planındaki herhangi bir alana tıklayarak teknik özellikleri, anlık yoğunluğu ve rezervasyon bağlantısını inceleyin.</p>
+        </div>
+
+        <div class="apex-fp-layout">
+            <div class="apex-fp-map-card">
+                <svg class="apex-fp-svg" viewBox="0 0 680 410" role="group" aria-label="APEX ARENA interaktif kat planı">
+                    <rect x="8" y="8" width="664" height="394" rx="18" fill="#0b0c10" stroke="rgba(255,255,255,0.12)" stroke-width="1.5" />
+                    <path d="M8 215 H672 M340 8 V402" stroke="rgba(255,255,255,0.05)" stroke-dasharray="6 6" />
+
+                    <g class="apex-fp-zone is-active" tabindex="0" role="button" data-fp-zone="basket1" aria-label="Arena Basketbol 1 FIBA Salonu">
+                        <rect x="26" y="26" width="202" height="172" rx="14" />
+                        <text x="127" y="96" text-anchor="middle" class="fp-lbl">BASKETBOL 1</text>
+                        <text x="127" y="118" text-anchor="middle" class="fp-sub">FIBA Parke · 28×15m</text>
+                        <text x="127" y="142" text-anchor="middle" class="fp-chip">● Müsait</text>
+                    </g>
+
+                    <g class="apex-fp-zone" tabindex="0" role="button" data-fp-zone="basket2" aria-label="Arena Basketbol 2 Performans Salonu">
+                        <rect x="242" y="26" width="202" height="172" rx="14" />
+                        <text x="343" y="96" text-anchor="middle" class="fp-lbl">BASKETBOL 2</text>
+                        <text x="343" y="118" text-anchor="middle" class="fp-sub">Performans · Skorboard</text>
+                        <text x="343" y="142" text-anchor="middle" class="fp-chip">● Müsait</text>
+                    </g>
+
+                    <g class="apex-fp-zone" tabindex="0" role="button" data-fp-zone="voleybol" aria-label="Arena Voleybol Pro CEV Salonu">
+                        <rect x="458" y="26" width="196" height="172" rx="14" />
+                        <text x="556" y="96" text-anchor="middle" class="fp-lbl">VOLEYBOL PRO</text>
+                        <text x="556" y="118" text-anchor="middle" class="fp-sub">CEV Taraflex · 18×9m</text>
+                        <text x="556" y="142" text-anchor="middle" class="fp-chip">● Hakemli</text>
+                    </g>
+
+                    <g class="apex-fp-zone" tabindex="0" role="button" data-fp-zone="pt" aria-label="Kuvvet ve PT Stüdyosu">
+                        <rect x="26" y="216" width="212" height="168" rx="14" />
+                        <text x="132" y="286" text-anchor="middle" class="fp-lbl">PT &amp; KUVVET</text>
+                        <text x="132" y="308" text-anchor="middle" class="fp-sub">Olimpik Bar · Reformer</text>
+                        <text x="132" y="332" text-anchor="middle" class="fp-chip">4 Sertifikalı Koç</text>
+                    </g>
+
+                    <g class="apex-fp-zone" tabindex="0" role="button" data-fp-zone="spa" aria-label="RFID Soyunma Odaları, Duş ve Fin Saunası">
+                        <rect x="252" y="216" width="192" height="168" rx="14" />
+                        <text x="348" y="286" text-anchor="middle" class="fp-lbl">SOYUNMA &amp; SAUNA</text>
+                        <text x="348" y="308" text-anchor="middle" class="fp-sub">240 RFID Dolap · 85°C</text>
+                        <text x="348" y="332" text-anchor="middle" class="fp-chip">Yağmur Duş</text>
+                    </g>
+
+                    <g class="apex-fp-zone" tabindex="0" role="button" data-fp-zone="cafe" aria-label="Apex Protein Kafe ve 180 Araçlık EV Otopark">
+                        <rect x="458" y="216" width="196" height="168" rx="14" />
+                        <text x="556" y="286" text-anchor="middle" class="fp-lbl">KAFE &amp; OTOPARK</text>
+                        <text x="556" y="308" text-anchor="middle" class="fp-sub">Makro Menü · 6 EV Şarj</text>
+                        <text x="556" y="332" text-anchor="middle" class="fp-chip">Ön Sipariş Açık</text>
+                    </g>
+                </svg>
+            </div>
+
+            <aside class="apex-panel apex-fp-detail" id="apex-fp-detail" aria-live="polite">
+                <span class="apex-eyebrow" id="fp-d-tag">FIBA STANDARTI · ZEMİN KAT</span>
+                <h3 class="apex-h2" id="fp-d-title" style="margin:6px 0 10px;">Arena Basketbol 1 (FIBA Parke)</h3>
+                <p class="apex-muted" id="fp-d-desc" style="margin:0 0 18px;">28×15m uluslararası FIBA ölçülerinde esnek akçaağaç parke, LED skorboard, 120 kişilik tribün ve isteğe bağlı lisanslı TBF hakem hizmeti.</p>
+                <div class="apex-fp-specs" id="fp-d-specs">
+                    <span>🏀 28×15m FIBA</span>
+                    <span>⚖️ Hakem (+₺450)</span>
+                    <span>🚗 2 Saat Ücretsiz Park</span>
+                </div>
+                <a href="<?php echo esc_url( home_url( '/salon-kiralama/#rezervasyon' ) ); ?>" id="fp-d-cta" class="apex-btn apex-btn-primary apex-btn-block" style="margin-top:20px;">Bu Alanı Rezerve Et →</a>
+            </aside>
+        </div>
+    </div>
+</section>
+
+<!-- 9. ÜYE PUANLAMA & CANLI DEĞERLENDİRMELER (v2.0.0) -->
+<?php
+global $wpdb;
+$apex_reviews = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}apex_reviews WHERE status = 'published' ORDER BY id DESC LIMIT 6" );
+$apex_rev_avg = round( (float) $wpdb->get_var( "SELECT COALESCE(AVG(rating), 4.9) FROM {$wpdb->prefix}apex_reviews WHERE status = 'published'" ), 1 );
+$apex_rev_cnt = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}apex_reviews WHERE status = 'published'" );
+?>
+<section class="apex-section apex-section-alt" id="yorumlar" aria-labelledby="home-reviews-title">
+    <div class="apex-container">
+        <div class="apex-section-head">
+            <div>
+                <span class="apex-eyebrow">DOĞRULANMIŞ ÜYE DENEYİMLERİ</span>
+                <h2 id="home-reviews-title" class="apex-h2">Üyelerimiz Ne Diyor?</h2>
+            </div>
+            <div class="apex-rev-summary">
+                <strong class="apex-rev-score" id="apex-rev-avg"><?php echo esc_html( number_format( $apex_rev_avg, 1 ) ); ?></strong>
+                <div>
+                    <div class="apex-stars" aria-hidden="true">★★★★★</div>
+                    <small class="apex-muted"><span id="apex-rev-count"><?php echo esc_html( $apex_rev_cnt ); ?></span> üye değerlendirmesi</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="apex-grid-3" id="apex-reviews-grid">
+            <?php foreach ( $apex_reviews as $rv ) : ?>
+            <article class="apex-card apex-rev-card">
+                <div class="apex-card-body">
+                    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+                        <span class="apex-stars" aria-label="<?php echo esc_attr( $rv->rating ); ?> üzerinden 5 yıldız"><?php echo str_repeat( '★', (int) $rv->rating ) . str_repeat( '☆', max( 0, 5 - (int) $rv->rating ) ); ?></span>
+                        <span class="apex-tag"><?php echo esc_html( $rv->member_plan ); ?></span>
+                    </div>
+                    <p style="margin:6px 0 0;font-size:0.92rem;color:var(--apex-text);">“<?php echo esc_html( $rv->comment ); ?>”</p>
+                    <div class="apex-card-foot">
+                        <strong><?php echo esc_html( $rv->author_name ); ?></strong>
+                        <span class="apex-muted" style="font-size:0.78rem;"><?php echo esc_html( date( 'd.m.Y', strtotime( $rv->created_at ) ) ); ?></span>
+                    </div>
+                </div>
+            </article>
+            <?php endforeach; ?>
+        </div>
+
+        <!-- Canlı 5 Yıldızlı Yorum Ekleme Formu -->
+        <div class="apex-panel" style="margin-top:28px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:16px;">
+                <div>
+                    <h3 class="apex-h3" style="margin:0;">Deneyimini Puanla</h3>
+                    <p class="apex-muted" style="margin:4px 0 0;font-size:0.86rem;">Salonlar, PT koçluğu, kafe veya tesis olanakları hakkındaki görüşün anında yayınlanır.</p>
+                </div>
+                <div class="apex-star-picker" id="apex-star-picker" role="radiogroup" aria-label="Puanınız">
+                    <?php for ( $st = 1; $st <= 5; $st++ ) : ?>
+                        <button type="button" class="apex-star-btn is-active" data-star-val="<?php echo esc_attr( $st ); ?>" aria-label="<?php echo esc_attr( $st ); ?> yıldız">★</button>
+                    <?php endfor; ?>
+                </div>
+            </div>
+            <form id="apex-review-form" class="apex-form-grid" novalidate>
+                <input type="hidden" id="rev-rating" name="rating" value="5">
+                <div class="apex-field">
+                    <label for="rev-name">Ad Soyad *</label>
+                    <input type="text" id="rev-name" name="author_name" placeholder="Örn. Selin Demir" required>
+                </div>
+                <div class="apex-field">
+                    <label for="rev-plan">Üyelik / Hizmet</label>
+                    <select id="rev-plan" name="member_plan">
+                        <option value="APEX PRO">APEX PRO Üyesi</option>
+                        <option value="APEX ELITE + PT">APEX ELITE + PT</option>
+                        <option value="APEX CLASSIC">APEX CLASSIC</option>
+                        <option value="Salon Misafiri">Salon Kiralama Misafiri</option>
+                    </select>
+                </div>
+                <div class="apex-field apex-field-full">
+                    <label for="rev-comment">Yorumunuz *</label>
+                    <textarea id="rev-comment" name="comment" rows="2" placeholder="APEX ARENA deneyiminizi birkaç cümleyle paylaşın..." required></textarea>
+                </div>
+                <div class="apex-field apex-field-full" style="flex-direction:row;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+                    <button type="submit" class="apex-btn apex-btn-primary">Değerlendirmeyi Yayınla</button>
+                    <div id="rev-result" role="status" aria-live="polite"></div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
 <?php get_footer(); ?>

@@ -64,6 +64,41 @@ $park_pct = round( ( ( $settings['parking_total'] - $settings['parking_free'] ) 
                         <div style="width:<?php echo esc_attr( $park_pct ); ?>%;height:100%;background:linear-gradient(90deg,var(--apex-volt),var(--apex-crimson));"></div>
                     </div>
                     <small class="apex-muted" style="display:block;margin-top:6px;">Anlık doluluk oranı: %<?php echo esc_html( $park_pct ); ?> · 6 adet 22 kW AC EV Şarj Ünitesinden 4’ü şu an müsait.</small>
+
+                    <!-- Canlı 6x 22kW EV Şarj İstasyonu Monitörü (v2.0.0) -->
+                    <div class="apex-ev-grid" aria-label="EV Şarj Üniteleri Canlı Durumu">
+                        <?php
+                        $ev_bays = [
+                            [ 'EV-01', true,  '22 kW · Müsait' ],
+                            [ 'EV-02', false, 'Şarjda (%78)' ],
+                            [ 'EV-03', true,  '22 kW · Müsait' ],
+                            [ 'EV-04', true,  '22 kW · Müsait' ],
+                            [ 'EV-05', false, 'Şarjda (%42)' ],
+                            [ 'EV-06', true,  '22 kW · Müsait' ],
+                        ];
+                        foreach ( $ev_bays as $ev ) : ?>
+                        <div class="apex-ev-bay <?php echo $ev[1] ? 'is-free' : 'is-busy'; ?>">
+                            <strong>⚡ <?php echo esc_html( $ev[0] ); ?></strong>
+                            <span><?php echo esc_html( $ev[2] ); ?></span>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+
+                <!-- Saatlik Tesis Yoğunluk Tahmin Grafiği (v2.0.0) -->
+                <div class="apex-panel" style="margin:0 0 20px;padding:18px;" id="apex-crowd-widget">
+                    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+                        <div>
+                            <strong style="display:block;">Saatlik Tesis Yoğunluk Tahmini</strong>
+                            <small class="apex-muted" id="apex-crowd-note">En sakin saatler: 09:00–12:00 ve 14:00–16:00 arası</small>
+                        </div>
+                        <div class="apex-tabs" role="tablist" aria-label="Gün seçimi">
+                            <button type="button" class="apex-tab-btn is-active" data-crowd-day="weekday" style="padding:5px 11px;font-size:0.75rem;">Hafta İçi</button>
+                            <button type="button" class="apex-tab-btn" data-crowd-day="sat" style="padding:5px 11px;font-size:0.75rem;">Cumartesi</button>
+                            <button type="button" class="apex-tab-btn" data-crowd-day="sun" style="padding:5px 11px;font-size:0.75rem;">Pazar</button>
+                        </div>
+                    </div>
+                    <div class="apex-crowd-bars" id="apex-crowd-bars" role="list" aria-label="Saatlik yoğunluk barları"></div>
                 </div>
 
                 <ul class="apex-checklist">
@@ -113,7 +148,12 @@ $park_pct = round( ( ( $settings['parking_total'] - $settings['parking_free'] ) 
         </div>
 
         <div class="apex-grid-3" data-filter-container="cafe">
-            <?php foreach ( $menu as $item ) : ?>
+            <?php foreach ( $menu as $item ) :
+                preg_match( '/(\d+)\s*kcal/i', $item['macros'], $mk );
+                preg_match( '/(\d+)\s*g\s*Protein/i', $item['macros'], $mp );
+                $kcal_val = isset( $mk[1] ) ? (int) $mk[1] : 220;
+                $pro_val  = isset( $mp[1] ) ? (int) $mp[1] : 20;
+            ?>
             <article class="apex-card" data-filter-item="<?php echo esc_attr( $item['category'] ); ?>">
                 <div class="apex-card-body">
                     <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;">
@@ -122,9 +162,54 @@ $park_pct = round( ( ( $settings['parking_total'] - $settings['parking_free'] ) 
                     </div>
                     <span class="apex-tag apex-tag-volt" style="width:fit-content;"><?php echo esc_html( $item['macros'] ); ?></span>
                     <p class="apex-muted" style="margin:0;font-size:0.88rem;"><?php echo esc_html( $item['desc'] ); ?></p>
+                    <div class="apex-card-foot">
+                        <button
+                            type="button"
+                            class="apex-btn apex-btn-outline apex-btn-sm apex-btn-block"
+                            data-cafe-add
+                            data-item-name="<?php echo esc_attr( $item['name'] ); ?>"
+                            data-item-price="<?php echo esc_attr( $item['price'] ); ?>"
+                            data-item-kcal="<?php echo esc_attr( $kcal_val ); ?>"
+                            data-item-protein="<?php echo esc_attr( $pro_val ); ?>"
+                        >+ Antrenman Çıkışı Sepetine Ekle</button>
+                    </div>
                 </div>
             </article>
             <?php endforeach; ?>
+        </div>
+
+        <!-- Antrenman Çıkışı Kafe Ön Sipariş Sepeti (v2.0.0) -->
+        <div class="apex-panel apex-cafe-cart" id="apex-cafe-cart" style="margin-top:30px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px;">
+                <div>
+                    <span class="apex-eyebrow" style="margin-bottom:4px;">ANTRENMAN ÇIKIŞI HAZIR BEKLESİN</span>
+                    <h3 class="apex-h3" style="margin:0;">Kafe Ön Sipariş Sepeti</h3>
+                </div>
+                <div class="apex-tags" id="apex-cafe-macro-summary">
+                    <span class="apex-tag">0 Ürün</span>
+                    <span class="apex-tag apex-tag-volt">0 kcal · 0g Protein</span>
+                    <span class="apex-tag" style="background:rgba(227,24,55,0.18);color:#fff;">Toplam: ₺0</span>
+                </div>
+            </div>
+            <div id="apex-cafe-cart-items" class="apex-muted" style="font-size:0.9rem;margin-bottom:16px;">Yukarıdaki menüden dilediğiniz shake, fit bowl veya kahveyi sepete ekleyin.</div>
+            <form id="apex-cafe-order-form" class="apex-form-grid" novalidate>
+                <div class="apex-field"><label for="cafe-name">Ad Soyad *</label><input type="text" id="cafe-name" name="customer_name" placeholder="Adınız Soyadınız" required></div>
+                <div class="apex-field"><label for="cafe-phone">Telefon *</label><input type="tel" id="cafe-phone" name="customer_phone" placeholder="0532 000 00 00" required></div>
+                <div class="apex-field">
+                    <label for="cafe-pickup">Teslim Zamanı</label>
+                    <select id="cafe-pickup" name="pickup_time">
+                        <option value="15 dk sonra">15 dk sonra (Hızlı Teslim)</option>
+                        <option value="Antrenman Çıkışı (20 dk)" selected>Antrenman Çıkışı (20 dk)</option>
+                        <option value="30 dk sonra">30 dk sonra</option>
+                        <option value="45 dk sonra">45 dk sonra</option>
+                    </select>
+                </div>
+                <div class="apex-field"><label for="cafe-note">Hazırlama Notu</label><input type="text" id="cafe-note" name="notes" placeholder="Örn. Badem sütüyle, buzsuz..."></div>
+                <div class="apex-field apex-field-full">
+                    <button type="submit" class="apex-btn apex-btn-primary">Ön Siparişi Baristaya Gönder</button>
+                </div>
+            </form>
+            <div id="apex-cafe-order-result" role="status" aria-live="polite" style="margin-top:12px;"></div>
         </div>
     </div>
 </section>

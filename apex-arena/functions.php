@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'APEX_VERSION', '1.7.2' );
+define( 'APEX_VERSION', '2.0.0' );
 define( 'APEX_DIR', get_template_directory() );
 define( 'APEX_URI', get_template_directory_uri() );
 
@@ -25,6 +25,7 @@ $apex_modules = [
     'inc/ai-chatbot.php',
     'inc/api-endpoints.php',
     'inc/admin-panel.php',
+    'inc/coach-portal.php',
     'inc/admin-login-theme.php',
     'inc/customizer.php',
 ];
