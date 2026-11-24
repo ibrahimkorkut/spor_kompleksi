@@ -28,7 +28,7 @@ function apex_get_settings() {
         'gemini_model'    => 'gemini-2.5-flash',
         'openai_api_key'  => '',
         'openai_model'    => 'gpt-4o-mini',
-        'github_url'      => 'https://github.com/ibrahimkorkut/apex-arena-wordpress-theme',
+        'github_url'      => 'https://github.com/ibrahimkorkut/spor_kompleksi',
         'envato_url'      => 'https://themeforest.net/',
     ];
 
