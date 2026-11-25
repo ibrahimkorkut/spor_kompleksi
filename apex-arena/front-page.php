@@ -210,24 +210,24 @@ $hero_sub   = get_theme_mod( 'apex_hero_subtitle', 'İki FIBA basketbol salonu, 
     </div>
 </section>
 
-<!-- 3. PT EĞİTMENLER & PAKETLER -->
-<section class="apex-section apex-section-alt" aria-labelledby="home-pt-title">
+<!-- 3. PT EĞİTMENLER & PAKETLER — MİMARİ EDİTORYAL PROGRAM TABLOSU (v2.2.3) -->
+<section class="apex-section apex-section-alt apex-pt-section" aria-labelledby="home-pt-title">
     <div class="apex-container">
-        <div class="apex-section-head">
+        <div class="apex-section-head apex-pt-head">
             <div>
                 <span class="apex-eyebrow">PT Eğitmenler · Bireysel &amp; Grupsal</span>
                 <h2 id="home-pt-title" class="apex-h2">PT Paketleri ve Seans Ücretleri</h2>
                 <p class="apex-lead">Hedefine uygun birebir özel antrenman veya butik grup dersini seç, eğitim günlerini incele ve anında online randevu oluştur.</p>
             </div>
-            <div class="apex-tabs" role="tablist" aria-label="PT paket filtresi">
-                <button type="button" class="apex-tab-btn is-active" data-filter-group="home-pt" data-filter="all" role="tab" aria-selected="true">Tümü</button>
-                <button type="button" class="apex-tab-btn" data-filter-group="home-pt" data-filter="bireysel" role="tab" aria-selected="false">Bireysel</button>
-                <button type="button" class="apex-tab-btn" data-filter-group="home-pt" data-filter="grupsal" role="tab" aria-selected="false">Grupsal</button>
+            <div class="apex-pt-filter-bar" role="tablist" aria-label="PT paket filtresi">
+                <button type="button" class="apex-pt-tab is-active" data-filter-group="home-pt" data-filter="all" role="tab" aria-selected="true">Tümü</button>
+                <button type="button" class="apex-pt-tab" data-filter-group="home-pt" data-filter="bireysel" role="tab" aria-selected="false">Bireysel</button>
+                <button type="button" class="apex-pt-tab" data-filter-group="home-pt" data-filter="grupsal" role="tab" aria-selected="false">Grupsal</button>
             </div>
         </div>
 
-        <div class="apex-grid-3" data-filter-container="home-pt">
-            <?php foreach ( $packages as $pkg ) :
+        <div class="apex-pt-ledger" data-filter-container="home-pt">
+            <?php foreach ( $packages as $idx => $pkg ) :
                 $type  = get_post_meta( $pkg->ID, '_apex_training_type', true ) ?: 'bireysel';
                 $sess  = get_post_meta( $pkg->ID, '_apex_sessions', true );
                 $per   = (int) get_post_meta( $pkg->ID, '_apex_per_session_fee', true );
@@ -235,27 +235,41 @@ $hero_sub   = get_theme_mod( 'apex_hero_subtitle', 'İki FIBA basketbol salonu, 
                 $days  = get_post_meta( $pkg->ID, '_apex_days', true );
                 $scope = array_filter( array_map( 'trim', explode( "\n", (string) get_post_meta( $pkg->ID, '_apex_scope', true ) ) ) );
                 $feat  = get_post_meta( $pkg->ID, '_apex_featured', true ) === '1';
+                $num   = str_pad( (string) ( $idx + 1 ), 2, '0', STR_PAD_LEFT );
             ?>
-            <article class="apex-card <?php echo $feat ? 'apex-card-featured' : ''; ?>" data-filter-item="<?php echo esc_attr( $type ); ?>">
-                <div class="apex-card-body">
-                    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
-                        <span class="apex-eyebrow" style="margin:0;">
-                            <?php echo $type === 'grupsal' ? 'Grupsal Antrenman' : 'Bireysel PT'; ?> · <?php echo esc_html( $sess ); ?> Seans
-                        </span>
-                        <?php if ( $feat ) : ?><span class="apex-mini-badge" style="color:#fff;border-color:rgba(227,24,55,0.6);">Önerilen</span><?php endif; ?>
-                    </div>
-                    <h3 class="apex-h3"><?php echo esc_html( $pkg->post_title ); ?></h3>
-                    <div class="apex-price"><?php echo esc_html( apex_format_tl( $total ) ); ?> <small>· Seans başı <?php echo esc_html( apex_format_tl( $per ) ); ?></small></div>
-                    <p class="apex-muted" style="margin:0;font-size:0.86rem;">Günler: <?php echo esc_html( $days ); ?></p>
-                    <ul class="apex-checklist">
-                        <?php foreach ( array_slice( $scope, 0, 4 ) as $line ) : ?>
-                            <li><?php echo esc_html( $line ); ?></li>
-                        <?php endforeach; ?>
-                    </ul>
-                    <div class="apex-card-foot">
-                        <a href="<?php echo esc_url( home_url( '/pt-egitmenler/?package=' . $pkg->ID . '#randevu' ) ); ?>" class="apex-btn <?php echo $feat ? 'apex-btn-primary' : 'apex-btn-outline'; ?> apex-btn-block">Randevu Al</a>
-                    </div>
+            <article class="apex-pt-cell <?php echo $feat ? 'is-featured' : ''; ?>" data-filter-item="<?php echo esc_attr( $type ); ?>">
+                <div class="apex-pt-cell-top">
+                    <span class="apex-pt-num"><?php echo esc_html( $num ); ?></span>
+                    <span class="apex-pt-meta">
+                        <?php echo $type === 'grupsal' ? 'GRUPSAL' : 'BİREYSEL PT'; ?> <i>/</i> <?php echo esc_html( $sess ); ?> SEANS
+                    </span>
+                    <?php if ( $feat ) : ?>
+                        <span class="apex-pt-pick"><i aria-hidden="true"></i>Önerilen</span>
+                    <?php endif; ?>
                 </div>
+
+                <div class="apex-pt-cell-head">
+                    <span class="apex-pt-rule" aria-hidden="true"></span>
+                    <h3 class="apex-pt-title"><?php echo esc_html( $pkg->post_title ); ?></h3>
+                </div>
+
+                <div class="apex-pt-price-row">
+                    <span class="apex-pt-total"><?php echo esc_html( apex_format_tl( $total ) ); ?></span>
+                    <span class="apex-pt-unit"><?php echo esc_html( apex_format_tl( $per ) ); ?> <em>/ seans</em></span>
+                </div>
+
+                <p class="apex-pt-days"><?php echo esc_html( $days ); ?></p>
+
+                <ul class="apex-pt-list">
+                    <?php foreach ( array_slice( $scope, 0, 4 ) as $line ) : ?>
+                        <li><?php echo esc_html( $line ); ?></li>
+                    <?php endforeach; ?>
+                </ul>
+
+                <a href="<?php echo esc_url( home_url( '/pt-egitmenler/?package=' . $pkg->ID . '#randevu' ) ); ?>" class="apex-pt-cta">
+                    <span>Randevu Oluştur</span>
+                    <span class="apex-pt-cta-arrow" aria-hidden="true">↗</span>
+                </a>
             </article>
             <?php endforeach; ?>
         </div>

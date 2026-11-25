@@ -4660,3 +4660,310 @@ html.a11y-reduce-motion .apex-reveal {
     min-height: 310px;
   }
 }
+
+/* 12. v2.2.3 — Mimari Editoryal PT Program Tablosu (Hairline Swiss Grid) */
+.apex-pt-filter-bar {
+  display: inline-flex;
+  align-items: center;
+  gap: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.apex-pt-tab {
+  position: relative;
+  background: transparent;
+  border: 0;
+  padding: 8px 2px 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(212, 212, 216, 0.62);
+  cursor: pointer;
+  transition: color 0.25s ease;
+}
+
+.apex-pt-tab::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: var(--apex-crimson);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.apex-pt-tab:hover,
+.apex-pt-tab.is-active {
+  color: #ffffff;
+}
+
+.apex-pt-tab.is-active::after {
+  transform: scaleX(1);
+}
+
+.apex-pt-ledger {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  background: rgba(255, 255, 255, 0.09);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.apex-pt-cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 30px 28px 26px;
+  background: #0a0b0f;
+  transition: background 0.35s ease;
+  min-width: 0;
+}
+
+.apex-pt-cell::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--apex-crimson);
+  opacity: 0;
+  transform: scaleX(0.3);
+  transform-origin: left;
+  transition: opacity 0.35s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.apex-pt-cell.is-featured {
+  background: linear-gradient(180deg, rgba(227, 24, 55, 0.075) 0%, #0b0c11 46%);
+}
+
+.apex-pt-cell.is-featured::before {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+.apex-pt-cell:hover {
+  background: #101219;
+}
+
+.apex-pt-cell:hover::before {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+.apex-pt-cell-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+  font-variant-numeric: tabular-nums;
+}
+
+.apex-pt-num {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.42);
+  transition: color 0.25s ease;
+}
+
+.apex-pt-cell:hover .apex-pt-num,
+.apex-pt-cell.is-featured .apex-pt-num {
+  color: #ffffff;
+}
+
+.apex-pt-meta {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(212, 212, 216, 0.65);
+}
+
+.apex-pt-meta i {
+  font-style: normal;
+  color: var(--apex-crimson);
+  margin: 0 4px;
+}
+
+.apex-pt-pick {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #f4f4f5;
+}
+
+.apex-pt-pick i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--apex-crimson);
+  display: inline-block;
+}
+
+.apex-pt-cell-head {
+  margin-bottom: 18px;
+}
+
+.apex-pt-rule {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--apex-crimson);
+  margin-bottom: 12px;
+  transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.apex-pt-cell:hover .apex-pt-rule,
+.apex-pt-cell.is-featured .apex-pt-rule {
+  width: 44px;
+}
+
+.apex-pt-title {
+  margin: 0;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(1.55rem, 2.1vw, 1.92rem);
+  font-weight: 800;
+  letter-spacing: 0.015em;
+  text-transform: uppercase;
+  line-height: 1.06;
+  color: #ffffff;
+  min-height: 2.15em;
+}
+
+.apex-pt-price-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-variant-numeric: tabular-nums;
+}
+
+.apex-pt-total {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(2rem, 2.6vw, 2.45rem);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  color: #ffffff;
+}
+
+.apex-pt-unit {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: rgba(228, 228, 231, 0.78);
+  white-space: nowrap;
+}
+
+.apex-pt-unit em {
+  font-style: normal;
+  color: rgba(161, 161, 170, 0.75);
+  font-weight: 500;
+}
+
+.apex-pt-days {
+  margin: 14px 0 16px;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: rgba(161, 161, 170, 0.88);
+}
+
+.apex-pt-list {
+  list-style: none;
+  margin: 0 0 26px;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+  flex: 1;
+}
+
+.apex-pt-list li {
+  position: relative;
+  padding-left: 18px;
+  font-size: 0.85rem;
+  line-height: 1.48;
+  color: rgba(228, 228, 231, 0.84);
+}
+
+.apex-pt-list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 8px;
+  height: 1.5px;
+  background: rgba(227, 24, 55, 0.78);
+}
+
+.apex-pt-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.86);
+  transition: color 0.25s ease, border-color 0.25s ease;
+}
+
+.apex-pt-cell.is-featured .apex-pt-cta {
+  color: #ffffff;
+  border-top-color: rgba(227, 24, 55, 0.52);
+}
+
+.apex-pt-cta-arrow {
+  display: inline-block;
+  font-size: 1rem;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), color 0.25s ease;
+}
+
+.apex-pt-cell:hover .apex-pt-cta {
+  color: #ffffff;
+  border-top-color: rgba(227, 24, 55, 0.65);
+}
+
+.apex-pt-cell:hover .apex-pt-cta-arrow,
+.apex-pt-cell.is-featured .apex-pt-cta-arrow {
+  color: var(--apex-crimson);
+}
+
+.apex-pt-cell:hover .apex-pt-cta-arrow {
+  transform: translate(4px, -3px);
+}
+
+@media (max-width: 1024px) {
+  .apex-pt-ledger {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .apex-pt-ledger {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .apex-pt-cell {
+    padding: 24px 20px 22px;
+  }
+  .apex-pt-title {
+    min-height: 0;
+  }
+}

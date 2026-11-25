@@ -1,5 +1,8 @@
 # Changelog — APEX ARENA WordPress Theme
 
+## [2.2.3] — 2026-11-25
+- **İsviçre Tipi Mimari PT Program Tablosu (`front-page.php`, `assets/css/main.css`):** Ana sayfadaki "PT Paketleri ve Seans Ücretleri" bölümü klasik 6'lı kutu fiyat kartlarından çıkarılarak `1px` ince ayırıcılı (hairline) mimari editoryal programa dönüştürüldü; üst indeks numaraları (`01`–`06`), alt çizgili `Tümü / Bireysel / Grupsal` filtre çubuğu, sağ-sol dengeli fiyat satırı, kırmızı çizgili kapsam listesi ve `Randevu Oluştur ↗` alt bağlantısı eklendi.
+
 ## [2.2.2] — 2026-11-25
 - **Mimari Editoryal Tesis Olanakları Bento Galerisi (`front-page.php`, `assets/css/main.css`, `inc/helpers.php`, `assets/images/facility-*.jpg`):** Ana sayfadaki "Soyunma Odası, Otopark ve Protein Kafe" bölümü klasik 3'lü kutu kartlarından çıkarılarak asimetrik 1+2 tam çerçeve mimari bento galerisine dönüştürüldü. Başlıklarla birebir örtüşen 3 yeni doğal mimari fotoğraf (koyu meşe RFID dolap & sedir Fin saunası, brüt beton kapalı EV otoparkı, koyu mermer Protein Kafe & espresso bar) eklendi ve `apex_img_url()` fonksiyonuna otomatik `?v=filemtime` önbellek yenileme eklendi.
 
