@@ -27,6 +27,7 @@ add_action( 'admin_init', function() {
         'memberships' => [ 'table' => 'apex_membership_applications', 'file' => 'apex-uyelikler.csv' ],
         'cafe'        => [ 'table' => 'apex_cafe_orders',             'file' => 'apex-kafe-siparisleri.csv' ],
         'reviews'     => [ 'table' => 'apex_reviews',                 'file' => 'apex-uye-yorumlari.csv' ],
+        'emails'      => [ 'table' => 'apex_email_logs',              'file' => 'apex-eposta-kayitlari.csv' ],
     ];
     if ( ! isset( $configs[ $kind ] ) ) {
         return;
@@ -68,6 +69,7 @@ add_action( 'admin_menu', function() {
     add_submenu_page( 'apex-arena-dashboard', 'PT Randevuları', 'PT Randevuları', 'manage_options', 'apex-pt-appointments', 'apex_admin_pt_appointments_page' );
     add_submenu_page( 'apex-arena-dashboard', 'Üyelik Başvuruları', 'Üyelikler & Mesajlar', 'manage_options', 'apex-memberships', 'apex_admin_memberships_page' );
     add_submenu_page( 'apex-arena-dashboard', 'Kafe Siparişleri & Yorumlar', 'Kafe & Yorumlar', 'manage_options', 'apex-cafe-reviews', 'apex_admin_cafe_reviews_page' );
+    add_submenu_page( 'apex-arena-dashboard', 'Gmail SMTP & Otomatik Hatırlatma Merkezi', 'E-posta & Hatırlatma', 'manage_options', 'apex-email-center', 'apex_admin_email_center_page' );
     add_submenu_page( 'apex-arena-dashboard', 'AI Chatbot & Tesis Ayarları', 'AI & Ayarlar', 'manage_options', 'apex-settings', 'apex_admin_settings_page' );
 } );
 
@@ -671,6 +673,7 @@ function apex_admin_dashboard_page() {
                 </div>
             </div>
             <div class="apex-ad-pills">
+                <a href="<?php echo esc_url( admin_url( 'admin.php?page=apex-email-center' ) ); ?>" class="apex-ad-btn">📧 E-posta &amp; Hatırlatma</a>
                 <a href="<?php echo esc_url( admin_url( 'admin.php?page=apex-coach-portal' ) ); ?>" class="apex-ad-btn apex-ad-btn-red">Koç Grafik Paneli →</a>
                 <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="apex-ad-btn" target="_blank">Canlı Siteyi Aç ↗</a>
                 <a href="<?php echo esc_url( wp_logout_url( wp_login_url( admin_url( 'admin.php?page=apex-arena-dashboard' ) ) ) ); ?>" class="apex-ad-btn">Güvenli Çıkış</a>
@@ -1430,7 +1433,7 @@ function apex_admin_memberships_page() {
  */
 function apex_admin_settings_page() {
     if ( isset( $_POST['apex_save_settings'] ) && check_admin_referer( 'apex_settings_nonce' ) ) {
-        $new = [
+        $new = array_merge( apex_get_settings(), [
             'phone'          => sanitize_text_field( wp_unslash( $_POST['phone'] ?? '' ) ),
             'email'          => sanitize_email( wp_unslash( $_POST['email'] ?? '' ) ),
             'address'        => sanitize_text_field( wp_unslash( $_POST['address'] ?? '' ) ),
@@ -1447,7 +1450,7 @@ function apex_admin_settings_page() {
             'openai_model'   => sanitize_text_field( wp_unslash( $_POST['openai_model'] ?? 'gpt-4o-mini' ) ),
             'github_url'     => esc_url_raw( wp_unslash( $_POST['github_url'] ?? '' ) ),
             'envato_url'     => esc_url_raw( wp_unslash( $_POST['envato_url'] ?? '' ) ),
-        ];
+        ] );
         update_option( 'apex_arena_settings', $new );
         echo '<div class="notice notice-success"><p><strong>APEX ARENA ayarları başarıyla kaydedildi!</strong></p></div>';
     }
@@ -1567,5 +1570,372 @@ function apex_admin_cafe_reviews_page() {
             </tbody>
         </table>
     </div>
+    <?php
+}
+
+/**
+ * Gmail SMTP, Hoş Geldin & Otomatik Hatırlatma E-posta Merkezi (v2.1.0)
+ */
+function apex_admin_email_center_page() {
+    global $wpdb;
+    $t_emails = $wpdb->prefix . 'apex_email_logs';
+    $notice   = '';
+
+    // 1. Gmail SMTP & Hatırlatma Ayarlarını Kaydet
+    if ( isset( $_POST['apex_save_mail_settings'] ) && check_admin_referer( 'apex_mail_center_nonce' ) ) {
+        $cur      = apex_get_settings();
+        $raw_pass = isset( $_POST['smtp_pass'] ) ? trim( (string) wp_unslash( $_POST['smtp_pass'] ) ) : '';
+        $new_pass = ! empty( $_POST['clear_smtp_pass'] ) ? '' : ( $raw_pass !== '' ? $raw_pass : ( $cur['smtp_pass'] ?? '' ) );
+
+        $updated = array_merge( $cur, [
+            'smtp_enabled'          => ! empty( $_POST['smtp_enabled'] ) ? 1 : 0,
+            'smtp_host'             => sanitize_text_field( wp_unslash( $_POST['smtp_host'] ?? 'smtp.gmail.com' ) ),
+            'smtp_port'             => max( 1, absint( $_POST['smtp_port'] ?? 587 ) ),
+            'smtp_encryption'       => in_array( $_POST['smtp_encryption'] ?? 'tls', [ 'tls', 'ssl', '' ], true ) ? $_POST['smtp_encryption'] : 'tls',
+            'smtp_user'             => sanitize_email( wp_unslash( $_POST['smtp_user'] ?? '' ) ),
+            'smtp_pass'             => $new_pass,
+            'smtp_from_name'        => sanitize_text_field( wp_unslash( $_POST['smtp_from_name'] ?? 'APEX ARENA Spor Kompleksi' ) ),
+            'mail_on_register'      => ! empty( $_POST['mail_on_register'] ) ? 1 : 0,
+            'mail_on_booking'       => ! empty( $_POST['mail_on_booking'] ) ? 1 : 0,
+            'mail_auto_reminders'   => ! empty( $_POST['mail_auto_reminders'] ) ? 1 : 0,
+            'reminder_hours_before' => max( 1, min( 168, absint( $_POST['reminder_hours_before'] ?? 24 ) ) ),
+        ] );
+        update_option( 'apex_arena_settings', $updated );
+        $notice = '<div class="notice notice-success"><p><strong>Gmail SMTP &amp; Otomatik Hatırlatma ayarları kaydedildi!</strong></p></div>';
+    }
+
+    // 2. Test Maili Gönder
+    if ( isset( $_POST['apex_send_test_mail'] ) && check_admin_referer( 'apex_mail_center_nonce' ) ) {
+        $test_to = sanitize_email( wp_unslash( $_POST['test_email_to'] ?? '' ) );
+        if ( is_email( $test_to ) && function_exists( 'apex_send_test_email' ) ) {
+            $res = apex_send_test_email( $test_to );
+            if ( $res['ok'] ) {
+                $notice = '<div class="notice notice-success"><p>✅ <strong>' . esc_html( $res['message'] ) . '</strong></p></div>';
+            } else {
+                $notice = '<div class="notice notice-error"><p>⚠️ <strong>Gönderim Hatası:</strong> ' . esc_html( $res['error'] ?: $res['message'] ) . '</p></div>';
+            }
+        } else {
+            $notice = '<div class="notice notice-error"><p>Lütfen geçerli bir alıcı Gmail/e-posta adresi girin.</p></div>';
+        }
+    }
+
+    // 3. Otomatik Hatırlatma Tarayıcısını Manuel Çalıştır
+    if ( isset( $_POST['apex_run_reminders_now'] ) && check_admin_referer( 'apex_mail_center_nonce' ) && function_exists( 'apex_run_scheduled_reminders' ) ) {
+        $sum = apex_run_scheduled_reminders( true );
+        $notice = '<div class="notice notice-info"><p>⏰ <strong>Hatırlatma taraması tamamlandı:</strong> '
+            . (int) $sum['sent'] . ' yeni hatırlatma gönderildi, '
+            . (int) $sum['skipped'] . ' kayıt atlandı, '
+            . (int) $sum['failed'] . ' hata.</p></div>';
+    }
+
+    // 4. Seçili Üyeye Anında Antrenman veya Hoş Geldin Hatırlatması Gönder
+    if ( isset( $_POST['apex_send_member_rem'] ) && check_admin_referer( 'apex_mail_center_nonce' ) ) {
+        $target_uid  = absint( $_POST['target_member_id'] ?? 0 );
+        $target_mode = in_array( $_POST['target_mail_mode'] ?? 'workout', [ 'workout', 'renewal', 'welcome' ], true ) ? $_POST['target_mail_mode'] : 'workout';
+        if ( $target_uid > 0 ) {
+            if ( $target_mode === 'welcome' && function_exists( 'apex_send_welcome_email' ) ) {
+                $tu  = get_user_by( 'id', $target_uid );
+                $res = $tu ? apex_send_welcome_email( [
+                    'user_id'     => $tu->ID,
+                    'full_name'   => $tu->display_name ?: $tu->user_login,
+                    'email'       => $tu->user_email,
+                    'member_code' => get_user_meta( $tu->ID, 'apex_member_code', true ) ?: 'APX-2026-' . str_pad( (string) $tu->ID, 4, '0', STR_PAD_LEFT ),
+                    'plan_name'   => get_user_meta( $tu->ID, 'apex_membership_plan', true ) ?: 'APEX PRO',
+                    'end_date'    => get_user_meta( $tu->ID, 'apex_membership_end', true ) ?: date( 'Y-m-d', strtotime( '+30 days' ) ),
+                    'goal'        => get_user_meta( $tu->ID, 'apex_member_goal', true ) ?: 'Atletik Performans',
+                ], true ) : [ 'ok' => false, 'message' => 'Üye bulunamadı.', 'error' => '' ];
+            } elseif ( function_exists( 'apex_send_member_reminder_email' ) ) {
+                $res = apex_send_member_reminder_email( $target_uid, $target_mode, true );
+            } else {
+                $res = [ 'ok' => false, 'message' => 'Mail modülü yüklenemedi.', 'error' => '' ];
+            }
+            $cls    = ! empty( $res['ok'] ) ? 'notice-success' : 'notice-error';
+            $notice = '<div class="notice ' . $cls . '"><p>' . esc_html( ! empty( $res['ok'] ) ? $res['message'] : ( $res['error'] ?: $res['message'] ) ) . '</p></div>';
+        }
+    }
+
+    $s            = apex_get_settings();
+    $gmail_ready  = function_exists( 'apex_is_gmail_smtp_ready' ) && apex_is_gmail_smtp_ready();
+    $total_mails  = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$t_emails}" );
+    $sent_gmail   = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$t_emails} WHERE status = 'sent'" );
+    $rem_count    = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$t_emails} WHERE mail_type LIKE 'reminder_%'" );
+    $welcome_cnt  = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$t_emails} WHERE mail_type = 'welcome'" );
+    $logs         = $wpdb->get_results( "SELECT * FROM {$t_emails} ORDER BY id DESC LIMIT 40" );
+    $members      = get_users( [ 'number' => 40, 'orderby' => 'ID', 'order' => 'DESC' ] );
+    $last_run     = get_option( 'apex_last_reminder_run', 'Henüz çalışmadı' );
+    $csv_nonce    = wp_create_nonce( 'apex_csv_export' );
+    $has_pass     = ! empty( $s['smtp_pass'] );
+    ?>
+    <style>
+        .apex-mc-wrap { max-width: 1320px; margin: 16px 20px 44px 0; font-family: -apple-system, BlinkMacSystemFont, 'Plus Jakarta Sans', 'Segoe UI', sans-serif; color: #f5f5f7; }
+        .apex-mc-wrap * { box-sizing: border-box; }
+        .apex-mc-banner {
+            background: radial-gradient(ellipse 46% 115% at 92% 0%, rgba(250,17,79,0.22), transparent 62%), radial-gradient(ellipse 40% 100% at 8% 100%, rgba(164,255,46,0.12), transparent 60%), #111217;
+            border: 1px solid rgba(255,255,255,0.09); border-radius: 20px; padding: 22px 26px; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 18px;
+        }
+        .apex-mc-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
+        .apex-mc-kpi { background: linear-gradient(180deg,#16171d,#101116); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 16px 18px; border-top: 2.5px solid var(--accent,#fa114f); }
+        .apex-mc-kpi-lbl { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #8c90a0; }
+        .apex-mc-kpi-val { font-size: 25px; font-weight: 800; color: #fff; margin-top: 6px; }
+        .apex-mc-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.95fr); gap: 18px; margin-bottom: 18px; }
+        .apex-mc-card { background: linear-gradient(180deg,#16171d,#111216); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 20px 22px; }
+        .apex-mc-card h2 { margin: 0 0 12px; font-size: 16px; font-weight: 800; color: #fff; }
+        .apex-mc-field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+        .apex-mc-field { display: flex; flex-direction: column; gap: 5px; }
+        .apex-mc-field label { font-size: 12px; font-weight: 700; color: #d4d4d8; }
+        .apex-mc-field input, .apex-mc-field select { background: #0c0d12; border: 1px solid rgba(255,255,255,0.14); border-radius: 10px; padding: 9px 12px; color: #fff; font-size: 13px; }
+        .apex-mc-checks { display: grid; gap: 8px; margin: 14px 0; padding: 12px 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; }
+        .apex-mc-checks label { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #e4e4e7; cursor: pointer; }
+        .apex-mc-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 16px; border-radius: 999px; font-size: 12.5px; font-weight: 700; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); color: #fff; cursor: pointer; text-decoration: none; }
+        .apex-mc-btn:hover { background: rgba(255,255,255,0.14); color: #fff; }
+        .apex-mc-btn-red { background: linear-gradient(135deg,#fa114f,#d40f40); border-color: rgba(255,110,145,0.45); }
+        .apex-mc-btn-lime { background: linear-gradient(135deg,#68c714,#96eb26); color: #0a0b0e; border-color: rgba(164,255,46,0.5); }
+        .apex-mc-btn-lime:hover { color: #0a0b0e; }
+        .apex-mc-guide { background: rgba(38,230,255,0.06); border: 1px solid rgba(38,230,255,0.22); border-radius: 12px; padding: 12px 14px; font-size: 12.5px; color: #cbd5e1; line-height: 1.55; margin-top: 14px; }
+        .apex-mc-guide ol { margin: 6px 0 0 18px; padding: 0; }
+        .apex-mc-table { width: 100%; border-collapse: collapse; }
+        .apex-mc-table th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: #8c90a0; padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+        .apex-mc-table td { padding: 11px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; color: #e4e4e7; vertical-align: middle; }
+        .apex-mc-pill { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+        .apex-mc-modal-bg { position: fixed; inset: 0; z-index: 100000; background: rgba(5,6,10,0.82); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .apex-mc-modal-bg[hidden] { display: none; }
+        .apex-mc-modal { width: min(760px, 100%); max-height: 90vh; background: #111319; border: 1px solid rgba(255,255,255,0.16); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; }
+        .apex-mc-modal-head { padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .apex-mc-modal iframe { width: 100%; height: 72vh; border: 0; background: #090a0d; }
+        @media (max-width: 1080px) { .apex-mc-kpis { grid-template-columns: repeat(2, 1fr); } .apex-mc-grid, .apex-mc-field-grid { grid-template-columns: 1fr; } }
+    </style>
+
+    <div class="wrap apex-mc-wrap">
+        <?php echo $notice; ?>
+
+        <div class="apex-mc-banner">
+            <div>
+                <div style="font-size:11px;font-weight:800;letter-spacing:0.09em;text-transform:uppercase;color:#a4ff2e;margin-bottom:5px;">
+                    ● GMAIL SMTP &amp; OTOMATİK HATIRLATMA MOTORU · v<?php echo esc_html( APEX_VERSION ); ?>
+                </div>
+                <h1 style="margin:0;font-size:22px;font-weight:800;color:#fff;">E-posta Bildirimleri &amp; Hatırlatma Merkezi</h1>
+                <p style="margin:6px 0 0;font-size:13px;color:#a1a1aa;">
+                    Kayıt sonrası Hoş Geldin + Dijital QR Kartı, salon/PT onayları ve 24 saat kala otomatik hatırlatmaları Gmail SMTP ile yönetin.
+                </p>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <a href="<?php echo esc_url( admin_url( "admin.php?page=apex-email-center&apex_export_csv=emails&_wpnonce={$csv_nonce}" ) ); ?>" class="apex-mc-btn">⬇ CSV İndir</a>
+                <a href="<?php echo esc_url( admin_url( 'admin.php?page=apex-arena-dashboard' ) ); ?>" class="apex-mc-btn">← Operasyon Paneli</a>
+            </div>
+        </div>
+
+        <div class="apex-mc-kpis">
+            <div class="apex-mc-kpi" style="--accent:#26e6ff;">
+                <div class="apex-mc-kpi-lbl">Toplam E-posta Kaydı</div>
+                <div class="apex-mc-kpi-val"><?php echo esc_html( $total_mails ); ?></div>
+                <div style="font-size:12px;color:#9ca3af;margin-top:4px;">Hoş Geldin: <?php echo esc_html( $welcome_cnt ); ?></div>
+            </div>
+            <div class="apex-mc-kpi" style="--accent:#a4ff2e;">
+                <div class="apex-mc-kpi-lbl">Canlı Gmail İletimi</div>
+                <div class="apex-mc-kpi-val"><?php echo esc_html( $sent_gmail ); ?></div>
+                <div style="font-size:12px;color:#a4ff2e;margin-top:4px;">SMTP üzerinden ulaştı</div>
+            </div>
+            <div class="apex-mc-kpi" style="--accent:#ffbe0b;">
+                <div class="apex-mc-kpi-lbl">Hatırlatma E-postaları</div>
+                <div class="apex-mc-kpi-val"><?php echo esc_html( $rem_count ); ?></div>
+                <div style="font-size:12px;color:#9ca3af;margin-top:4px;">Son Tarama: <?php echo esc_html( $last_run ); ?></div>
+            </div>
+            <div class="apex-mc-kpi" style="--accent:<?php echo $gmail_ready ? '#a4ff2e' : '#fa114f'; ?>;">
+                <div class="apex-mc-kpi-lbl">Gmail SMTP Durumu</div>
+                <div class="apex-mc-kpi-val" style="font-size:18px;color:<?php echo $gmail_ready ? '#a4ff2e' : '#ffbe0b'; ?>;">
+                    <?php echo $gmail_ready ? '● CANLI GMAIL AKTİF' : '● YEREL ÖNİZLEME'; ?>
+                </div>
+                <div style="font-size:12px;color:#9ca3af;margin-top:4px;"><?php echo $gmail_ready ? esc_html( $s['smtp_user'] ) : 'Gmail &amp; App Password bekleniyor'; ?></div>
+            </div>
+        </div>
+
+        <div class="apex-mc-grid">
+            <!-- SOL: GMAIL SMTP & OTOMASYON AYARLARI -->
+            <div class="apex-mc-card">
+                <h2>1. Gmail SMTP &amp; Otomatik Gönderim Ayarları</h2>
+                <form method="post">
+                    <?php wp_nonce_field( 'apex_mail_center_nonce' ); ?>
+                    <div class="apex-mc-field-grid">
+                        <div class="apex-mc-field">
+                            <label for="smtp_user">Gmail Adresiniz *</label>
+                            <input type="email" id="smtp_user" name="smtp_user" value="<?php echo esc_attr( $s['smtp_user'] ); ?>" placeholder="ornek@gmail.com">
+                        </div>
+                        <div class="apex-mc-field">
+                            <label for="smtp_pass">Google Uygulama Şifresi (16 Hane) <?php echo $has_pass ? '— Kayıtlı ✓' : '*'; ?></label>
+                            <input type="password" id="smtp_pass" name="smtp_pass" value="" placeholder="<?php echo $has_pass ? 'Değiştirmek için yeni şifre yazın' : 'xxxx xxxx xxxx xxxx'; ?>" autocomplete="new-password">
+                        </div>
+                        <div class="apex-mc-field">
+                            <label for="smtp_from_name">Gönderen Adı</label>
+                            <input type="text" id="smtp_from_name" name="smtp_from_name" value="<?php echo esc_attr( $s['smtp_from_name'] ); ?>">
+                        </div>
+                        <div class="apex-mc-field">
+                            <label for="reminder_hours_before">Hatırlatma Süresi (Randevudan Kaç Saat Önce)</label>
+                            <input type="number" id="reminder_hours_before" name="reminder_hours_before" min="1" max="168" value="<?php echo esc_attr( $s['reminder_hours_before'] ); ?>">
+                        </div>
+                        <div class="apex-mc-field">
+                            <label for="smtp_host">SMTP Sunucusu</label>
+                            <input type="text" id="smtp_host" name="smtp_host" value="<?php echo esc_attr( $s['smtp_host'] ?: 'smtp.gmail.com' ); ?>">
+                        </div>
+                        <div class="apex-mc-field">
+                            <label for="smtp_port">Port &amp; Şifreleme</label>
+                            <div style="display:flex;gap:8px;">
+                                <input type="number" id="smtp_port" name="smtp_port" value="<?php echo esc_attr( $s['smtp_port'] ?: 587 ); ?>" style="width:90px;">
+                                <select name="smtp_encryption" style="flex:1;">
+                                    <option value="tls" <?php selected( $s['smtp_encryption'], 'tls' ); ?>>TLS (587 — Önerilen)</option>
+                                    <option value="ssl" <?php selected( $s['smtp_encryption'], 'ssl' ); ?>>SSL (465)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="apex-mc-checks">
+                        <label><input type="checkbox" name="smtp_enabled" value="1" <?php checked( ! empty( $s['smtp_enabled'] ) ); ?>> <strong>Canlı Gmail SMTP Gönderimini Etkinleştir</strong> (Kapalıysa mailler sıfır hata ile aşağıda önizlenir)</label>
+                        <label><input type="checkbox" name="mail_on_register" value="1" <?php checked( ! empty( $s['mail_on_register'] ) ); ?>> Yeni üye kayıt olunca <strong>Hoş Geldin &amp; Dijital QR Kart</strong> e-postası gönder</label>
+                        <label><input type="checkbox" name="mail_on_booking" value="1" <?php checked( ! empty( $s['mail_on_booking'] ) ); ?>> Salon kiralama veya PT randevusu alındığında <strong>Onay E-postası</strong> gönder</label>
+                        <label><input type="checkbox" name="mail_auto_reminders" value="1" <?php checked( ! empty( $s['mail_auto_reminders'] ) ); ?>> Saatlik WP-Cron ile <strong>Yaklaşan Randevu &amp; Üyelik Hatırlatmaları</strong> gönder</label>
+                        <?php if ( $has_pass ) : ?>
+                        <label style="color:#fca5a5;"><input type="checkbox" name="clear_smtp_pass" value="1"> Kayıtlı uygulama şifresini temizle</label>
+                        <?php endif; ?>
+                    </div>
+
+                    <button type="submit" name="apex_save_mail_settings" class="apex-mc-btn apex-mc-btn-red">💾 Gmail &amp; Hatırlatma Ayarlarını Kaydet</button>
+                </form>
+
+                <div class="apex-mc-guide">
+                    <strong style="color:#26e6ff;">📌 Gmail Uygulama Şifresi (App Password) Nasıl Alınır?</strong>
+                    <ol>
+                        <li>Google Hesabınızda (<strong>myaccount.google.com/security</strong>) <strong>2 Adımlı Doğrulama</strong>’yı açın.</li>
+                        <li><strong>Uygulama Şifreleri (App Passwords)</strong> sayfasına gidip "APEX ARENA" adıyla yeni 16 haneli şifre oluşturun.</li>
+                        <li>Gmail adresinizi ve 16 haneli şifreyi yukarıya girip <strong>Canlı Gmail SMTP</strong> kutusunu işaretleyin ve sağdan Test Maili gönderin!</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- SAĞ: TEST MAİLİ & ANLIK HATIRLATMA TETİKLEYİCİ -->
+            <div style="display:grid;gap:18px;align-content:start;">
+                <div class="apex-mc-card">
+                    <h2>2. Canlı Gmail Test Maili Gönder</h2>
+                    <p style="font-size:12.5px;color:#a1a1aa;margin:0 0 12px;">Ayarlarınızı kaydettikten sonra hedef Gmail adresinize anında test e-postası gönderip teslimatı doğrulayın.</p>
+                    <form method="post" style="display:flex;gap:8px;flex-wrap:wrap;">
+                        <?php wp_nonce_field( 'apex_mail_center_nonce' ); ?>
+                        <input type="email" name="test_email_to" value="<?php echo esc_attr( $s['smtp_user'] ?: wp_get_current_user()->user_email ); ?>" placeholder="hedef@gmail.com" style="flex:1;min-width:190px;background:#0c0d12;border:1px solid rgba(255,255,255,0.14);border-radius:10px;padding:9px 12px;color:#fff;" required>
+                        <button type="submit" name="apex_send_test_mail" class="apex-mc-btn apex-mc-btn-lime">✉️ Test Maili Gönder</button>
+                    </form>
+                </div>
+
+                <div class="apex-mc-card">
+                    <h2>3. Anlık Hatırlatma Gönderici</h2>
+                    <p style="font-size:12.5px;color:#a1a1aa;margin:0 0 12px;">Seçtiğiniz üyeye tek tıkla <strong>Antrenman Hatırlatması</strong>, <strong>Üyelik Yenileme</strong> veya <strong>Hoş Geldin &amp; QR</strong> e-postası gönderin.</p>
+                    <form method="post" style="display:grid;gap:10px;">
+                        <?php wp_nonce_field( 'apex_mail_center_nonce' ); ?>
+                        <div class="apex-mc-field">
+                            <label for="target_member_id">Üye Seçin</label>
+                            <select id="target_member_id" name="target_member_id">
+                                <?php foreach ( $members as $mu ) : ?>
+                                    <option value="<?php echo esc_attr( $mu->ID ); ?>"><?php echo esc_html( $mu->display_name . ' (' . $mu->user_email . ')' ); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="apex-mc-field">
+                            <label for="target_mail_mode">E-posta Türü</label>
+                            <select id="target_mail_mode" name="target_mail_mode">
+                                <option value="workout">🔥 Antrenman &amp; Hedef Hatırlatması</option>
+                                <option value="renewal">⏳ Üyelik Yenileme Hatırlatması</option>
+                                <option value="welcome">🎉 Hoş Geldin &amp; Dijital QR Kartı</option>
+                            </select>
+                        </div>
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">
+                            <button type="submit" name="apex_send_member_rem" class="apex-mc-btn apex-mc-btn-red">📤 Seçili Üyeye Gönder</button>
+                            <button type="submit" name="apex_run_reminders_now" class="apex-mc-btn">⏰ Yaklaşan Randevuları Şimdi Tara</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- GÖNDERİLEN E-POSTALAR & CANLI HTML ÖNİZLEME TABLOSU -->
+        <div class="apex-mc-card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px;">
+                <h2 style="margin:0;">4. E-posta Kayıt Defteri &amp; Canlı HTML Önizleme (Son 40 Gönderim)</h2>
+                <span style="font-size:12px;color:#8c90a0;">Her gönderilen kayıt HTML şablonuyla birlikte güvenle saklanır.</span>
+            </div>
+            <div style="overflow-x:auto;">
+                <table class="apex-mc-table">
+                    <thead>
+                        <tr><th>Tarih</th><th>Tür</th><th>Alıcı</th><th>Konu</th><th>Durum</th><th>Önizleme</th></tr>
+                    </thead>
+                    <tbody>
+                    <?php if ( empty( $logs ) ) : ?>
+                        <tr><td colspan="6" style="text-align:center;color:#8c90a0;padding:24px;">Henüz e-posta kaydı yok. Yeni üyelik kaydı veya test maili ile anında deneyebilirsiniz.</td></tr>
+                    <?php else : foreach ( $logs as $lg ) :
+                        $tm = function_exists( 'apex_mail_type_meta' ) ? apex_mail_type_meta( $lg->mail_type ) : [ 'label' => $lg->mail_type, 'color' => '#26e6ff', 'bg' => 'rgba(38,230,255,0.14)' ];
+                        $st_map = [
+                            'sent'         => [ 'txt' => '✓ Gmail İletildi', 'col' => '#a4ff2e', 'bg' => 'rgba(164,255,46,0.14)' ],
+                            'queued_local' => [ 'txt' => '● Yerel Önizleme', 'col' => '#26e6ff', 'bg' => 'rgba(38,230,255,0.14)' ],
+                            'failed'       => [ 'txt' => '✕ SMTP Hatası',    'col' => '#ff4b7c', 'bg' => 'rgba(250,17,79,0.18)' ],
+                        ];
+                        $st = $st_map[ $lg->status ] ?? [ 'txt' => $lg->status, 'col' => '#9ca3af', 'bg' => 'rgba(156,163,175,0.14)' ];
+                    ?>
+                        <tr>
+                            <td style="white-space:nowrap;color:#a1a1aa;"><?php echo esc_html( date( 'd.m.Y H:i', strtotime( $lg->created_at ) ) ); ?></td>
+                            <td><span class="apex-mc-pill" style="color:<?php echo esc_attr( $tm['color'] ); ?>;background:<?php echo esc_attr( $tm['bg'] ); ?>;"><?php echo esc_html( $tm['label'] ); ?></span></td>
+                            <td><strong><?php echo esc_html( $lg->recipient_name ?: 'Üye' ); ?></strong><br><small style="color:#9ca3af;"><?php echo esc_html( $lg->recipient_email ); ?></small></td>
+                            <td>
+                                <?php echo esc_html( $lg->subject ); ?>
+                                <?php if ( ! empty( $lg->error_message ) ) : ?>
+                                    <div style="font-size:11px;color:#fca5a5;margin-top:3px;">Hata: <?php echo esc_html( $lg->error_message ); ?></div>
+                                <?php endif; ?>
+                            </td>
+                            <td><span class="apex-mc-pill" style="color:<?php echo esc_attr( $st['col'] ); ?>;background:<?php echo esc_attr( $st['bg'] ); ?>;"><?php echo esc_html( $st['txt'] ); ?></span></td>
+                            <td>
+                                <button type="button" class="apex-mc-btn apex-mail-preview-btn"
+                                    data-subject="<?php echo esc_attr( $lg->subject ); ?>"
+                                    data-to="<?php echo esc_attr( $lg->recipient_email ); ?>"
+                                    data-b64="<?php echo esc_attr( base64_encode( (string) $lg->body_html ) ); ?>">👁 Önizle</button>
+                            </td>
+                        </tr>
+                    <?php endforeach; endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- CANLI E-POSTA HTML ÖNİZLEME MODALI -->
+    <div class="apex-mc-modal-bg" id="apex-mail-preview-modal" hidden>
+        <div class="apex-mc-modal">
+            <div class="apex-mc-modal-head">
+                <div>
+                    <strong id="apex-mp-subject" style="color:#fff;font-size:14px;display:block;">E-posta Önizleme</strong>
+                    <small id="apex-mp-to" style="color:#9ca3af;"></small>
+                </div>
+                <button type="button" class="apex-mc-btn" id="apex-mp-close">✕ Kapat</button>
+            </div>
+            <iframe id="apex-mp-frame" sandbox="allow-same-origin" title="E-posta HTML Önizleme"></iframe>
+        </div>
+    </div>
+    <script>
+    (function(){
+        const modal = document.getElementById('apex-mail-preview-modal');
+        const frame = document.getElementById('apex-mp-frame');
+        const subj  = document.getElementById('apex-mp-subject');
+        const toEl  = document.getElementById('apex-mp-to');
+        function decodeB64Utf8(b64){
+            const bin = atob(b64);
+            const bytes = Uint8Array.from(bin, c => c.charCodeAt(0));
+            return new TextDecoder('utf-8').decode(bytes);
+        }
+        document.querySelectorAll('.apex-mail-preview-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                subj.textContent = btn.dataset.subject || 'E-posta Önizleme';
+                toEl.textContent = 'Alıcı: ' + (btn.dataset.to || '');
+                frame.srcdoc = decodeB64Utf8(btn.dataset.b64 || '');
+                modal.hidden = false;
+            });
+        });
+        document.getElementById('apex-mp-close')?.addEventListener('click', () => { modal.hidden = true; });
+        modal?.addEventListener('click', (e) => { if (e.target === modal) modal.hidden = true; });
+    })();
+    </script>
     <?php
 }

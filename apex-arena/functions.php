@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'APEX_VERSION', '2.0.2' );
+define( 'APEX_VERSION', '2.1.0' );
 define( 'APEX_DIR', get_template_directory() );
 define( 'APEX_URI', get_template_directory_uri() );
 
@@ -22,6 +22,7 @@ $apex_modules = [
     'inc/database.php',
     'inc/post-types.php',
     'inc/helpers.php',
+    'inc/mailer.php',
     'inc/ai-chatbot.php',
     'inc/api-endpoints.php',
     'inc/admin-panel.php',

@@ -235,6 +235,27 @@ function apex_create_custom_tables() {
         KEY user_date_idx (user_id, workout_date)
     ) {$charset};";
 
+    // 12. Gmail SMTP & Otomatik Hatırlatma E-posta Kayıt Defteri (v2.1.0)
+    $t_emails = $wpdb->prefix . 'apex_email_logs';
+    $sql_emails = "CREATE TABLE {$t_emails} (
+        id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+        user_id BIGINT(20) UNSIGNED DEFAULT 0,
+        recipient_email VARCHAR(150) NOT NULL,
+        recipient_name VARCHAR(120) DEFAULT '',
+        mail_type VARCHAR(40) NOT NULL DEFAULT 'welcome',
+        ref_key VARCHAR(100) DEFAULT '',
+        subject VARCHAR(255) NOT NULL,
+        body_html LONGTEXT NOT NULL,
+        delivery_mode VARCHAR(30) NOT NULL DEFAULT 'local_preview',
+        status VARCHAR(30) NOT NULL DEFAULT 'queued_local',
+        error_message TEXT NULL,
+        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (id),
+        KEY user_idx (user_id),
+        KEY type_idx (mail_type),
+        KEY ref_idx (ref_key)
+    ) {$charset};";
+
     dbDelta( $sql_courts );
     dbDelta( $sql_pt );
     dbDelta( $sql_mem );
@@ -246,6 +267,7 @@ function apex_create_custom_tables() {
     dbDelta( $sql_reviews );
     dbDelta( $sql_cafe );
     dbDelta( $sql_workouts );
+    dbDelta( $sql_emails );
 
     apex_setup_coach_roles_and_seed();
 }
@@ -802,5 +824,59 @@ function apex_setup_coach_roles_and_seed() {
                 'notes'        => $d[4],
             ] );
         }
+    }
+
+    // 7. Demo Üye E-posta & Hatırlatma Örnek Kayıtları (v2.1.0 — yalnızca tablo boşsa)
+    $t_emails = $wpdb->prefix . 'apex_email_logs';
+    if ( $demo_uid > 0 && (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$t_emails}" ) === 0 && function_exists( 'apex_render_email_template' ) ) {
+        $demo_name  = $demo_u ? $demo_u->display_name : 'Demo Üye';
+        $demo_email = $demo_u ? $demo_u->user_email : 'uye@apexarena.com.tr';
+        $demo_code  = get_user_meta( $demo_uid, 'apex_member_code', true ) ?: 'APX-2026-DEMO';
+        $welcome_html = apex_render_email_template( [
+            'badge'     => 'HOŞ GELDİNİZ · DİJİTAL ÜYELİK AKTİF',
+            'title'     => "APEX ARENA Ailesine Hoş Geldin, {$demo_name}!",
+            'intro'     => 'Üyeliğin başarıyla oluşturuldu ve <strong>Dijital QR Geçiş Kartın</strong> aktif edildi. Turnikelerden ve kapalı otoparktan QR kodunla saniyeler içinde geçiş yapabilirsin.',
+            'highlight' => "<div style=\"font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:#F4E268;font-weight:800;margin-bottom:4px;\">DİJİTAL QR ÜYE KODUN</div><div style=\"font-size:24px;font-weight:900;letter-spacing:2px;color:#FFFFFF;\">{$demo_code}</div>",
+            'rows'      => [
+                'Üye Adı Soyadı' => $demo_name,
+                'Seçilen Paket'  => 'APEX PRO',
+                'Durum'          => 'Aktif · Dijital QR Hazır',
+            ],
+        ] );
+        $rem_html = apex_render_email_template( [
+            'badge'     => 'ANTRENMAN & BESLENME HATIRLATMASI',
+            'title'     => "Hareket Zamanı, {$demo_name}!",
+            'intro'     => 'Bu haftaki hedeflerini ve koçun <strong>Kerem Alkan</strong> tarafından güncellenen beslenme takvimini hatırlatmak istedik.',
+            'highlight' => '💡 <strong>Koç Notu:</strong> Antrenman sonrası 35g protein + kompleks karbonhidrat alımını aksatma ve Çarşamba günü 15 dk mobilite ekle.',
+            'rows'      => [
+                'Üye Kodu (QR)'   => $demo_code,
+                'Atanmış Koç'     => 'Kerem Alkan',
+                'Program İlerleme'=> '%86',
+            ],
+        ] );
+        $wpdb->insert( $t_emails, [
+            'user_id'         => $demo_uid,
+            'recipient_email' => $demo_email,
+            'recipient_name'  => $demo_name,
+            'mail_type'       => 'welcome',
+            'ref_key'         => 'seed_welcome_' . $demo_uid,
+            'subject'         => "APEX ARENA'ya Hoş Geldin {$demo_name}! Dijital QR Kartın Hazır ({$demo_code})",
+            'body_html'       => $welcome_html,
+            'delivery_mode'   => 'local_preview',
+            'status'          => 'queued_local',
+            'error_message'   => '',
+        ] );
+        $wpdb->insert( $t_emails, [
+            'user_id'         => $demo_uid,
+            'recipient_email' => $demo_email,
+            'recipient_name'  => $demo_name,
+            'mail_type'       => 'reminder_workout',
+            'ref_key'         => 'seed_rem_' . $demo_uid,
+            'subject'         => "🔥 Antrenman & Hedef Hatırlatması: {$demo_name}, Bugün Sahada Buluşalım! — APEX ARENA",
+            'body_html'       => $rem_html,
+            'delivery_mode'   => 'local_preview',
+            'status'          => 'queued_local',
+            'error_message'   => '',
+        ] );
     }
 }

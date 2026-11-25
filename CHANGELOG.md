@@ -1,5 +1,13 @@
 # Changelog — APEX ARENA WordPress Theme
 
+## [2.1.0] — 2026-11-25
+- **Gmail SMTP, Kayıt Hoş Geldin & Otomatik Hatırlatma Motoru (`inc/mailer.php`):** Sıfır eklenti bağımlılığıyla WordPress dahili PHPMailer motoru Gmail SMTP (`smtp.gmail.com:587` TLS / `465` SSL + 16 haneli Google Uygulama Şifresi) ile entegre edildi:
+  - **Otomatik Kayıt Hoş Geldin & Dijital QR Kart E-postası:** `/uyelik/` üzerinden yeni üye kaydı yapıldığında üyenin e-posta adresine karanlık/crimson APEX ARENA tasarımlı, QR kodlu ve paket özetli Hoş Geldin e-postası gönderilir.
+  - **Salon Kiralama & PT Randevu Onay E-postaları:** Her salon ve PT rezervasyonu sonrası onay kodu, tarih/saat ve hakem detaylarını içeren HTML e-posta otomatik üretilir.
+  - **Saatlik WP-Cron Otomatik Hatırlatma Sistemi:** Yaklaşan salon/PT randevularına 24 saat kala ve bitimine 7 gün kalan aktif üyeliklere otomatik hatırlatma e-postaları gönderilir (mükerrer gönderim `ref_key` ile engellenir).
+  - **Obsidian Neon E-posta & Hatırlatma Merkezi (`WP Admin → APEX ARENA → E-posta & Hatırlatma`):** Gmail SMTP & Uygulama Şifresi kurulumu, tek tıkla Test Maili gönderimi, seçili üyeye anlık hatırlatma, yaklaşan randevuları manuel tarama, CSV dışa aktarım ve tüm gönderimlerin canlı HTML `iframe` önizlemesi (`wp_apex_email_logs` tablosu).
+  - **Üye Paneli E-posta Bildirimleri (`page-uyelik.php`, `assets/js/booking.js`):** Üyeler hatırlatma tercihlerini açıp kapatabilir, tek tıkla Hoş Geldin/QR veya Antrenman Hatırlatma mailini kendilerine gönderebilir ve son e-postalarını canlı önizleyebilir (`POST /member/mail-action`, `GET /member/emails`).
+
 ## [2.0.2] — 2026-11-25
 - **Apple Fitness Neon Glow Coach Portal (`inc/coach-portal.php`):** Upgraded the 5-card Coach Portal to a dynamic, obsidian-matte neon glow telemetry studio:
   - Replaced static pie chart with 3 concentric **Apple Fitness Glowing Activity Rings** (Neon Pink Progress, Electric Lime Sessions, Electric Cyan Nutrition) featuring orbiting 3D luminous tip orbs, `rAF` sweep animations, 3-column tabular metrics, and a live `Öğrenci` / `Genel` mode toggle.

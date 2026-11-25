@@ -127,8 +127,11 @@
         const waMsg = encodeURIComponent(
           `🏀 APEX ARENA Maç Daveti!\nSalon: ${data.court_name}\nTarih & Saat: ${data.date} · ${data.time_slot} (${payload.duration} saat)${data.referee ? '\n⚖️ Lisanslı Hakem Dahil' : ''}\nKod: ${data.booking_code}\nKonum: Barbaros Mah. Spor Bulvarı No: 42, Ataşehir / İstanbul`
         );
+        const mailBadge = data.mail_status === 'sent'
+          ? '<div style="margin-top:6px;font-size:0.84rem;color:#a4ff2e;">📧 Rezervasyon onay e-postası Gmail adresinize gönderildi.</div>'
+          : (data.mail_status === 'queued_local' ? '<div style="margin-top:6px;font-size:0.84rem;opacity:0.88;">📧 Onay ve 24 saat hatırlatma e-postası oluşturuldu (Üye Panelinden önizlenebilir).</div>' : '');
         resBox.innerHTML = `<div class="apex-alert apex-alert-success">
-          ✅ <strong>${data.message}</strong><br>${data.court_name} · ${data.date} ${data.time_slot} · ${data.referee ? '⚖️ Hakem Dahil · ' : ''}Toplam: <strong>${data.total_label}</strong>
+          ✅ <strong>${data.message}</strong><br>${data.court_name} · ${data.date} ${data.time_slot} · ${data.referee ? '⚖️ Hakem Dahil · ' : ''}Toplam: <strong>${data.total_label}</strong>${mailBadge}
           <div class="apex-confirm-actions">
             <button type="button" class="apex-btn apex-btn-ghost apex-btn-sm" id="apex-court-ics-dl">📅 Takvime Ekle (.ics)</button>
             <a href="https://wa.me/?text=${waMsg}" target="_blank" rel="noopener noreferrer" class="apex-btn apex-btn-sm apex-btn-wa-share">💬 WhatsApp ile Maç Daveti Paylaş</a>
@@ -231,8 +234,11 @@
         const waPtMsg = encodeURIComponent(
           `🏋️ APEX ARENA PT Randevum Onaylandı!\nAntrenör: ${data.trainer_name}\nPaket: ${data.package_name}\nTarih & Saat: ${data.date} · ${data.time_slot}\nKod: ${data.booking_code}`
         );
+        const ptMailBadge = data.mail_status === 'sent'
+          ? '<div style="margin-top:6px;font-size:0.84rem;color:#a4ff2e;">📧 PT randevu onayı e-posta adresinize gönderildi.</div>'
+          : (data.mail_status === 'queued_local' ? '<div style="margin-top:6px;font-size:0.84rem;opacity:0.88;">📧 PT onay ve hatırlatma e-postası oluşturuldu (Üye Panelinden önizlenebilir).</div>' : '');
         resBox.innerHTML = `<div class="apex-alert apex-alert-success">
-          ✅ <strong>${data.message}</strong><br>${data.trainer_name} · ${data.package_name} · ${data.date} ${data.time_slot}
+          ✅ <strong>${data.message}</strong><br>${data.trainer_name} · ${data.package_name} · ${data.date} ${data.time_slot}${ptMailBadge}
           <div class="apex-confirm-actions">
             <button type="button" class="apex-btn apex-btn-ghost apex-btn-sm" id="apex-pt-ics-dl">📅 Takvime Ekle (.ics)</button>
             <a href="https://wa.me/?text=${waPtMsg}" target="_blank" rel="noopener noreferrer" class="apex-btn apex-btn-sm apex-btn-wa-share">💬 WhatsApp’ta Paylaş</a>
@@ -269,11 +275,12 @@
       const payload = Object.fromEntries(fd.entries());
       payload.kvkk_consent = fd.get('kvkk_consent') === '1';
       payload.terms_consent = fd.get('terms_consent') === '1';
+      payload.reminder_opt_in = fd.get('reminder_opt_in') === '1';
 
       const { ok, data } = await apiFetch('membership/register', { method: 'POST', body: JSON.stringify(payload) });
       if (ok && data.success) {
         out.innerHTML = `<div class="apex-alert apex-alert-success">🎉 ${data.message}</div>`;
-        setTimeout(() => { window.location.href = data.redirect || window.location.href; }, 1200);
+        setTimeout(() => { window.location.href = data.redirect || window.location.href; }, 1600);
       } else {
         out.innerHTML = `<div class="apex-alert apex-alert-error">⚠️ ${data.message || 'Kayıt başarısız.'}</div>`;
       }
@@ -339,6 +346,112 @@
       } else {
         out.innerHTML = `<div class="apex-alert apex-alert-error">⚠️ ${data.message || 'Gönderilemedi.'}</div>`;
       }
+    });
+  }
+
+  // =========================================================================
+  // 5. ÜYE PANELİ E-POSTA BİLDİRİMLERİ, HATIRLATMA & HTML ÖNİZLEME (v2.1.0)
+  // =========================================================================
+  const mailPanel = document.getElementById('eposta-hatirlatma');
+  if (mailPanel) {
+    const remToggle = document.getElementById('apex-member-rem-toggle');
+    const mailStatus = document.getElementById('apex-member-mail-status');
+    const mailList = document.getElementById('apex-member-email-list');
+    const mailModal = document.getElementById('apex-member-mail-modal');
+    const mailFrame = document.getElementById('apex-mm-frame');
+    const mailTitle = document.getElementById('apex-mm-title');
+
+    function decodeB64Utf8(b64) {
+      try {
+        const bin = atob(b64);
+        const bytes = Uint8Array.from(bin, (c) => c.charCodeAt(0));
+        return new TextDecoder('utf-8').decode(bytes);
+      } catch (e) {
+        return '';
+      }
+    }
+
+    function openMailPreview(subject, html) {
+      if (!mailModal || !mailFrame) return;
+      if (mailTitle) mailTitle.textContent = subject || 'E-posta Önizleme';
+      mailFrame.srcdoc = html || '';
+      mailModal.hidden = false;
+    }
+
+    function bindPreviewButtons(scope) {
+      (scope || mailPanel).querySelectorAll('[data-preview-mail]').forEach((btn) => {
+        if (btn.dataset.bound) return;
+        btn.dataset.bound = '1';
+        btn.addEventListener('click', () => {
+          const html = btn.dataset.mailHtml || decodeB64Utf8(btn.dataset.mailB64 || '');
+          openMailPreview(btn.dataset.mailSubject || 'E-posta Önizleme', html);
+        });
+      });
+    }
+    bindPreviewButtons(mailPanel);
+
+    mailModal?.querySelector('[data-close-modal]')?.addEventListener('click', () => { mailModal.hidden = true; });
+    mailModal?.addEventListener('click', (e) => { if (e.target === mailModal) mailModal.hidden = true; });
+
+    async function refreshMemberEmails() {
+      const { ok, data } = await apiFetch('member/emails');
+      if (!ok || !data.success || !mailList) return;
+      if (!data.emails || !data.emails.length) return;
+      mailList.innerHTML = '';
+      data.emails.slice(0, 6).forEach((em) => {
+        const row = document.createElement('div');
+        row.className = 'apex-mail-row';
+        const stLbl = em.status === 'sent' ? '✓ Gmail İletildi' : (em.status === 'failed' ? '✕ Hata' : '● Hazır');
+        row.innerHTML = `<div class="apex-mail-row-info">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:3px;">
+            <span class="apex-tag" style="color:${em.type_color};">${em.type_label}</span>
+            <small class="apex-muted">${em.created_at} · ${stLbl}</small>
+          </div>
+          <strong style="font-size:0.9rem;display:block;"></strong>
+        </div>
+        <button type="button" class="apex-btn apex-btn-outline apex-btn-sm" data-preview-mail>👁 Maili Gör</button>`;
+        row.querySelector('strong').textContent = em.subject;
+        const pBtn = row.querySelector('[data-preview-mail]');
+        pBtn.dataset.mailSubject = em.subject;
+        pBtn.dataset.mailHtml = em.body_html || '';
+        mailList.appendChild(row);
+      });
+      bindPreviewButtons(mailList);
+    }
+
+    if (remToggle) {
+      remToggle.addEventListener('change', async () => {
+        const { ok, data } = await apiFetch('member/mail-action', {
+          method: 'POST',
+          body: JSON.stringify({ action: 'save_prefs', reminder_opt_in: remToggle.checked }),
+        });
+        if (mailStatus) {
+          mailStatus.innerHTML = `<div class="apex-alert ${ok && data.success ? 'apex-alert-success' : 'apex-alert-error'}">${ok && data.success ? '✅' : '⚠️'} ${data.message || 'Güncellenemedi.'}</div>`;
+        }
+        if (ok && window.apexToast) window.apexToast(data.message);
+      });
+    }
+
+    mailPanel.querySelectorAll('[data-member-mail-action]').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const act = btn.getAttribute('data-member-mail-action');
+        const orig = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = 'GÖNDERİLİYOR...';
+        const { ok, data } = await apiFetch('member/mail-action', {
+          method: 'POST',
+          body: JSON.stringify({ action: act }),
+        });
+        btn.disabled = false;
+        btn.textContent = orig;
+        if (mailStatus) {
+          mailStatus.innerHTML = `<div class="apex-alert ${ok && data.success ? 'apex-alert-success' : 'apex-alert-error'}">${ok && data.success ? '📧' : '⚠️'} ${data.message || 'İşlem tamamlanamadı.'}</div>`;
+        }
+        if (ok && data.success) {
+          if (window.apexToast) window.apexToast('📧 E-posta oluşturuldu / gönderildi!');
+          await refreshMemberEmails();
+        }
+      });
     });
   }
 })();

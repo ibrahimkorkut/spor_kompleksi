@@ -28,8 +28,20 @@ function apex_get_settings() {
         'gemini_model'    => 'gemini-2.5-flash',
         'openai_api_key'  => '',
         'openai_model'    => 'gpt-4o-mini',
-        'github_url'      => 'https://github.com/ibrahimkorkut/spor_kompleksi',
-        'envato_url'      => 'https://themeforest.net/',
+        'github_url'           => 'https://github.com/ibrahimkorkut/spor_kompleksi',
+        'envato_url'           => 'https://themeforest.net/',
+        // v2.1.0 — Gmail SMTP & Otomatik E-posta Hatırlatma Ayarları
+        'smtp_enabled'         => 0,
+        'smtp_host'            => 'smtp.gmail.com',
+        'smtp_port'            => 587,
+        'smtp_encryption'      => 'tls',
+        'smtp_user'            => '',
+        'smtp_pass'            => '',
+        'smtp_from_name'       => 'APEX ARENA Spor Kompleksi',
+        'mail_on_register'     => 1,
+        'mail_on_booking'      => 1,
+        'mail_auto_reminders'  => 1,
+        'reminder_hours_before'=> 24,
     ];
 
     $saved = get_option( 'apex_arena_settings', [] );

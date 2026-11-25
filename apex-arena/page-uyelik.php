@@ -347,6 +347,80 @@ $cu     = $logged ? wp_get_current_user() : null;
                 </form>
             </div>
         </div>
+
+        <?php
+        // v2.1.0 — Üye E-posta Bildirimleri & Otomatik Hatırlatma Merkezi
+        $rem_opt_in  = get_user_meta( $cu->ID, 'apex_mail_reminders_opt_out', true ) !== '1';
+        $gmail_ready = function_exists( 'apex_is_gmail_smtp_ready' ) && apex_is_gmail_smtp_ready();
+        $my_emails   = $wpdb->get_results( $wpdb->prepare(
+            "SELECT id, mail_type, subject, body_html, status, created_at FROM {$wpdb->prefix}apex_email_logs WHERE user_id = %d OR recipient_email = %s ORDER BY id DESC LIMIT 6",
+            $cu->ID, $cu->user_email
+        ) );
+        ?>
+        <!-- E-POSTA BİLDİRİMLERİ & HATIRLATMA MERKEZİ (v2.1.0) -->
+        <div class="apex-panel apex-mail-panel" id="eposta-hatirlatma">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap;margin-bottom:16px;">
+                <div>
+                    <span class="apex-eyebrow" style="margin-bottom:4px;">GMAIL &amp; E-POSTA OTOMASYONU</span>
+                    <h3 class="apex-h3" style="margin:0;">📧 E-posta Bildirimlerim &amp; Hatırlatma Merkezi</h3>
+                </div>
+                <span class="apex-tag <?php echo $gmail_ready ? 'apex-tag-volt' : ''; ?>">
+                    <?php echo $gmail_ready ? '● Canlı Gmail SMTP Aktif' : '● E-posta Önizleme Hazır'; ?>
+                </span>
+            </div>
+
+            <div class="apex-mail-ctrl-bar">
+                <div class="apex-mail-pref-box">
+                    <div style="font-size:0.86rem;color:var(--apex-muted);margin-bottom:6px;">
+                        Kayıtlı E-posta: <strong style="color:var(--apex-text);"><?php echo esc_html( $cu->user_email ); ?></strong>
+                    </div>
+                    <label class="apex-mail-switch">
+                        <input type="checkbox" id="apex-member-rem-toggle" <?php checked( $rem_opt_in ); ?>>
+                        <span>Salon/PT randevularımdan 24 saat önce ve haftalık antrenman <strong>hatırlatma e-postası</strong> al</span>
+                    </label>
+                </div>
+                <div class="apex-mail-actions">
+                    <button type="button" class="apex-btn apex-btn-ghost apex-btn-sm" data-member-mail-action="resend_welcome">✉️ Hoş Geldin &amp; QR Maili Gönder</button>
+                    <button type="button" class="apex-btn apex-btn-primary apex-btn-sm" data-member-mail-action="send_reminder">⏰ Hatırlatma Maili Gönder</button>
+                </div>
+            </div>
+
+            <div id="apex-member-mail-status" role="status" aria-live="polite" style="margin-top:12px;"></div>
+
+            <div class="apex-mail-list" id="apex-member-email-list" style="margin-top:16px;">
+                <?php if ( empty( $my_emails ) ) : ?>
+                    <p class="apex-muted" style="margin:0;font-size:0.88rem;">Henüz hesabına ait e-posta kaydı yok. Yukarıdaki butonlarla anında Hoş Geldin veya Hatırlatma e-postası gönderebilirsin.</p>
+                <?php else : foreach ( $my_emails as $em ) :
+                    $tm = function_exists( 'apex_mail_type_meta' ) ? apex_mail_type_meta( $em->mail_type ) : [ 'label' => $em->mail_type, 'color' => '#a4ff2e', 'bg' => 'rgba(164,255,46,0.14)' ];
+                    $st_lbl = $em->status === 'sent' ? '✓ Gmail İletildi' : ( $em->status === 'failed' ? '✕ Hata' : '● Hazır' );
+                ?>
+                <div class="apex-mail-row">
+                    <div class="apex-mail-row-info">
+                        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:3px;">
+                            <span class="apex-tag" style="background:<?php echo esc_attr( $tm['bg'] ); ?>;color:<?php echo esc_attr( $tm['color'] ); ?>;"><?php echo esc_html( $tm['label'] ); ?></span>
+                            <small class="apex-muted"><?php echo esc_html( date( 'd.m.Y H:i', strtotime( $em->created_at ) ) ); ?> · <?php echo esc_html( $st_lbl ); ?></small>
+                        </div>
+                        <strong style="font-size:0.9rem;display:block;"><?php echo esc_html( $em->subject ); ?></strong>
+                    </div>
+                    <button type="button" class="apex-btn apex-btn-outline apex-btn-sm"
+                        data-preview-mail
+                        data-mail-subject="<?php echo esc_attr( $em->subject ); ?>"
+                        data-mail-b64="<?php echo esc_attr( base64_encode( (string) $em->body_html ) ); ?>">👁 Maili Gör</button>
+                </div>
+                <?php endforeach; endif; ?>
+            </div>
+        </div>
+
+        <!-- Üye E-posta HTML Önizleme Modalı -->
+        <div class="apex-modal-backdrop" id="apex-member-mail-modal" role="dialog" aria-modal="true" aria-labelledby="apex-mm-title" hidden>
+            <div class="apex-modal apex-mail-modal">
+                <div class="apex-qr-modal-head" style="margin-bottom:12px;">
+                    <strong id="apex-mm-title" style="font-size:0.95rem;">E-posta Önizleme</strong>
+                    <button type="button" class="apex-mobile-close" data-close-modal="apex-member-mail-modal" aria-label="Kapat" style="padding:5px 11px;">✕</button>
+                </div>
+                <iframe id="apex-mm-frame" class="apex-mail-iframe" sandbox="allow-same-origin" title="E-posta içeriği önizleme"></iframe>
+            </div>
+        </div>
     </div>
 </section>
 <?php endif; ?>
@@ -570,6 +644,10 @@ $cu     = $logged ? wp_get_current_user() : null;
                             <label>
                                 <input type="checkbox" name="terms_consent" value="1" required>
                                 <span><a href="<?php echo esc_url( home_url( '/uyelik-sozlesmesi/' ) ); ?>" target="_blank">Üyelik ve Mesafeli Satış Sözleşmesi</a>’ni kabul ediyorum. *</span>
+                            </label>
+                            <label>
+                                <input type="checkbox" name="reminder_opt_in" value="1" checked>
+                                <span>Kayıt sonrası <strong>Hoş Geldin &amp; Dijital QR Kart</strong> ve yaklaşan randevu hatırlatma e-postalarını almak istiyorum.</span>
                             </label>
                         </div>
                         <div class="apex-field apex-field-full">

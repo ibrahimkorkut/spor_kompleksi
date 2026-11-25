@@ -111,6 +111,23 @@ add_action( 'rest_api_init', function() {
             return current_user_can( 'apex_coach_access' ) || current_user_can( 'manage_options' );
         },
     ] );
+
+    // v2.1.0 — Üye E-posta & Hatırlatma Tercihleri ve Anlık Gönderim
+    register_rest_route( 'apex/v1', '/member/mail-action', [
+        'methods'             => 'POST',
+        'callback'            => 'apex_api_member_mail_action',
+        'permission_callback' => function() {
+            return is_user_logged_in();
+        },
+    ] );
+
+    register_rest_route( 'apex/v1', '/member/emails', [
+        'methods'             => 'GET',
+        'callback'            => 'apex_api_member_emails',
+        'permission_callback' => function() {
+            return is_user_logged_in();
+        },
+    ] );
 } );
 
 /**
@@ -226,6 +243,21 @@ function apex_api_book_court( WP_REST_Request $req ) {
         return new WP_REST_Response( [ 'success' => false, 'message' => 'Rezervasyon kaydedilirken bir veritabanı hatası oluştu.' ], 500 );
     }
 
+    $mail_res = function_exists( 'apex_send_court_booking_email' )
+        ? apex_send_court_booking_email( [
+            'booking_code'   => $code,
+            'court_name'     => $court->post_title,
+            'user_id'        => get_current_user_id(),
+            'customer_name'  => $name,
+            'customer_email' => $email,
+            'booking_date'   => $date,
+            'time_slot'      => $slot,
+            'duration_hours' => $duration,
+            'needs_referee'  => $referee,
+            'total_price'    => $total,
+        ] )
+        : [ 'status' => 'disabled', 'delivery_mode' => 'none', 'message' => '' ];
+
     return new WP_REST_Response( [
         'success'      => true,
         'booking_code' => $code,
@@ -235,6 +267,9 @@ function apex_api_book_court( WP_REST_Request $req ) {
         'referee'      => (bool) $referee,
         'total_price'  => $total,
         'total_label'  => apex_format_tl( $total ),
+        'mail_status'  => $mail_res['status'] ?? 'disabled',
+        'mail_mode'    => $mail_res['delivery_mode'] ?? 'none',
+        'mail_message' => $mail_res['message'] ?? '',
         'message'      => sprintf( 'Salon rezervasyonunuz onaylandı! Rezervasyon Kodunuz: %s', $code ),
     ], 201 );
 }
@@ -314,6 +349,21 @@ function apex_api_book_pt( WP_REST_Request $req ) {
         return new WP_REST_Response( [ 'success' => false, 'message' => 'Randevu kaydedilirken hata oluştu.' ], 500 );
     }
 
+    $mail_res = function_exists( 'apex_send_pt_booking_email' )
+        ? apex_send_pt_booking_email( [
+            'booking_code'     => $code,
+            'trainer_name'     => $trainer->post_title,
+            'training_type'    => $type,
+            'package_name'     => $pkg_name,
+            'user_id'          => get_current_user_id(),
+            'customer_name'    => $name,
+            'customer_email'   => $email,
+            'appointment_date' => $date,
+            'time_slot'        => $slot,
+            'price'            => $price,
+        ] )
+        : [ 'status' => 'disabled', 'delivery_mode' => 'none', 'message' => '' ];
+
     return new WP_REST_Response( [
         'success'      => true,
         'booking_code' => $code,
@@ -322,6 +372,9 @@ function apex_api_book_pt( WP_REST_Request $req ) {
         'date'         => date( 'd.m.Y', strtotime( $date ) ),
         'time_slot'    => $slot,
         'price_label'  => apex_format_tl( $price ),
+        'mail_status'  => $mail_res['status'] ?? 'disabled',
+        'mail_mode'    => $mail_res['delivery_mode'] ?? 'none',
+        'mail_message' => $mail_res['message'] ?? '',
         'message'      => sprintf( 'PT randevunuz onaylandı! Randevu Kodunuz: %s', $code ),
     ], 201 );
 }
@@ -350,6 +403,7 @@ function apex_api_membership_register( WP_REST_Request $req ) {
     $emergency = sanitize_text_field( $p['emergency_contact'] ?? '' );
     $kvkk      = ! empty( $p['kvkk_consent'] );
     $terms     = ! empty( $p['terms_consent'] );
+    $rem_optin = ! isset( $p['reminder_opt_in'] ) || ! empty( $p['reminder_opt_in'] );
 
     if ( ! $full_name || ! is_email( $email ) || ! $phone ) {
         return new WP_REST_Response( [ 'success' => false, 'message' => 'Ad Soyad, geçerli e-posta ve telefon alanları zorunludur.' ], 400 );
@@ -389,6 +443,7 @@ function apex_api_membership_register( WP_REST_Request $req ) {
     update_user_meta( $user_id, 'apex_member_phone', $phone );
     update_user_meta( $user_id, 'apex_member_code', $member_code );
     update_user_meta( $user_id, 'apex_member_goal', $goal );
+    update_user_meta( $user_id, 'apex_mail_reminders_opt_out', $rem_optin ? '0' : '1' );
 
     $wpdb->insert(
         $wpdb->prefix . 'apex_membership_applications',
@@ -411,12 +466,37 @@ function apex_api_membership_register( WP_REST_Request $req ) {
         [ '%s', '%d', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%s' ]
     );
 
+    // v2.1.0 — Kayıt sonrası Hoş Geldin & Dijital QR Kart E-postası (Gmail SMTP veya Yerel Önizleme)
+    $mail_res = function_exists( 'apex_send_welcome_email' )
+        ? apex_send_welcome_email( [
+            'user_id'       => $user_id,
+            'full_name'     => $full_name,
+            'email'         => $email,
+            'member_code'   => $member_code,
+            'plan_name'     => $plan['name'],
+            'billing_cycle' => $billing,
+            'price'         => $price,
+            'end_date'      => $end_date,
+            'goal'          => $goal,
+        ] )
+        : [ 'status' => 'disabled', 'delivery_mode' => 'none', 'message' => '' ];
+
+    $mail_note = '';
+    if ( ( $mail_res['status'] ?? '' ) === 'sent' ) {
+        $mail_note = " Hoş geldin ve Dijital QR Kart e-postası {$email} adresine gönderildi!";
+    } elseif ( ( $mail_res['status'] ?? '' ) === 'queued_local' ) {
+        $mail_note = " Hoş geldin e-postası {$email} için hazırlandı (Üye Panelinden önizleyebilir, Gmail SMTP bağlandığında canlı iletebilirsiniz).";
+    }
+
     return new WP_REST_Response( [
-        'success'     => true,
-        'member_code' => $member_code,
-        'plan_name'   => $plan['name'],
-        'message'     => "Hoş geldin {$full_name}! {$plan['name']} üyeliğin ve Dijital QR Kartın ({$member_code}) oluşturuldu.",
-        'redirect'    => home_url( '/uyelik/?panel=1' ),
+        'success'      => true,
+        'member_code'  => $member_code,
+        'plan_name'    => $plan['name'],
+        'mail_status'  => $mail_res['status'] ?? 'disabled',
+        'mail_mode'    => $mail_res['delivery_mode'] ?? 'none',
+        'mail_message' => $mail_res['message'] ?? '',
+        'message'      => "Hoş geldin {$full_name}! {$plan['name']} üyeliğin ve Dijital QR Kartın ({$member_code}) oluşturuldu.{$mail_note}",
+        'redirect'     => home_url( '/uyelik/?panel=1' ),
     ], 201 );
 }
 
@@ -869,4 +949,98 @@ function apex_api_coach_send_message( WP_REST_Request $req ) {
             'time'        => current_time( 'd.m H:i' ),
         ],
     ], 201 );
+}
+
+/**
+ * v2.1.0 — Üye Paneli E-posta Bildirim Tercihi & Anlık Hoş Geldin / Hatırlatma Gönderimi
+ */
+function apex_api_member_mail_action( WP_REST_Request $req ) {
+    $p      = $req->get_json_params();
+    $action = sanitize_key( $p['action'] ?? 'save_prefs' );
+    $uid    = get_current_user_id();
+    $cu     = wp_get_current_user();
+
+    if ( $action === 'save_prefs' ) {
+        $opt_in = ! empty( $p['reminder_opt_in'] );
+        update_user_meta( $uid, 'apex_mail_reminders_opt_out', $opt_in ? '0' : '1' );
+        return new WP_REST_Response( [
+            'success'         => true,
+            'reminder_opt_in' => $opt_in,
+            'message'         => $opt_in
+                ? 'Otomatik randevu ve antrenman hatırlatma e-postaları açıldı.'
+                : 'Otomatik hatırlatma e-postaları kapatıldı.',
+        ], 200 );
+    }
+
+    if ( $action === 'resend_welcome' && function_exists( 'apex_send_welcome_email' ) ) {
+        $res = apex_send_welcome_email( [
+            'user_id'       => $uid,
+            'full_name'     => $cu->display_name ?: $cu->user_login,
+            'email'         => $cu->user_email,
+            'member_code'   => get_user_meta( $uid, 'apex_member_code', true ) ?: 'APX-2026-' . str_pad( (string) $uid, 4, '0', STR_PAD_LEFT ),
+            'plan_name'     => get_user_meta( $uid, 'apex_membership_plan', true ) ?: 'APEX PRO',
+            'billing_cycle' => 'monthly',
+            'price'         => 2490,
+            'end_date'      => get_user_meta( $uid, 'apex_membership_end', true ) ?: date( 'Y-m-d', strtotime( '+30 days' ) ),
+            'goal'          => get_user_meta( $uid, 'apex_member_goal', true ) ?: 'Atletik Performans',
+        ], true );
+
+        return new WP_REST_Response( [
+            'success'       => (bool) $res['ok'],
+            'status'        => $res['status'],
+            'delivery_mode' => $res['delivery_mode'],
+            'log_id'        => $res['log_id'],
+            'message'       => $res['ok'] ? $res['message'] : ( $res['error'] ?: $res['message'] ),
+        ], $res['ok'] ? 201 : 500 );
+    }
+
+    if ( $action === 'send_reminder' && function_exists( 'apex_send_member_reminder_email' ) ) {
+        $res = apex_send_member_reminder_email( $uid, 'workout', true );
+        return new WP_REST_Response( [
+            'success'       => (bool) $res['ok'],
+            'status'        => $res['status'],
+            'delivery_mode' => $res['delivery_mode'],
+            'log_id'        => $res['log_id'],
+            'message'       => $res['ok'] ? $res['message'] : ( $res['error'] ?: $res['message'] ),
+        ], $res['ok'] ? 201 : 500 );
+    }
+
+    return new WP_REST_Response( [ 'success' => false, 'message' => 'Geçersiz e-posta işlemi.' ], 400 );
+}
+
+/**
+ * v2.1.0 — Üyenin Kendi Gönderilmiş / Önizlenebilir E-posta Geçmişi
+ */
+function apex_api_member_emails() {
+    global $wpdb;
+    $uid = get_current_user_id();
+    $cu  = wp_get_current_user();
+
+    $rows = $wpdb->get_results( $wpdb->prepare(
+        "SELECT id, mail_type, subject, body_html, delivery_mode, status, created_at FROM {$wpdb->prefix}apex_email_logs WHERE user_id = %d OR recipient_email = %s ORDER BY id DESC LIMIT 10",
+        $uid, $cu->user_email
+    ) );
+
+    $items = [];
+    foreach ( (array) $rows as $r ) {
+        $meta = function_exists( 'apex_mail_type_meta' ) ? apex_mail_type_meta( $r->mail_type ) : [ 'label' => $r->mail_type, 'color' => '#a4ff2e', 'bg' => 'rgba(164,255,46,0.14)' ];
+        $items[] = [
+            'id'            => (int) $r->id,
+            'mail_type'     => $r->mail_type,
+            'type_label'    => $meta['label'],
+            'type_color'    => $meta['color'],
+            'subject'       => $r->subject,
+            'body_html'     => $r->body_html,
+            'delivery_mode' => $r->delivery_mode,
+            'status'        => $r->status,
+            'created_at'    => date( 'd.m.Y H:i', strtotime( $r->created_at ) ),
+        ];
+    }
+
+    return new WP_REST_Response( [
+        'success'         => true,
+        'gmail_ready'     => function_exists( 'apex_is_gmail_smtp_ready' ) ? apex_is_gmail_smtp_ready() : false,
+        'reminder_opt_in' => get_user_meta( $uid, 'apex_mail_reminders_opt_out', true ) !== '1',
+        'emails'          => $items,
+    ], 200 );
 }
