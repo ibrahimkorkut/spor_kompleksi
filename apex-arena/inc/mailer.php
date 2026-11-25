@@ -17,6 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Son wp_mail() hatasını geçici olarak yakala (tanı ve loglama için)
  */
 $GLOBALS['apex_last_mail_error'] = '';
+$GLOBALS['apex_current_alt_body'] = '';
 
 add_action( 'wp_mail_failed', function( $wp_error ) {
     if ( is_wp_error( $wp_error ) ) {
@@ -79,6 +80,10 @@ add_action( 'phpmailer_init', function( $phpmailer ) {
     } catch ( Exception $e ) {
         // PHPMailer varsayılan adresle devam eder
     }
+
+    if ( ! empty( $GLOBALS['apex_current_alt_body'] ) ) {
+        $phpmailer->AltBody = (string) $GLOBALS['apex_current_alt_body'];
+    }
 }, 20 );
 
 /**
@@ -133,10 +138,19 @@ function apex_render_email_template( array $args ) {
 
     $cta_html = '';
     if ( $cta_text && $cta_url ) {
-        $cta_html = '<div style="text-align:center;margin:28px 0 8px;">'
-            . '<a href="' . esc_url( $cta_url ) . '" style="display:inline-block;padding:13px 30px;border-radius:999px;background:#E31837;color:#FFFFFF;text-decoration:none;font-weight:700;font-size:14px;letter-spacing:0.3px;">'
-            . esc_html( $cta_text ) . ' →</a>'
-            . '</div>';
+        // Harici Gmail alıcılarında http://localhost bağlantıları spam/kimlik avı filtresine takılmasın diye güvenli URL kullan
+        $is_local_url = (bool) preg_match( '#^https?://(localhost|127\.0\.0\.1)(:|/|$)#i', $cta_url );
+        if ( ! $is_local_url ) {
+            $cta_html = '<div style="text-align:center;margin:28px 0 8px;">'
+                . '<a href="' . esc_url( $cta_url ) . '" style="display:inline-block;padding:13px 30px;border-radius:999px;background:#E31837;color:#FFFFFF;text-decoration:none;font-weight:700;font-size:14px;letter-spacing:0.3px;">'
+                . esc_html( $cta_text ) . ' →</a>'
+                . '</div>';
+        } else {
+            $cta_html = '<div style="text-align:center;margin:24px 0 6px;">'
+                . '<span style="display:inline-block;padding:11px 24px;border-radius:999px;background:#E31837;color:#FFFFFF;font-weight:700;font-size:13.5px;letter-spacing:0.3px;">'
+                . esc_html( $cta_text ) . '</span>'
+                . '</div>';
+        }
     }
 
     return '<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">'
@@ -224,6 +238,10 @@ function apex_send_mail( array $params ) {
 
     if ( $gmail_ready ) {
         $GLOBALS['apex_last_mail_error'] = '';
+        // Harici Gmail teslimat puanı için temiz düz metin (multipart/alternative AltBody) üret
+        $plain = trim( preg_replace( '/[ \t]+/', ' ', preg_replace( '/\n{3,}/', "\n\n", html_entity_decode( wp_strip_all_tags( str_replace( [ '<br>', '<br/>', '<br />', '</tr>', '</div>', '</p>', '</li>' ], "\n", $html ) ), ENT_QUOTES, 'UTF-8' ) ) ) );
+        $GLOBALS['apex_current_alt_body'] = $plain;
+
         $headers = [ 'Content-Type: text/html; charset=UTF-8' ];
         $from_e  = trim( (string) $s['smtp_user'] );
         $from_n  = ! empty( $s['smtp_from_name'] ) ? $s['smtp_from_name'] : 'APEX ARENA Spor Kompleksi';
@@ -233,6 +251,7 @@ function apex_send_mail( array $params ) {
         }
 
         $sent = wp_mail( $to, $subject, $html, $headers );
+        $GLOBALS['apex_current_alt_body'] = '';
         if ( $sent ) {
             $status       = 'sent';
             $mode         = 'gmail_smtp';
@@ -569,28 +588,44 @@ function apex_send_member_reminder_email( $user_id, $mode = 'workout', $force = 
 /**
  * 6. Gmail SMTP Bağlantı Test Maili
  */
-function apex_send_test_email( $to_email ) {
+function apex_send_test_email( $to_email, $template_mode = 'test' ) {
     $s   = apex_get_settings();
-    $now = current_time( 'd.m.Y H:i:s' );
+    $now = current_time( 'd.m.Y H:i' );
+
+    if ( $template_mode === 'welcome' ) {
+        $name_guess = ucwords( str_replace( [ '.', '_', '-' ], ' ', current( explode( '@', $to_email ) ) ) );
+        return apex_send_welcome_email( [
+            'user_id'       => get_current_user_id(),
+            'full_name'     => $name_guess ?: 'Değerli Üyemiz',
+            'email'         => $to_email,
+            'member_code'   => 'APX-2026-' . strtoupper( substr( md5( $to_email . time() ), 0, 5 ) ),
+            'plan_name'     => 'APEX PRO',
+            'billing_cycle' => 'annual',
+            'price'         => 1990,
+            'end_date'      => date( 'Y-m-d', strtotime( '+365 days' ) ),
+            'goal'          => 'Atletik Performans & Kondisyon',
+        ], true );
+    }
+
     $html = apex_render_email_template( [
-        'badge'     => 'GMAIL SMTP BAĞLANTI TESTİ',
-        'title'     => 'APEX ARENA E-posta Sistemi Başarıyla Çalışıyor!',
-        'intro'     => 'Tebrikler! Bu e-postayı görüyorsan <strong>APEX ARENA Gmail SMTP &amp; Otomatik Hatırlatma Motoru</strong> doğru şekilde yapılandırılmış demektir.',
-        'highlight' => '✅ <strong>Durum:</strong> ' . ( apex_is_gmail_smtp_ready() ? 'Canlı Gmail SMTP Aktif (' . esc_html( $s['smtp_user'] ) . ')' : 'Yerel Önizleme Modu (Gmail SMTP henüz etkin değil)' ),
+        'badge'     => 'APEX ARENA BILDIRIM TESTI',
+        'title'     => 'APEX ARENA E-posta Sistemi Aktif',
+        'intro'     => 'Merhaba! Bu e-posta, <strong>APEX ARENA</strong> spor kompleksi bildirim ve hatırlatma sisteminin sorunsuz çalıştığını doğrulamak için gönderilmiştir.',
+        'highlight' => '<strong>Durum:</strong> ' . ( apex_is_gmail_smtp_ready() ? 'Canlı Gmail SMTP Aktif (' . esc_html( $s['smtp_user'] ) . ')' : 'Yerel Önizleme Modu (Gmail SMTP henüz etkin değil)' ),
         'rows'      => [
-            'SMTP Sunucusu'     => ( $s['smtp_host'] ?: 'smtp.gmail.com' ) . ':' . ( $s['smtp_port'] ?: 587 ),
+            'Alıcı Adres'       => $to_email,
+            'Gönderen Sunucu'   => ( $s['smtp_host'] ?: 'smtp.gmail.com' ) . ':' . ( $s['smtp_port'] ?: 587 ),
             'Şifreleme'         => strtoupper( $s['smtp_encryption'] ?: 'TLS' ),
             'Gönderim Zamanı'   => $now,
-            'Tema Sürümü'       => 'APEX ARENA v' . APEX_VERSION,
         ],
-        'cta_text'  => 'Yönetim E-posta Merkezine Dön',
-        'cta_url'   => admin_url( 'admin.php?page=apex-email-center' ),
+        'cta_text'  => 'APEX ARENA Üye Paneli',
+        'cta_url'   => home_url( '/uyelik/?panel=1' ),
     ] );
 
     return apex_send_mail( [
         'to'         => $to_email,
-        'to_name'    => 'APEX Yönetici',
-        'subject'    => "✅ APEX ARENA Gmail SMTP Test Maili ({$now})",
+        'to_name'    => 'APEX Üyesi',
+        'subject'    => "APEX ARENA — E-posta Bildirim Testi ({$now})",
         'html'       => $html,
         'mail_type'  => 'test',
         'user_id'    => get_current_user_id(),

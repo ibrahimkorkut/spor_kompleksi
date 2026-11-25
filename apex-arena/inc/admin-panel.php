@@ -1611,10 +1611,13 @@ function apex_admin_email_center_page() {
     }
 
     // 2. Test Maili Gönder
+    $last_test_to = '';
     if ( isset( $_POST['apex_send_test_mail'] ) && check_admin_referer( 'apex_mail_center_nonce' ) ) {
-        $test_to = sanitize_email( wp_unslash( $_POST['test_email_to'] ?? '' ) );
+        $test_to   = sanitize_email( wp_unslash( $_POST['test_email_to'] ?? '' ) );
+        $test_kind = in_array( $_POST['test_mail_kind'] ?? 'test', [ 'test', 'welcome' ], true ) ? $_POST['test_mail_kind'] : 'test';
+        $last_test_to = $test_to;
         if ( is_email( $test_to ) && function_exists( 'apex_send_test_email' ) ) {
-            $res = apex_send_test_email( $test_to );
+            $res = apex_send_test_email( $test_to, $test_kind );
             if ( $res['ok'] ) {
                 $notice = '<div class="notice notice-success"><p>✅ <strong>' . esc_html( $res['message'] ) . '</strong></p></div>';
             } else {
@@ -1675,6 +1678,11 @@ function apex_admin_email_center_page() {
     <style>
         .apex-mc-wrap { max-width: 1320px; margin: 16px 20px 44px 0; font-family: -apple-system, BlinkMacSystemFont, 'Plus Jakarta Sans', 'Segoe UI', sans-serif; color: #f5f5f7; }
         .apex-mc-wrap * { box-sizing: border-box; }
+        .apex-mc-wrap .notice { background: #161922 !important; color: #f5f5f7 !important; border: 1px solid rgba(255,255,255,0.12) !important; border-left-width: 4px !important; border-radius: 12px; padding: 10px 16px; margin: 0 0 16px; }
+        .apex-mc-wrap .notice p { color: #f5f5f7 !important; margin: 4px 0; font-size: 13.5px; }
+        .apex-mc-wrap .notice-success { border-left-color: #a4ff2e !important; }
+        .apex-mc-wrap .notice-error { border-left-color: #fa114f !important; }
+        .apex-mc-wrap .notice-info { border-left-color: #26e6ff !important; }
         .apex-mc-banner {
             background: radial-gradient(ellipse 46% 115% at 92% 0%, rgba(250,17,79,0.22), transparent 62%), radial-gradient(ellipse 40% 100% at 8% 100%, rgba(164,255,46,0.12), transparent 60%), #111217;
             border: 1px solid rgba(255,255,255,0.09); border-radius: 20px; padding: 22px 26px; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 18px;
@@ -1835,12 +1843,20 @@ function apex_admin_email_center_page() {
             <!-- SAĞ: TEST MAİLİ & ANLIK HATIRLATMA TETİKLEYİCİ -->
             <div style="display:grid;gap:18px;align-content:start;">
                 <div class="apex-mc-card">
-                    <h2>2. Canlı Gmail Test Maili Gönder</h2>
-                    <p style="font-size:12.5px;color:#a1a1aa;margin:0 0 12px;">Ayarlarınızı kaydettikten sonra hedef Gmail adresinize anında test e-postası gönderip teslimatı doğrulayın.</p>
-                    <form method="post" style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <h2>2. Canlı Gmail Test &amp; Hoş Geldin Maili Gönder</h2>
+                    <p style="font-size:12.5px;color:#a1a1aa;margin:0 0 12px;">Hedef Gmail adresini yazıp anında <strong>Hoş Geldin &amp; QR</strong> veya <strong>Bağlantı Testi</strong> maili gönderin.</p>
+                    <form method="post" style="display:grid;gap:10px;">
                         <?php wp_nonce_field( 'apex_mail_center_nonce' ); ?>
-                        <input type="email" name="test_email_to" value="<?php echo esc_attr( $s['smtp_user'] ?: wp_get_current_user()->user_email ); ?>" placeholder="hedef@gmail.com" style="flex:1;min-width:190px;background:#0c0d12;border:1px solid rgba(255,255,255,0.14);border-radius:10px;padding:9px 12px;color:#fff;" required>
-                        <button type="submit" name="apex_send_test_mail" class="apex-mc-btn apex-mc-btn-lime">✉️ Test Maili Gönder</button>
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                            <input type="email" name="test_email_to" value="<?php echo esc_attr( $last_test_to ?: ( $s['smtp_user'] ?: wp_get_current_user()->user_email ) ); ?>" placeholder="hedef@gmail.com" style="flex:1;min-width:190px;background:#0c0d12;border:1px solid rgba(255,255,255,0.18);border-radius:10px;padding:9px 12px;color:#fff;" required>
+                            <select name="test_mail_kind" style="min-width:160px;">
+                                <option value="welcome">Hoş Geldin &amp; QR Maili</option>
+                                <option value="test">Bağlantı Test Maili</option>
+                            </select>
+                        </div>
+                        <div>
+                            <button type="submit" name="apex_send_test_mail" class="apex-mc-btn apex-mc-btn-lime">✉️ Test Maili Gönder</button>
+                        </div>
                     </form>
                 </div>
 
