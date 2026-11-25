@@ -1683,7 +1683,22 @@ function apex_admin_email_center_page() {
         .apex-mc-field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
         .apex-mc-field { display: flex; flex-direction: column; gap: 5px; }
         .apex-mc-field label { font-size: 12px; font-weight: 700; color: #d4d4d8; }
-        .apex-mc-field input, .apex-mc-field select { background: #0c0d12; border: 1px solid rgba(255,255,255,0.14); border-radius: 10px; padding: 9px 12px; color: #fff; font-size: 13px; }
+        .apex-mc-field input, .apex-mc-field select, .apex-mc-wrap select {
+            background: #0c0d12 !important;
+            border: 1px solid rgba(255,255,255,0.18) !important;
+            border-radius: 10px;
+            padding: 9px 12px;
+            color: #ffffff !important;
+            font-size: 13px;
+            color-scheme: dark;
+            max-width: 100%;
+        }
+        .apex-mc-field select option, .apex-mc-wrap select option {
+            background-color: #151720 !important;
+            color: #ffffff !important;
+        }
+        .apex-mc-field input::placeholder, .apex-mc-wrap input::placeholder { color: #8c90a0 !important; }
+        .apex-mc-field select:focus, .apex-mc-field input:focus { border-color: #fa114f !important; box-shadow: 0 0 0 2px rgba(250,17,79,0.28) !important; outline: none; }
         .apex-mc-checks { display: grid; gap: 8px; margin: 14px 0; padding: 12px 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; }
         .apex-mc-checks label { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #e4e4e7; cursor: pointer; }
         .apex-mc-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 16px; border-radius: 999px; font-size: 12.5px; font-weight: 700; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); color: #fff; cursor: pointer; text-decoration: none; }
