@@ -7,13 +7,15 @@
 $ai_mode = apex_get_effective_ai_mode();
 $mode_label = $ai_mode === 'gemini-live' ? 'Gemini 2.5 Flash · Canlı AI' : ( $ai_mode === 'openai-live' ? 'OpenAI LLM · Canlı AI' : 'Hibrit WP Veritabanı Motoru' );
 $wa_settings = apex_get_settings();
-$wa_digits   = preg_replace( '/\D+/', '', (string) ( $wa_settings['phone'] ?? '02165552739' ) );
+$wa_raw      = function_exists( 'apex_cms' ) ? apex_cms( 'whatsapp_phone', (string) ( $wa_settings['phone'] ?? '02165552739' ) ) : (string) ( $wa_settings['phone'] ?? '02165552739' );
+$wa_digits   = preg_replace( '/\D+/', '', $wa_raw );
 if ( strpos( $wa_digits, '0' ) === 0 ) {
     $wa_digits = '90' . substr( $wa_digits, 1 );
 } elseif ( strpos( $wa_digits, '90' ) !== 0 ) {
     $wa_digits = '90' . $wa_digits;
 }
-$wa_text = rawurlencode( 'Merhaba APEX ARENA, üyelik, PT ve salon rezervasyonu hakkında bilgi almak istiyorum.' );
+$wa_msg  = function_exists( 'apex_cms' ) ? apex_cms( 'whatsapp_message', 'Merhaba APEX ARENA, üyelik, PT ve salon rezervasyonu hakkında bilgi almak istiyorum.' ) : 'Merhaba APEX ARENA, üyelik, PT ve salon rezervasyonu hakkında bilgi almak istiyorum.';
+$wa_text = rawurlencode( $wa_msg );
 $wa_url  = 'https://wa.me/' . $wa_digits . '?text=' . $wa_text;
 ?>
 <a

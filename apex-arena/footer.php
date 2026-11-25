@@ -8,17 +8,17 @@ $settings = apex_get_settings();
 ?>
 </main>
 
-<!-- Pre-Footer CTA Bandı (MACFit esintili yüksek etki) -->
+<!-- Pre-Footer Mimari Editoryal CTA Bandı -->
 <section class="apex-prefooter" aria-labelledby="prefooter-heading">
     <div class="apex-container apex-prefooter-inner">
         <div>
-            <span class="apex-eyebrow">HEDEFİNİ ERTELEME · İLK ADIMI BUGÜN AT</span>
-            <h2 id="prefooter-heading" class="apex-h2">ARENADA YERİNİ ALMA ZAMANI!</h2>
-            <p class="apex-lead">Ücretsiz tesis turu, InBody vücut analizi veya profesyonel maç salonu rezervasyonun tek tık uzağında.</p>
+            <span class="apex-eyebrow"><?php echo esc_html( apex_cms( 'prefooter_eyebrow' ) ); ?></span>
+            <h2 id="prefooter-heading" class="apex-h2"><?php echo esc_html( apex_cms( 'prefooter_title' ) ); ?></h2>
+            <p class="apex-lead"><?php echo esc_html( apex_cms( 'prefooter_desc' ) ); ?></p>
         </div>
         <div class="apex-prefooter-btns">
-            <a href="<?php echo esc_url( home_url( '/uyelik/#paketler' ) ); ?>" class="apex-btn apex-btn-primary apex-btn-lg">HEMEN ÜYE OL</a>
-            <a href="<?php echo esc_url( home_url( '/salon-kiralama/' ) ); ?>" class="apex-btn apex-btn-outline apex-btn-lg">SALON KİRALA</a>
+            <a href="<?php echo esc_url( home_url( '/uyelik/#paketler' ) ); ?>" class="apex-btn apex-btn-primary apex-btn-lg"><?php echo esc_html( apex_cms( 'prefooter_cta1' ) ); ?></a>
+            <a href="<?php echo esc_url( home_url( '/salon-kiralama/' ) ); ?>" class="apex-btn apex-btn-outline apex-btn-lg"><?php echo esc_html( apex_cms( 'prefooter_cta2' ) ); ?></a>
         </div>
     </div>
 </section>
@@ -29,9 +29,9 @@ $settings = apex_get_settings();
             <div class="apex-footer-col apex-footer-brand-col">
                 <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="apex-brand">
                     <span class="apex-brand-mark" aria-hidden="true">▲</span>
-                    <span class="apex-brand-text"><span class="apex-brand-accent">APEX</span> ARENA</span>
+                    <span class="apex-brand-text"><span class="apex-brand-accent"><?php echo esc_html( strtoupper( apex_cms( 'brand_first', 'APEX' ) ) ); ?></span> <?php echo esc_html( strtoupper( apex_cms( 'brand_second', 'ARENA' ) ) ); ?></span>
                 </a>
-                <p class="apex-footer-desc">2 FIBA Basketbol Salonu, CEV Voleybol Sahası, lisanslı hakem hizmeti, sertifikalı PT kadrosu, 5 yıldızlı tesis olanakları ve 7/24 Hibrit AI Spor Koçu ile yeni nesil spor kompleksi.</p>
+                <p class="apex-footer-desc"><?php echo esc_html( apex_cms( 'footer_desc' ) ); ?></p>
                 <div class="apex-footer-badges">
                     <span class="apex-mini-badge">WCAG 2.2 AA</span>
                     <span class="apex-mini-badge">KVKK UYUMLU</span>
@@ -99,7 +99,7 @@ $settings = apex_get_settings();
         </div>
 
         <div class="apex-footer-bottom">
-            <p>© <?php echo esc_html( date( 'Y' ) ); ?> <strong>APEX ARENA Spor ve Performans Kompleksi</strong>. Tüm hakları saklıdır. Özel WordPress Teması (v<?php echo esc_html( APEX_VERSION ); ?>).</p>
+            <p>© <?php echo esc_html( date( 'Y' ) ); ?> <strong><?php echo esc_html( apex_cms( 'footer_copyright' ) ); ?></strong> Özel WordPress Teması (v<?php echo esc_html( APEX_VERSION ); ?>).</p>
             <span class="apex-open-badge" data-live-open-badge></span>
             <div class="apex-footer-bottom-links">
                 <?php

@@ -14,20 +14,20 @@ $pre_cid  = absint( $_GET['court'] ?? ( $courts[0]->ID ?? 0 ) );
 $cu       = is_user_logged_in() ? wp_get_current_user() : null;
 ?>
 
-<section class="apex-page-hero">
+<section class="apex-page-hero apex-editorial-hero">
     <div class="apex-container">
         <?php apex_breadcrumbs(); ?>
-        <span class="apex-eyebrow">SALON VE KİRALAMA · 2 BASKETBOL + 1 VOLEYBOL + HAKEM HİZMETİ</span>
-        <h1 class="apex-h1">PROFESYONEL SALON KİRALAMA SİSTEMİ</h1>
-        <p class="apex-lead">FIBA onaylı 2 adet basketbol salonumuz ve CEV standartlarında 1 adet voleybol salonumuzu teknik detayları ve fotoğraflarıyla inceleyin; lisanslı hakem ayarlama hizmetiyle anında rezerve edin.</p>
+        <span class="apex-eyebrow"><?php echo esc_html( apex_cms( 'page_courts_eyebrow' ) ); ?></span>
+        <h1 class="apex-h1"><?php echo esc_html( apex_cms( 'page_courts_title' ) ); ?></h1>
+        <p class="apex-lead"><?php echo esc_html( apex_cms( 'page_courts_desc' ) ); ?></p>
     </div>
 </section>
 
-<!-- 1. Salon Kartları & Teknik Detay + Fotoğraf Lightbox -->
+<!-- 1. Tam Çerçeve Mimari Salon Galerisi + Fotoğraf Lightbox -->
 <section class="apex-section">
     <div class="apex-container">
-        <div class="apex-grid-3">
-            <?php foreach ( $courts as $c ) :
+        <div class="apex-court-gallery">
+            <?php foreach ( $courts as $idx => $c ) :
                 $sport    = get_post_meta( $c->ID, '_apex_sport', true );
                 $code     = get_post_meta( $c->ID, '_apex_court_code', true );
                 $dim      = get_post_meta( $c->ID, '_apex_dimensions', true );
@@ -37,28 +37,35 @@ $cu       = is_user_logged_in() ? wp_get_current_user() : null;
                 $ref_fee  = (int) get_post_meta( $c->ID, '_apex_referee_fee', true ) ?: (int) $settings['referee_fee'];
                 $features = array_filter( array_map( 'trim', explode( "\n", (string) get_post_meta( $c->ID, '_apex_features', true ) ) ) );
                 $photo    = apex_get_post_photo( $c->ID, 'court-basketball-1.jpg' );
+                $num      = str_pad( (string) ( $idx + 1 ), 2, '0', STR_PAD_LEFT );
             ?>
-            <article class="apex-card">
-                <div class="apex-card-media" style="cursor:zoom-in;" data-lightbox-src="<?php echo esc_url( $photo ); ?>" data-lightbox-caption="<?php echo esc_attr( $c->post_title . ' — ' . $dim . ' · ' . $surf ); ?>">
+            <article class="apex-court-poster apex-court-poster-tall">
+                <div class="apex-court-media" style="cursor:zoom-in;" data-lightbox-src="<?php echo esc_url( $photo ); ?>" data-lightbox-caption="<?php echo esc_attr( $c->post_title . ' — ' . $dim . ' · ' . $surf ); ?>">
                     <img src="<?php echo esc_url( $photo ); ?>" alt="<?php echo esc_attr( $c->post_title ); ?>">
-                    <span class="apex-card-badge"><?php echo esc_html( $code . ' · ' . strtoupper( $sport ) ); ?></span>
+                    <span class="apex-court-scrim" aria-hidden="true"></span>
                 </div>
-                <div class="apex-card-body">
-                    <h2 class="apex-h3"><?php echo esc_html( $c->post_title ); ?></h2>
-                    <p class="apex-muted" style="margin:0;font-size:0.9rem;"><?php echo esc_html( wp_strip_all_tags( $c->post_content ) ); ?></p>
-                    <div class="apex-tags">
-                        <span class="apex-tag">📐 <?php echo esc_html( $dim ); ?></span>
-                        <span class="apex-tag">🏟️ <?php echo esc_html( $cap ); ?></span>
-                        <span class="apex-tag apex-tag-volt">⚖️ Hakem Opsiyonu: +<?php echo esc_html( apex_format_tl( $ref_fee ) ); ?></span>
-                    </div>
-                    <ul class="apex-checklist">
-                        <?php foreach ( $features as $ft ) : ?>
-                            <li><?php echo esc_html( $ft ); ?></li>
+
+                <div class="apex-court-top">
+                    <span class="apex-coach-idx"><?php echo esc_html( $num ); ?></span>
+                    <span class="apex-coach-stat"><?php echo esc_html( $code . ' / ' . $dim ); ?></span>
+                </div>
+
+                <div class="apex-court-body">
+                    <span class="apex-coach-rule" aria-hidden="true"></span>
+                    <span class="apex-coach-role"><?php echo esc_html( $surf . ' · ' . $cap . ' · HAKEM +' . apex_format_tl( $ref_fee ) ); ?></span>
+                    <h2 class="apex-court-title"><?php echo esc_html( $c->post_title ); ?></h2>
+                    <p class="apex-court-desc" style="-webkit-line-clamp:3;"><?php echo esc_html( wp_strip_all_tags( $c->post_content ) ); ?></p>
+                    <ul class="apex-pt-list" style="margin:6px 0 14px;gap:6px;">
+                        <?php foreach ( array_slice( $features, 0, 3 ) as $ft ) : ?>
+                            <li style="font-size:0.79rem;"><?php echo esc_html( $ft ); ?></li>
                         <?php endforeach; ?>
                     </ul>
-                    <div class="apex-card-foot">
-                        <div class="apex-price"><?php echo esc_html( apex_format_tl( $rate ) ); ?> <small>/ saat</small></div>
-                        <button type="button" class="apex-btn apex-btn-primary apex-btn-sm" data-select-court="<?php echo esc_attr( $c->ID ); ?>">SALONU SEÇ</button>
+                    <div class="apex-court-foot">
+                        <span class="apex-court-rate"><?php echo esc_html( apex_format_tl( $rate ) ); ?> <em>/ saat</em></span>
+                        <button type="button" class="apex-court-action apex-court-select-btn" data-select-court="<?php echo esc_attr( $c->ID ); ?>">
+                            <span>Salonu Seç</span>
+                            <span class="apex-coach-link-arrow" aria-hidden="true">↗</span>
+                        </button>
                     </div>
                 </div>
             </article>
@@ -67,18 +74,18 @@ $cu       = is_user_logged_in() ? wp_get_current_user() : null;
     </div>
 </section>
 
-<!-- 2. Hakem Ayarlama Hizmeti Özel Bilgi Bandı -->
+<!-- 2. Hakem Ayarlama Hizmeti Mimari Bilgi Bandı -->
 <section class="apex-section apex-section-alt" style="padding:44px 0;">
     <div class="apex-container">
-        <div class="apex-panel" style="border-left:5px solid var(--apex-volt);display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;">
+        <div class="apex-ed-highlight-band">
             <div style="max-width:740px;">
-                <span class="apex-eyebrow apex-eyebrow-volt">ÖZEL MAÇ & TURNUVA HİZMETİ</span>
-                <h2 class="apex-h2">LİSANSLI HAKEM AYARLAMA HİZMETİ</h2>
-                <p class="apex-lead">Kurumsal ligler, hazırlık maçları veya arkadaş turnuvalarınız için <strong>TBF (Basketbol)</strong> ve <strong>TVF (Voleybol)</strong> klasman hakemlerini tek tıkla maçınıza atıyoruz. Hakemimiz maçtan 20 dakika önce sahada hazır bulunur, skorboard ve faul takibini profesyonelce yönetir.</p>
+                <span class="apex-eyebrow">ÖZEL MAÇ &amp; TURNUVA HİZMETİ</span>
+                <h2 class="apex-h2" style="margin-top:4px;">Lisanslı Hakem Ayarlama Hizmeti</h2>
+                <p class="apex-muted" style="margin:8px 0 0;line-height:1.65;">Kurumsal ligler, hazırlık maçları veya arkadaş turnuvalarınız için <strong style="color:#fff;">TBF (Basketbol)</strong> ve <strong style="color:#fff;">TVF (Voleybol)</strong> klasman hakemlerini tek tıkla maçınıza atıyoruz. Hakemimiz maçtan 20 dakika önce sahada hazır bulunur, skorboard ve faul takibini profesyonelce yönetir.</p>
             </div>
             <div style="text-align:right;">
-                <div class="apex-price" style="color:var(--apex-volt);">+<?php echo esc_html( apex_format_tl( $settings['referee_fee'] ) ); ?></div>
-                <div class="apex-muted">Maç Başı Sabit Ücret</div>
+                <div class="apex-pt-total" style="color:var(--apex-crimson);">+<?php echo esc_html( apex_format_tl( $settings['referee_fee'] ) ); ?></div>
+                <div class="apex-muted" style="font-size:0.82rem;margin-top:4px;">Maç Başı Sabit Ücret</div>
             </div>
         </div>
     </div>

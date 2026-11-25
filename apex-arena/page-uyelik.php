@@ -18,12 +18,12 @@ $logged = is_user_logged_in();
 $cu     = $logged ? wp_get_current_user() : null;
 ?>
 
-<section class="apex-page-hero">
+<section class="apex-page-hero apex-editorial-hero">
     <div class="apex-container">
         <?php apex_breadcrumbs(); ?>
-        <span class="apex-eyebrow">ÜYELİK İŞLEMLERİ · DİJİTAL QR KART & ONLINE ÜYE PANELİ</span>
-        <h1 class="apex-h1">ÜYELİK PAKETLERİ VE ÜYE PANELİ</h1>
-        <p class="apex-lead">Hedefine uygun üyeliği seç, saniyeler içinde dijital QR üyelik kartını oluştur veya mevcut hesabınla giriş yaparak tüm salon ve PT rezervasyonlarını tek ekrandan yönet.</p>
+        <span class="apex-eyebrow"><?php echo esc_html( apex_cms( 'page_mem_eyebrow' ) ); ?></span>
+        <h1 class="apex-h1"><?php echo esc_html( apex_cms( 'page_mem_title' ) ); ?></h1>
+        <p class="apex-lead"><?php echo esc_html( apex_cms( 'page_mem_desc' ) ); ?></p>
     </div>
 </section>
 
@@ -425,42 +425,48 @@ $cu     = $logged ? wp_get_current_user() : null;
 </section>
 <?php endif; ?>
 
-<!-- 1. Üyelik Paketleri + Aylık / Yıllık Toggle -->
+<!-- 1. Üyelik Paketleri + Aylık / Yıllık Toggle (İsviçre Tipi Mimari Tablo) -->
 <section class="apex-section apex-section-alt" id="paketler" aria-labelledby="mem-plans-h">
     <div class="apex-container">
         <div class="apex-section-head">
             <div>
-                <span class="apex-eyebrow apex-eyebrow-volt">ESNEK PLANLAR · YILLIKTA %20 AVANTAJ</span>
-                <h2 id="mem-plans-h" class="apex-h2">ÜYELİK PAKETLERİ KARŞILAŞTIRMASI</h2>
+                <span class="apex-eyebrow">ESNEK PLANLAR · YILLIKTA %20 AVANTAJ</span>
+                <h2 id="mem-plans-h" class="apex-h2">Üyelik Paketleri Karşılaştırması</h2>
             </div>
-            <div class="apex-tabs" role="group" aria-label="Ödeme periyodu seçimi">
-                <button type="button" class="apex-tab-btn is-active" data-billing-toggle="monthly">AYLIK ÖDEME</button>
-                <button type="button" class="apex-tab-btn" data-billing-toggle="annual">YILLIK (%20 İNDİRİM)</button>
+            <div class="apex-pt-filter-bar" role="group" aria-label="Ödeme periyodu seçimi">
+                <button type="button" class="apex-pt-tab is-active" data-billing-toggle="monthly">Aylık Ödeme</button>
+                <button type="button" class="apex-pt-tab" data-billing-toggle="annual">Yıllık (%20 İndirim)</button>
             </div>
         </div>
 
-        <div class="apex-grid-3">
-            <?php foreach ( $plans as $pl ) : ?>
-            <article class="apex-card <?php echo $pl['featured'] ? 'apex-card-featured' : ''; ?>">
-                <div class="apex-card-body">
-                    <span class="apex-eyebrow <?php echo $pl['featured'] ? 'apex-eyebrow-volt' : ''; ?>"><?php echo esc_html( $pl['badge'] ); ?></span>
-                    <h3 class="apex-h2"><?php echo esc_html( $pl['name'] ); ?></h3>
-                    <div class="apex-price" style="color:var(--apex-crimson);">
-                        <span data-plan-price data-monthly="<?php echo esc_attr( apex_format_tl( $pl['monthly_price'] ) ); ?>" data-annual="<?php echo esc_attr( apex_format_tl( $pl['annual_price'] ) ); ?>">
-                            <?php echo esc_html( apex_format_tl( $pl['monthly_price'] ) ); ?>
-                        </span>
-                        <small>/ ay</small>
-                    </div>
-                    <p class="apex-muted" style="margin:0;font-size:0.9rem;"><?php echo esc_html( $pl['summary'] ); ?></p>
-                    <ul class="apex-checklist">
-                        <?php foreach ( $pl['features'] as $f ) : ?>
-                            <li><?php echo esc_html( $f ); ?></li>
-                        <?php endforeach; ?>
-                    </ul>
-                    <div class="apex-card-foot">
-                        <button type="button" class="apex-btn <?php echo $pl['featured'] ? 'apex-btn-primary' : 'apex-btn-outline'; ?> apex-btn-block" data-select-plan="<?php echo esc_attr( $pl['slug'] ); ?>">BU PAKETİ SEÇ</button>
-                    </div>
+        <div class="apex-pt-ledger">
+            <?php $p_idx = 0; foreach ( $plans as $pl ) : $p_idx++; $num = str_pad( (string) $p_idx, 2, '0', STR_PAD_LEFT ); ?>
+            <article class="apex-pt-cell <?php echo ! empty( $pl['featured'] ) ? 'is-featured' : ''; ?>">
+                <div class="apex-pt-cell-top">
+                    <span class="apex-pt-num"><?php echo esc_html( $num ); ?></span>
+                    <span class="apex-pt-meta"><?php echo esc_html( $pl['badge'] ); ?></span>
+                    <?php if ( ! empty( $pl['featured'] ) ) : ?><span class="apex-pt-pick"><i aria-hidden="true"></i>En Popüler</span><?php endif; ?>
                 </div>
+                <div class="apex-pt-cell-head">
+                    <span class="apex-pt-rule" aria-hidden="true"></span>
+                    <h3 class="apex-pt-title" style="min-height:1.1em;"><?php echo esc_html( $pl['name'] ); ?></h3>
+                </div>
+                <div class="apex-pt-price-row">
+                    <span class="apex-pt-total" data-plan-price data-monthly="<?php echo esc_attr( apex_format_tl( $pl['monthly_price'] ) ); ?>" data-annual="<?php echo esc_attr( apex_format_tl( $pl['annual_price'] ) ); ?>">
+                        <?php echo esc_html( apex_format_tl( $pl['monthly_price'] ) ); ?>
+                    </span>
+                    <span class="apex-pt-unit"><em>/ ay</em></span>
+                </div>
+                <p class="apex-pt-days"><?php echo esc_html( $pl['summary'] ); ?></p>
+                <ul class="apex-pt-list">
+                    <?php foreach ( $pl['features'] as $f ) : ?>
+                        <li><?php echo esc_html( $f ); ?></li>
+                    <?php endforeach; ?>
+                </ul>
+                <button type="button" class="apex-pt-cta apex-pt-cta-btn" data-select-plan="<?php echo esc_attr( $pl['slug'] ); ?>">
+                    <span>Bu Paketi Seç</span>
+                    <span class="apex-pt-cta-arrow" aria-hidden="true">↗</span>
+                </button>
             </article>
             <?php endforeach; ?>
         </div>

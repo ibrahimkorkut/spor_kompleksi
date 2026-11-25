@@ -7,24 +7,24 @@
 get_header();
 $s = apex_get_settings();
 
-$wa_digits = preg_replace( '/\D+/', '', (string) ( $s['phone'] ?? '02165552739' ) );
+$wa_digits = preg_replace( '/\D+/', '', (string) apex_cms( 'whatsapp_phone', $s['phone'] ?? '02165552739' ) );
 if ( strpos( $wa_digits, '0' ) === 0 ) {
     $wa_digits = '90' . substr( $wa_digits, 1 );
 } elseif ( strpos( $wa_digits, '90' ) !== 0 ) {
     $wa_digits = '90' . $wa_digits;
 }
-$wa_url   = 'https://wa.me/' . $wa_digits . '?text=' . rawurlencode( 'Merhaba APEX ARENA, bilgi almak istiyorum.' );
-$map_q    = rawurlencode( 'Barbaros Mahallesi, Ataşehir, İstanbul' );
+$wa_url   = 'https://wa.me/' . $wa_digits . '?text=' . rawurlencode( (string) apex_cms( 'whatsapp_message', 'Merhaba APEX ARENA, bilgi almak istiyorum.' ) );
+$map_q    = rawurlencode( (string) apex_cms( 'map_query', 'Barbaros Mahallesi, Ataşehir, İstanbul' ) );
 $map_src  = 'https://maps.google.com/maps?q=' . $map_q . '&t=m&z=15&ie=UTF8&iwloc=B&output=embed';
 $map_link = 'https://www.google.com/maps/search/?api=1&query=' . $map_q;
 ?>
 
-<section class="apex-page-hero">
+<section class="apex-page-hero apex-editorial-hero">
     <div class="apex-container">
         <?php apex_breadcrumbs(); ?>
-        <span class="apex-eyebrow">İLETİŞİM · ULAŞIM &amp; KURUMSAL DESTEK</span>
-        <h1 class="apex-h1">BİZE ULAŞIN</h1>
-        <p class="apex-lead">Ücretsiz tesis turu, kurumsal turnuva organizasyonu, PT danışmanlığı veya üyelik sorularınız için ekibimiz haftanın 7 günü yanınızda.</p>
+        <span class="apex-eyebrow"><?php echo esc_html( apex_cms( 'page_contact_eyebrow' ) ); ?></span>
+        <h1 class="apex-h1"><?php echo esc_html( apex_cms( 'page_contact_title' ) ); ?></h1>
+        <p class="apex-lead"><?php echo esc_html( apex_cms( 'page_contact_desc' ) ); ?></p>
     </div>
 </section>
 

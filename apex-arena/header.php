@@ -5,14 +5,16 @@
  * @package ApexArena
  */
 $nav_items = [
-    [ 'label' => 'PT Eğitmenler', 'url' => home_url( '/pt-egitmenler/' ), 'slug' => 'pt-egitmenler' ],
-    [ 'label' => 'Antrenörler', 'url' => home_url( '/antrenorler/' ), 'slug' => 'antrenorler' ],
-    [ 'label' => 'Salon Kiralama', 'url' => home_url( '/salon-kiralama/' ), 'slug' => 'salon-kiralama' ],
-    [ 'label' => 'Tesis', 'url' => home_url( '/tesis-olanaklari/' ), 'slug' => 'tesis-olanaklari' ],
-    [ 'label' => 'Üyelik', 'url' => home_url( '/uyelik/' ), 'slug' => 'uyelik' ],
-    [ 'label' => 'Duyurular', 'url' => home_url( '/duyurular/' ), 'slug' => 'duyurular' ],
-    [ 'label' => 'İletişim', 'url' => home_url( '/iletisim/' ), 'slug' => 'iletisim' ],
+    [ 'label' => apex_cms( 'nav_pt', 'PT Eğitmenler' ), 'url' => home_url( '/pt-egitmenler/' ), 'slug' => 'pt-egitmenler' ],
+    [ 'label' => apex_cms( 'nav_trainers', 'Antrenörler' ), 'url' => home_url( '/antrenorler/' ), 'slug' => 'antrenorler' ],
+    [ 'label' => apex_cms( 'nav_courts', 'Salon Kiralama' ), 'url' => home_url( '/salon-kiralama/' ), 'slug' => 'salon-kiralama' ],
+    [ 'label' => apex_cms( 'nav_facilities', 'Tesis' ), 'url' => home_url( '/tesis-olanaklari/' ), 'slug' => 'tesis-olanaklari' ],
+    [ 'label' => apex_cms( 'nav_membership', 'Üyelik' ), 'url' => home_url( '/uyelik/' ), 'slug' => 'uyelik' ],
+    [ 'label' => apex_cms( 'nav_news', 'Duyurular' ), 'url' => home_url( '/duyurular/' ), 'slug' => 'duyurular' ],
+    [ 'label' => apex_cms( 'nav_contact', 'İletişim' ), 'url' => home_url( '/iletisim/' ), 'slug' => 'iletisim' ],
 ];
+$brand_1 = apex_cms( 'brand_first', 'Apex' );
+$brand_2 = apex_cms( 'brand_second', 'Arena' );
 ?><!DOCTYPE html>
 <html <?php language_attributes(); ?>>
 <head>
@@ -42,7 +44,7 @@ $nav_items = [
                 <span class="apex-brand-mark" aria-hidden="true">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3 22 20H2L12 3Z"/></svg>
                 </span>
-                <span class="apex-brand-text"><span class="apex-brand-accent">Apex</span> Arena</span>
+                <span class="apex-brand-text"><span class="apex-brand-accent"><?php echo esc_html( $brand_1 ); ?></span> <?php echo esc_html( $brand_2 ); ?></span>
             </a>
 
             <nav class="apex-nav" aria-label="Ana menü">
@@ -82,8 +84,8 @@ $nav_items = [
                     </a>
                     <a href="<?php echo esc_url( home_url( '/uyelik/#paketler' ) ); ?>" class="apex-btn apex-btn-primary apex-btn-sm">Paketler</a>
                 <?php else : ?>
-                    <a href="<?php echo esc_url( home_url( '/uyelik/#giris' ) ); ?>" class="apex-nav-util">Üye Girişi</a>
-                    <a href="<?php echo esc_url( home_url( '/uyelik/#kayit' ) ); ?>" class="apex-btn apex-btn-primary apex-btn-sm">Bize Katıl</a>
+                    <a href="<?php echo esc_url( home_url( '/uyelik/#giris' ) ); ?>" class="apex-nav-util"><?php echo esc_html( apex_cms( 'nav_login_label', 'Üye Girişi' ) ); ?></a>
+                    <a href="<?php echo esc_url( home_url( '/uyelik/#kayit' ) ); ?>" class="apex-btn apex-btn-primary apex-btn-sm"><?php echo esc_html( apex_cms( 'nav_join_label', 'Bize Katıl' ) ); ?></a>
                 <?php endif; ?>
                 <button type="button" class="apex-mobile-toggle" id="apex-mobile-open" aria-label="Menüyü aç" aria-controls="apex-mobile-drawer" aria-expanded="false">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>

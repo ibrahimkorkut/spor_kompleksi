@@ -2,8 +2,8 @@
 
 ![APEX ARENA Ana Sayfa — Liquid Glass Shape Morph Menü, Obsidian Neon WhatsApp & Kırmızı Glow AI Koç](teslim_belgeleri/ekran_goruntuleri/16_whatsapp_hero_v170.png)
 
-> **Modern spor kompleksleri için sıfırdan geliştirilmiş, tam entegre özel WordPress teması ve çok rollü yönetim ekosistemi (`v2.2.0`).**  
-> 60/120 FPS kaydırmayla oynayan mimari tur videosu, Three.js prosedürel 3D dambıl sahnesi, **Mouse Hover ile Oda İçine Yaklaşan 3D Mimari Kesit Spor Kompleksi Maketi**, **Gmail SMTP Hoş Geldin & Otomatik Hatırlatma E-posta Motoru**, **Obsidian Neon Glow Operasyon Yönetim Paneli**, **7 Uzman Koçluk Apple Fitness Neon Glow Koç Performans Stüdyosu (3 İç İçe Aktivite Halkası + Etkileşimli Grafikler + Beslenme Takvimi + 1-1 Mesajlaşma)**, **Liquid Glass Shape Morph üst menü & satır içi arama**, dönen zümrüt neon **WhatsApp Destek Hattı**, kırmızı glow **Gemini 2.5 Flash AI Spor Koçu**, büyütülebilir **Dijital QR Kart Pop-up**, makro hesaplı Protein Kafe ön sipariş sepeti, lisanslı hakem + `.ics` takvimli salon kiralama, **Excel/CSV Rapor Merkezi**, gerçek **Google Maps** ve **WCAG 2.2 AA/AAA** erişilebilirlik merkezini tek çatı altında sunar.
+> **Modern spor kompleksleri için sıfırdan geliştirilmiş, tam entegre özel WordPress teması ve çok rollü yönetim ekosistemi (`v2.3.0`).**  
+> 60/120 FPS kaydırmayla oynayan mimari tur videosu, Three.js prosedürel 3D dambıl sahnesi, **Mouse Hover ile Oda İçine Yaklaşan 3D Mimari Kesit Spor Kompleksi Maketi**, **Tam Kapsamlı 5 Sekmeli Admin Site İçerik CMS Stüdyosu** (marka, renk, 7 menü etiketi, ana sayfa bölüm anahtarları, üyelik paket fiyatları, Protein Kafe menü CRUD, 7 iç sayfa hero metinleri), **Bütünleşik Mimari Editoryal İç Sayfa Tasarım Sistemi**, **Gmail SMTP Hoş Geldin & Otomatik Hatırlatma E-posta Motoru**, **Obsidian Neon Glow Operasyon Yönetim Paneli**, **7 Uzman Koçluk Apple Fitness Neon Glow Koç Performans Stüdyosu**, **Liquid Glass Shape Morph üst menü**, dönen zümrüt neon **WhatsApp Destek Hattı**, kırmızı glow **Gemini 2.5 Flash AI Spor Koçu**, büyütülebilir **Dijital QR Kart Pop-up**, makro hesaplı Protein Kafe ön sipariş sepeti, lisanslı hakem + `.ics` takvimli salon kiralama, **Excel/CSV Rapor Merkezi**, gerçek **Google Maps** ve **WCAG 2.2 AA/AAA** erişilebilirlik merkezini tek çatı altında sunar.
 
 ---
 
@@ -16,7 +16,15 @@
 
 ---
 
-## v2.2.0 Yeni Modüller & Güncel Ekran Görüntüleri
+## v2.3.0 Yeni Modüller & Güncel Ekran Görüntüleri
+
+### 0. Tam Kapsamlı Admin Site İçerik CMS Stüdyosu & Bütünleşik Editoryal İç Sayfalar (`inc/site-cms.php`, `page-*.php`)
+- **Tek Panelden Tüm Siteyi Yönet (`WP Admin → APEX ARENA → Site İçerik CMS`):** 5 sekmeli Obsidian Neon yönetim arayüzüyle kod yazmadan site logosu/marka metinleri, canlı tema vurgu rengi (`--apex-crimson`), 7 üst menü etiketi, ana sayfa 10 bölümünün Göster/Gizle anahtarları ve tüm başlıkları, Classic/Pro/Elite üyelik paket fiyatları & kapsamları, Protein Kafe menüsü (ekle/düzenle/sil), 7 iç sayfa hero metinleri, WhatsApp hattı, Google Harita konumu ve Footer içerikleri anlık düzenlenebilir.
+- **Tüm 7 Navigasyon Sayfasında Bütünleşik Mimari Editoryal Tasarım:** `PT Eğitmenler`, `Antrenörler`, `Salon Kiralama`, `Tesis`, `Üyelik`, `Duyurular` ve `İletişim` sayfaları kırmızı sol şeritli editoryal hero, `1px` ince ayırıcılı İsviçre tablo ızgaraları, tam çerçeve poster galerileri ve alt çizgili filtre sekmeleriyle bütünleşik mimari görünüme kavuşturuldu.
+
+| Editoryal PT Eğitmenler (`/pt-egitmenler/`) | Editoryal Salon Kiralama (`/salon-kiralama/`) |
+| :---: | :---: |
+| ![Editoryal PT Eğitmenler](teslim_belgeleri/ekran_goruntuleri/36_ic_sayfalar_pt_editoryal_v230.png) | ![Editoryal Salon Kiralama](teslim_belgeleri/ekran_goruntuleri/37_ic_sayfalar_salon_editoryal_v230.png) |
 
 ### 0A. İnteraktif 3D Mimari Kesit Spor Kompleksi (`assets/js/complex-3d.js`, `/#kat-plani`)
 - **Tam İzometrik 3D Dollhouse Kesit Mimarisi:** Koyu kesit üst şeritli mimari duvarlar, merkez traverten lobide heykelsi **3D sarmal merdiven** + QR turnikeler + EV şarj bölmesi, **FIBA Basketbol 1** (akçaağaç parke, 3D cam panyalı potalar, canlı `84 : 79` LED skorboard), **CEV Voleybol Pro** (Taraflex zemin, 3D file), **PT & Kuvvet Stüdyosu** (çift olimpik squat rack, sprint turf, koşu bantları), **RFID Soyunma + Yağmur Duş + 85°C Sedir Fin Saunası** ve **Apex Protein Kafe & Lounge**.

@@ -117,7 +117,7 @@ function apex_get_time_slots() {
  * Üyelik paketleri tanımı
  */
 function apex_get_membership_plans() {
-    return [
+    $defaults = [
         'classic' => [
             'slug'          => 'classic',
             'name'          => 'APEX CLASSIC',
@@ -172,12 +172,25 @@ function apex_get_membership_plans() {
             ],
         ],
     ];
+    $saved = get_option( 'apex_cms_plans', [] );
+    if ( is_array( $saved ) && ! empty( $saved ) ) {
+        foreach ( $defaults as $slug => $def ) {
+            if ( isset( $saved[ $slug ] ) && is_array( $saved[ $slug ] ) ) {
+                $defaults[ $slug ] = wp_parse_args( $saved[ $slug ], $def );
+            }
+        }
+    }
+    return $defaults;
 }
 
 /**
- * Apex Protein Kafe Menüsü
+ * Apex Protein Kafe Menüsü (WP Admin Site CMS'ten düzenlenebilir)
  */
 function apex_get_cafe_menu() {
+    $saved = get_option( 'apex_cms_cafe_menu', [] );
+    if ( is_array( $saved ) && ! empty( $saved ) ) {
+        return $saved;
+    }
     return [
         [ 'category' => 'shake', 'name' => 'Crimson Berry Whey Shake', 'macros' => '34g Protein · 260 kcal · 4g Şeker', 'price' => 165, 'desc' => 'İzole vanilya whey, taze frambuaz, yaban mersini, badem sütü ve chia tohumu.' ],
         [ 'category' => 'shake', 'name' => 'Apex Peanut Power Shake', 'macros' => '38g Protein · 390 kcal · Kompleks Karb', 'price' => 175, 'desc' => 'Çikolatalı whey, şekersiz yer fıstığı ezmesi, muz, yulaf ve soğuk espresso shot.' ],

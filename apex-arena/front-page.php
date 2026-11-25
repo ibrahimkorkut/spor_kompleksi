@@ -12,10 +12,11 @@ $trainers = get_posts( [ 'post_type' => 'apex_trainer', 'numberposts' => 4, 'pos
 $packages = get_posts( [ 'post_type' => 'apex_pt_package', 'numberposts' => 6, 'post_status' => 'publish', 'orderby' => 'menu_order', 'order' => 'ASC' ] );
 $anns     = get_posts( [ 'post_type' => 'apex_announcement', 'numberposts' => 3, 'post_status' => 'publish' ] );
 $plans    = apex_get_membership_plans();
-$hero_title = get_theme_mod( 'apex_hero_title', 'Sınırlarını Arenada Aş.' );
-$hero_sub   = get_theme_mod( 'apex_hero_subtitle', 'İki FIBA basketbol salonu, profesyonel voleybol sahası, lisanslı hakem hizmeti, sertifikalı PT kadrosu ve 7/24 AI Spor Koçu tek çatı altında.' );
+$hero_title = apex_cms( 'hero_title', get_theme_mod( 'apex_hero_title', 'Sınırlarını Arenada Aş.' ) );
+$hero_sub   = apex_cms( 'hero_subtitle', get_theme_mod( 'apex_hero_subtitle', 'İki FIBA basketbol salonu, profesyonel voleybol sahası, lisanslı hakem hizmeti, sertifikalı PT kadrosu ve 7/24 AI Spor Koçu tek çatı altında.' ) );
 ?>
 
+<?php if ( apex_cms_show( 'show_hero' ) ) : ?>
 <!-- 1. APPLE-TARZI 60 FPS SCROLL İLE OYNAYAN TAM EKRAN MİMARİ TUR VİDEOSU (240 HD WebP Kare · GPU ImageBitmap) -->
 <section
     id="apex-cinema-runway"
@@ -51,8 +52,8 @@ $hero_sub   = get_theme_mod( 'apex_hero_subtitle', 'İki FIBA basketbol salonu, 
                         <p class="apex-lead"><?php echo esc_html( $hero_sub ); ?></p>
 
                         <div class="apex-hero-ctas">
-                            <a href="<?php echo esc_url( home_url( '/uyelik/#paketler' ) ); ?>" class="apex-btn apex-btn-primary apex-btn-lg">Üyeliği Başlat</a>
-                            <a href="<?php echo esc_url( home_url( '/salon-kiralama/' ) ); ?>" class="apex-btn apex-btn-outline apex-btn-lg">Salon Kirala</a>
+                            <a href="<?php echo esc_url( home_url( '/uyelik/#paketler' ) ); ?>" class="apex-btn apex-btn-primary apex-btn-lg"><?php echo esc_html( apex_cms( 'hero_cta1', 'Üyeliği Başlat' ) ); ?></a>
+                            <a href="<?php echo esc_url( home_url( '/salon-kiralama/' ) ); ?>" class="apex-btn apex-btn-outline apex-btn-lg"><?php echo esc_html( apex_cms( 'hero_cta2', 'Salon Kirala' ) ); ?></a>
                             <button type="button" class="apex-btn apex-btn-outline apex-btn-lg" data-open-ai>
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a9 9 0 0 0-9 9c0 1.66.45 3.22 1.24 4.56L3 21l4.44-1.24A8.96 8.96 0 0 0 12 21a9 9 0 1 0 0-18Z"/></svg>
                                 AI Spor Koçu
@@ -62,20 +63,20 @@ $hero_sub   = get_theme_mod( 'apex_hero_subtitle', 'İki FIBA basketbol salonu, 
 
                     <div class="apex-kpi-grid apex-cinema-kpi-compact" aria-label="Kompleks öne çıkan verileri">
                         <div class="apex-kpi-card">
-                            <div class="apex-kpi-val">3 Salon</div>
-                            <div class="apex-kpi-label">2 Basketbol · 1 Voleybol · Hakem Hizmeti</div>
+                            <div class="apex-kpi-val"><?php echo esc_html( apex_cms( 'kpi1_val' ) ); ?></div>
+                            <div class="apex-kpi-label"><?php echo esc_html( apex_cms( 'kpi1_lbl' ) ); ?></div>
                         </div>
                         <div class="apex-kpi-card">
-                            <div class="apex-kpi-val">Sertifikalı PT</div>
-                            <div class="apex-kpi-label">Bireysel &amp; Grupsal · Canlı Takvim</div>
+                            <div class="apex-kpi-val"><?php echo esc_html( apex_cms( 'kpi2_val' ) ); ?></div>
+                            <div class="apex-kpi-label"><?php echo esc_html( apex_cms( 'kpi2_lbl' ) ); ?></div>
                         </div>
                         <div class="apex-kpi-card">
-                            <div class="apex-kpi-val">180 Araç</div>
-                            <div class="apex-kpi-label">Kapalı Otopark, 6 EV Şarj &amp; Protein Kafe</div>
+                            <div class="apex-kpi-val"><?php echo esc_html( apex_cms( 'kpi3_val' ) ); ?></div>
+                            <div class="apex-kpi-label"><?php echo esc_html( apex_cms( 'kpi3_lbl' ) ); ?></div>
                         </div>
                         <div class="apex-kpi-card">
-                            <div class="apex-kpi-val">7/24 AI + WCAG</div>
-                            <div class="apex-kpi-label">Gemini 2.5 AI &amp; Erişilebilirlik Merkezi</div>
+                            <div class="apex-kpi-val"><?php echo esc_html( apex_cms( 'kpi4_val' ) ); ?></div>
+                            <div class="apex-kpi-label"><?php echo esc_html( apex_cms( 'kpi4_lbl' ) ); ?></div>
                         </div>
                     </div>
                 </div>
@@ -140,7 +141,9 @@ $hero_sub   = get_theme_mod( 'apex_hero_subtitle', 'İki FIBA basketbol salonu, 
         </div>
     </div>
 </section>
+<?php endif; ?>
 
+<?php if ( apex_cms_show( 'show_3d_dumbbell' ) ) : ?>
 <!-- 2. 3D PERSPEKTİF MONOLİT & 3D DUMBBELL SAHNESİ (WebGL 60 FPS) -->
 <section id="apex-3d-runway" class="apex-3d-runway" aria-labelledby="motion-3d-title">
     <div class="apex-3d-sticky">
@@ -148,8 +151,8 @@ $hero_sub   = get_theme_mod( 'apex_hero_subtitle', 'İki FIBA basketbol salonu, 
             <!-- Katman 1: Dev Kinetik Tipografi (3D Heykelin Arkasında) -->
             <div class="apex-3d-typo-wrap">
                 <h2 id="motion-3d-title" class="apex-3d-headline">
-                    <span class="apex-3d-line" data-3d-line="top">HAREKETİN</span>
-                    <span class="apex-3d-line" data-3d-line="bottom">YENİ MERKEZİ</span>
+                    <span class="apex-3d-line" data-3d-line="top"><?php echo esc_html( apex_cms( 'monolith_line1' ) ); ?></span>
+                    <span class="apex-3d-line" data-3d-line="bottom"><?php echo esc_html( apex_cms( 'monolith_line2' ) ); ?></span>
                 </h2>
             </div>
 
@@ -159,21 +162,23 @@ $hero_sub   = get_theme_mod( 'apex_hero_subtitle', 'İki FIBA basketbol salonu, 
             <!-- Katman 3: Sağ Alt Köşe Manifesto -->
             <div class="apex-3d-bottom-bar">
                 <p class="apex-3d-manifesto">
-                    Her hedef için yeni bir başlangıç,<br>her hareket için yeni bir güç.
+                    <?php echo nl2br( esc_html( apex_cms( 'monolith_manifesto' ) ) ); ?>
                 </p>
             </div>
         </div>
     </div>
 </section>
+<?php endif; ?>
 
+<?php if ( apex_cms_show( 'show_courts' ) ) : ?>
 <!-- 3. SALON VE KİRALAMA — MİMARİ EDİTORYAL SALON GALERİSİ (v2.2.4) -->
 <section class="apex-section apex-courts-section" aria-labelledby="home-courts-title">
     <div class="apex-container">
         <div class="apex-section-head">
             <div>
-                <span class="apex-eyebrow">Salon ve Kiralama · FIBA &amp; CEV</span>
-                <h2 id="home-courts-title" class="apex-h2">Profesyonel Maç Salonları</h2>
-                <p class="apex-lead">FIBA standartlarında 2 basketbol ve CEV standartlarında 1 voleybol salonumuzu canlı saat seçimi ve lisanslı hakem opsiyonuyla rezerve edin.</p>
+                <span class="apex-eyebrow"><?php echo esc_html( apex_cms( 'home_courts_eyebrow' ) ); ?></span>
+                <h2 id="home-courts-title" class="apex-h2"><?php echo esc_html( apex_cms( 'home_courts_title' ) ); ?></h2>
+                <p class="apex-lead"><?php echo esc_html( apex_cms( 'home_courts_desc' ) ); ?></p>
             </div>
             <a href="<?php echo esc_url( home_url( '/salon-kiralama/' ) ); ?>" class="apex-editorial-all-link">
                 <span>Tüm Salonlar</span>
@@ -220,15 +225,17 @@ $hero_sub   = get_theme_mod( 'apex_hero_subtitle', 'İki FIBA basketbol salonu, 
         </div>
     </div>
 </section>
+<?php endif; ?>
 
+<?php if ( apex_cms_show( 'show_pt' ) ) : ?>
 <!-- 3. PT EĞİTMENLER & PAKETLER — MİMARİ EDİTORYAL PROGRAM TABLOSU (v2.2.3) -->
 <section class="apex-section apex-section-alt apex-pt-section" aria-labelledby="home-pt-title">
     <div class="apex-container">
         <div class="apex-section-head apex-pt-head">
             <div>
-                <span class="apex-eyebrow">PT Eğitmenler · Bireysel &amp; Grupsal</span>
-                <h2 id="home-pt-title" class="apex-h2">PT Paketleri ve Seans Ücretleri</h2>
-                <p class="apex-lead">Hedefine uygun birebir özel antrenman veya butik grup dersini seç, eğitim günlerini incele ve anında online randevu oluştur.</p>
+                <span class="apex-eyebrow"><?php echo esc_html( apex_cms( 'home_pt_eyebrow' ) ); ?></span>
+                <h2 id="home-pt-title" class="apex-h2"><?php echo esc_html( apex_cms( 'home_pt_title' ) ); ?></h2>
+                <p class="apex-lead"><?php echo esc_html( apex_cms( 'home_pt_desc' ) ); ?></p>
             </div>
             <div class="apex-pt-filter-bar" role="tablist" aria-label="PT paket filtresi">
                 <button type="button" class="apex-pt-tab is-active" data-filter-group="home-pt" data-filter="all" role="tab" aria-selected="true">Tümü</button>
@@ -286,15 +293,17 @@ $hero_sub   = get_theme_mod( 'apex_hero_subtitle', 'İki FIBA basketbol salonu, 
         </div>
     </div>
 </section>
+<?php endif; ?>
 
+<?php if ( apex_cms_show( 'show_trainers' ) ) : ?>
 <!-- 4. ANTRENÖRLER — EDİTORYAL PORTRE GALERİSİ (v2.2.1) -->
 <section class="apex-section apex-coaches-section" aria-labelledby="home-trainers-title">
     <div class="apex-container">
         <div class="apex-section-head apex-coaches-head">
             <div>
-                <span class="apex-eyebrow">Uzman Kadro · Sertifika &amp; Online Takvim</span>
-                <h2 id="home-trainers-title" class="apex-h2">Antrenörlerimizle Tanış</h2>
-                <p class="apex-lead">Her eğitmenimizin özgeçmişini, uluslararası sertifikalarını inceleyin ve canlı online takviminden doğrudan randevu alın.</p>
+                <span class="apex-eyebrow"><?php echo esc_html( apex_cms( 'home_tr_eyebrow' ) ); ?></span>
+                <h2 id="home-trainers-title" class="apex-h2"><?php echo esc_html( apex_cms( 'home_tr_title' ) ); ?></h2>
+                <p class="apex-lead"><?php echo esc_html( apex_cms( 'home_tr_desc' ) ); ?></p>
             </div>
             <a href="<?php echo esc_url( home_url( '/antrenorler/' ) ); ?>" class="apex-editorial-all-link">
                 <span>Tüm Kadroyu Gör</span>
@@ -337,14 +346,16 @@ $hero_sub   = get_theme_mod( 'apex_hero_subtitle', 'İki FIBA basketbol salonu, 
         </div>
     </div>
 </section>
+<?php endif; ?>
 
+<?php if ( apex_cms_show( 'show_facilities' ) ) : ?>
 <!-- 5. TESİS OLANAKLARI — MİMARİ EDİTORYAL BENTO GALERİSİ (v2.2.2) -->
 <section class="apex-section apex-section-alt apex-fac-section" aria-labelledby="home-fac-title">
     <div class="apex-container">
         <div class="apex-section-head">
             <div>
-                <span class="apex-eyebrow">Tesis Olanakları · Mimari Konfor</span>
-                <h2 id="home-fac-title" class="apex-h2">Soyunma Odası, Otopark ve Protein Kafe</h2>
+                <span class="apex-eyebrow"><?php echo esc_html( apex_cms( 'home_fac_eyebrow' ) ); ?></span>
+                <h2 id="home-fac-title" class="apex-h2"><?php echo esc_html( apex_cms( 'home_fac_title' ) ); ?></h2>
             </div>
             <a href="<?php echo esc_url( home_url( '/tesis-olanaklari/' ) ); ?>" class="apex-editorial-all-link">
                 <span>Olanaklar &amp; Menü</span>
@@ -360,13 +371,13 @@ $hero_sub   = get_theme_mod( 'apex_hero_subtitle', 'İki FIBA basketbol salonu, 
                 </div>
                 <div class="apex-fac-top">
                     <span class="apex-coach-idx">01</span>
-                    <span class="apex-coach-stat">240 RFID DOLAP <i>/</i> 85°C SAUNA</span>
+                    <span class="apex-coach-stat"><?php echo esc_html( apex_cms( 'fac1_stat' ) ); ?></span>
                 </div>
                 <div class="apex-fac-body">
                     <span class="apex-coach-rule" aria-hidden="true"></span>
-                    <span class="apex-coach-role">TOPARLANMA &amp; SPA KONFORU</span>
-                    <h3 class="apex-fac-title">Soyunma Odası &amp; Fin Saunası</h3>
-                    <p class="apex-fac-desc">Temassız RFID akıllı dolaplar, yüksek basınçlı yağmur duş kabinleri, sedir ağacı Fin saunası, hijyenik havlu servisi ve engelsiz erişimli özel kabinler.</p>
+                    <span class="apex-coach-role"><?php echo esc_html( apex_cms( 'fac1_role' ) ); ?></span>
+                    <h3 class="apex-fac-title"><?php echo esc_html( apex_cms( 'fac1_title' ) ); ?></h3>
+                    <p class="apex-fac-desc"><?php echo esc_html( apex_cms( 'fac1_desc' ) ); ?></p>
                     <span class="apex-coach-link">
                         <span>Tesis Detayları</span>
                         <span class="apex-coach-link-arrow" aria-hidden="true">↗</span>
@@ -385,9 +396,9 @@ $hero_sub   = get_theme_mod( 'apex_hero_subtitle', 'İki FIBA basketbol salonu, 
                 </div>
                 <div class="apex-fac-body">
                     <span class="apex-coach-rule" aria-hidden="true"></span>
-                    <span class="apex-coach-role">PLAKA TANIMALI · DİREKT ASANSÖR</span>
-                    <h3 class="apex-fac-title">Akıllı Kapalı Otopark</h3>
-                    <p class="apex-fac-desc">180 araçlık kapalı otopark, üyelere ilk 3 saat ücretsiz park ayrıcalığı ve 6 adet hızlı elektrikli araç şarj noktası.</p>
+                    <span class="apex-coach-role"><?php echo esc_html( apex_cms( 'fac2_role' ) ); ?></span>
+                    <h3 class="apex-fac-title"><?php echo esc_html( apex_cms( 'fac2_title' ) ); ?></h3>
+                    <p class="apex-fac-desc"><?php echo esc_html( apex_cms( 'fac2_desc' ) ); ?></p>
                     <span class="apex-coach-link">
                         <span>Canlı EV &amp; Doluluk</span>
                         <span class="apex-coach-link-arrow" aria-hidden="true">↗</span>
@@ -402,13 +413,13 @@ $hero_sub   = get_theme_mod( 'apex_hero_subtitle', 'İki FIBA basketbol salonu, 
                 </div>
                 <div class="apex-fac-top">
                     <span class="apex-coach-idx">03</span>
-                    <span class="apex-coach-stat">MAKRO MENÜ <i>/</i> PRO %15</span>
+                    <span class="apex-coach-stat"><?php echo esc_html( apex_cms( 'fac3_stat' ) ); ?></span>
                 </div>
                 <div class="apex-fac-body">
                     <span class="apex-coach-rule" aria-hidden="true"></span>
-                    <span class="apex-coach-role">BESLENME &amp; 3. DALGA KAHVE BARI</span>
-                    <h3 class="apex-fac-title">Apex Protein Kafe</h3>
-                    <p class="apex-fac-desc">İzole whey shake’ler, diyetisyen onaylı makro hesaplı fit bowl tabakları, cold brew bar ve antrenman çıkışı hızlı ön sipariş.</p>
+                    <span class="apex-coach-role"><?php echo esc_html( apex_cms( 'fac3_role' ) ); ?></span>
+                    <h3 class="apex-fac-title"><?php echo esc_html( apex_cms( 'fac3_title' ) ); ?></h3>
+                    <p class="apex-fac-desc"><?php echo esc_html( apex_cms( 'fac3_desc' ) ); ?></p>
                     <span class="apex-coach-link">
                         <span>Menü &amp; Ön Sipariş</span>
                         <span class="apex-coach-link-arrow" aria-hidden="true">↗</span>
@@ -418,72 +429,51 @@ $hero_sub   = get_theme_mod( 'apex_hero_subtitle', 'İki FIBA basketbol salonu, 
         </div>
     </div>
 </section>
+<?php endif; ?>
 
-<!-- 6. ÜYELİK PAKETLERİ -->
+<?php if ( apex_cms_show( 'show_membership' ) ) : ?>
+<!-- 6. ÜYELİK PAKETLERİ — MİMARİ EDİTORYAL ÜYELİK TABLOSU (v2.3.0) -->
 <section class="apex-section" aria-labelledby="home-mem-title">
     <div class="apex-container">
         <div class="apex-section-head">
             <div>
-                <span class="apex-eyebrow">Üyelik İşlemleri · Dijital QR Kart</span>
-                <h2 id="home-mem-title" class="apex-h2">Hedefine Uygun Üyeliği Seç</h2>
+                <span class="apex-eyebrow"><?php echo esc_html( apex_cms( 'home_mem_eyebrow' ) ); ?></span>
+                <h2 id="home-mem-title" class="apex-h2"><?php echo esc_html( apex_cms( 'home_mem_title' ) ); ?></h2>
             </div>
-            <a href="<?php echo esc_url( home_url( '/uyelik/' ) ); ?>" class="apex-btn apex-btn-outline apex-btn-sm">Karşılaştırma &amp; Panel →</a>
+            <a href="<?php echo esc_url( home_url( '/uyelik/' ) ); ?>" class="apex-editorial-all-link">
+                <span>Karşılaştırma &amp; Panel</span>
+                <span class="apex-editorial-arrow" aria-hidden="true">↗</span>
+            </a>
         </div>
 
-        <div class="apex-grid-3">
-            <?php foreach ( $plans as $pl ) : ?>
-            <article class="apex-card <?php echo $pl['featured'] ? 'apex-card-featured' : ''; ?>">
-                <div class="apex-card-body">
-                    <span class="apex-eyebrow"><?php echo esc_html( $pl['badge'] ); ?></span>
-                    <h3 class="apex-h2" style="font-size:1.75rem;"><?php echo esc_html( $pl['name'] ); ?></h3>
-                    <div class="apex-price"><?php echo esc_html( apex_format_tl( $pl['monthly_price'] ) ); ?> <small>/ ay</small></div>
-                    <p class="apex-muted" style="margin:0;font-size:0.88rem;"><?php echo esc_html( $pl['summary'] ); ?></p>
-                    <ul class="apex-checklist">
-                        <?php foreach ( $pl['features'] as $f ) : ?>
-                            <li><?php echo esc_html( $f ); ?></li>
-                        <?php endforeach; ?>
-                    </ul>
-                    <div class="apex-card-foot">
-                        <a href="<?php echo esc_url( home_url( '/uyelik/?plan=' . $pl['slug'] . '#kayit' ) ); ?>" class="apex-btn <?php echo $pl['featured'] ? 'apex-btn-primary' : 'apex-btn-outline'; ?> apex-btn-block">Hemen Başla</a>
-                    </div>
+        <div class="apex-pt-ledger">
+            <?php $m_idx = 0; foreach ( $plans as $pl ) : $m_idx++; $num = str_pad( (string) $m_idx, 2, '0', STR_PAD_LEFT ); ?>
+            <article class="apex-pt-cell <?php echo ! empty( $pl['featured'] ) ? 'is-featured' : ''; ?>">
+                <div class="apex-pt-cell-top">
+                    <span class="apex-pt-num"><?php echo esc_html( $num ); ?></span>
+                    <span class="apex-pt-meta"><?php echo esc_html( $pl['badge'] ); ?></span>
+                    <?php if ( ! empty( $pl['featured'] ) ) : ?>
+                        <span class="apex-pt-pick"><i aria-hidden="true"></i>En Popüler</span>
+                    <?php endif; ?>
                 </div>
-            </article>
-            <?php endforeach; ?>
-        </div>
-    </div>
-</section>
-
-<!-- 7. SALON DUYURULARI -->
-<?php if ( ! empty( $anns ) ) : ?>
-<section class="apex-section apex-section-alt" aria-labelledby="home-news-title">
-    <div class="apex-container">
-        <div class="apex-section-head">
-            <div>
-                <span class="apex-eyebrow">Salon Duyuruları &amp; Turnuvalar</span>
-                <h2 id="home-news-title" class="apex-h2">Güncel Duyurular</h2>
-            </div>
-            <a href="<?php echo esc_url( home_url( '/duyurular/' ) ); ?>" class="apex-btn apex-btn-outline apex-btn-sm">Tüm Duyurular →</a>
-        </div>
-
-        <div class="apex-grid-3">
-            <?php foreach ( $anns as $ann ) :
-                $cat  = get_post_meta( $ann->ID, '_apex_ann_category', true ) ?: 'Duyuru';
-                $loc  = get_post_meta( $ann->ID, '_apex_ann_location', true );
-                $dt   = get_post_meta( $ann->ID, '_apex_ann_date', true ) ?: get_the_date( 'd.m.Y', $ann->ID );
-            ?>
-            <article class="apex-card">
-                <div class="apex-card-body">
-                    <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;">
-                        <span class="apex-tag apex-tag-volt"><?php echo esc_html( $cat ); ?></span>
-                        <span class="apex-muted" style="font-size:0.8rem;"><?php echo esc_html( $dt ); ?></span>
-                    </div>
-                    <h3 class="apex-h3"><?php echo esc_html( $ann->post_title ); ?></h3>
-                    <p class="apex-muted" style="margin:0;font-size:0.88rem;"><?php echo esc_html( wp_trim_words( $ann->post_excerpt ?: $ann->post_content, 22 ) ); ?></p>
-                    <div class="apex-card-foot">
-                        <span class="apex-muted" style="font-size:0.82rem;"><?php echo esc_html( $loc ?: 'Apex Arena' ); ?></span>
-                        <a href="<?php echo esc_url( get_permalink( $ann->ID ) ); ?>" style="color:var(--apex-text);font-weight:600;font-size:0.86rem;">İncele →</a>
-                    </div>
+                <div class="apex-pt-cell-head">
+                    <span class="apex-pt-rule" aria-hidden="true"></span>
+                    <h3 class="apex-pt-title" style="min-height:1.1em;"><?php echo esc_html( $pl['name'] ); ?></h3>
                 </div>
+                <div class="apex-pt-price-row">
+                    <span class="apex-pt-total"><?php echo esc_html( apex_format_tl( $pl['monthly_price'] ) ); ?></span>
+                    <span class="apex-pt-unit"><?php echo esc_html( apex_format_tl( $pl['annual_price'] ) ); ?> <em>/ yıllık ay</em></span>
+                </div>
+                <p class="apex-pt-days"><?php echo esc_html( $pl['summary'] ); ?></p>
+                <ul class="apex-pt-list">
+                    <?php foreach ( $pl['features'] as $f ) : ?>
+                        <li><?php echo esc_html( $f ); ?></li>
+                    <?php endforeach; ?>
+                </ul>
+                <a href="<?php echo esc_url( home_url( '/uyelik/?plan=' . $pl['slug'] . '#kayit' ) ); ?>" class="apex-pt-cta">
+                    <span>Üyeliği Başlat</span>
+                    <span class="apex-pt-cta-arrow" aria-hidden="true">↗</span>
+                </a>
             </article>
             <?php endforeach; ?>
         </div>
@@ -491,15 +481,59 @@ $hero_sub   = get_theme_mod( 'apex_hero_subtitle', 'İki FIBA basketbol salonu, 
 </section>
 <?php endif; ?>
 
+<?php if ( apex_cms_show( 'show_announcements' ) && ! empty( $anns ) ) : ?>
+<!-- 7. SALON DUYURULARI — MİMARİ EDİTORYAL BÜLTEN (v2.3.0) -->
+<section class="apex-section apex-section-alt" aria-labelledby="home-news-title">
+    <div class="apex-container">
+        <div class="apex-section-head">
+            <div>
+                <span class="apex-eyebrow"><?php echo esc_html( apex_cms( 'home_news_eyebrow' ) ); ?></span>
+                <h2 id="home-news-title" class="apex-h2"><?php echo esc_html( apex_cms( 'home_news_title' ) ); ?></h2>
+            </div>
+            <a href="<?php echo esc_url( home_url( '/duyurular/' ) ); ?>" class="apex-editorial-all-link">
+                <span>Tüm Duyurular</span>
+                <span class="apex-editorial-arrow" aria-hidden="true">↗</span>
+            </a>
+        </div>
+
+        <div class="apex-pt-ledger">
+            <?php foreach ( $anns as $a_idx => $ann ) :
+                $cat  = get_post_meta( $ann->ID, '_apex_ann_category', true ) ?: 'Duyuru';
+                $loc  = get_post_meta( $ann->ID, '_apex_ann_location', true );
+                $dt   = get_post_meta( $ann->ID, '_apex_ann_date', true ) ?: get_the_date( 'd.m.Y', $ann->ID );
+                $num  = str_pad( (string) ( $a_idx + 1 ), 2, '0', STR_PAD_LEFT );
+            ?>
+            <article class="apex-pt-cell">
+                <div class="apex-pt-cell-top">
+                    <span class="apex-pt-num"><?php echo esc_html( $num ); ?></span>
+                    <span class="apex-pt-meta"><?php echo esc_html( strtoupper( $cat ) ); ?> <i>/</i> <?php echo esc_html( $dt ); ?></span>
+                </div>
+                <div class="apex-pt-cell-head">
+                    <span class="apex-pt-rule" aria-hidden="true"></span>
+                    <h3 class="apex-pt-title" style="min-height:2.15em;"><?php echo esc_html( $ann->post_title ); ?></h3>
+                </div>
+                <p class="apex-pt-days" style="flex:1;margin-top:0;font-size:0.86rem;color:rgba(212,212,216,0.82);"><?php echo esc_html( wp_trim_words( $ann->post_excerpt ?: $ann->post_content, 24 ) ); ?></p>
+                <a href="<?php echo esc_url( get_permalink( $ann->ID ) ); ?>" class="apex-pt-cta">
+                    <span><?php echo esc_html( $loc ?: 'Apex Arena' ); ?> · İncele</span>
+                    <span class="apex-pt-cta-arrow" aria-hidden="true">↗</span>
+                </a>
+            </article>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
+<?php endif; ?>
+
+<?php if ( apex_cms_show( 'show_3d_arch' ) ) : ?>
 <!-- 8. İNTERAKTİF 3D MİMARİ KESİT SPOR KOMPLEKSİ (Three.js Dollhouse Cutaway · v2.2.0) -->
 <section class="apex-section" id="kat-plani" aria-labelledby="home-floorplan-title">
     <div class="apex-container">
         <div class="apex-section-head">
             <div>
-                <span class="apex-eyebrow">3D MİMARİ KESİT MAKETİ · 14.500 M² · GERÇEK ZAMANLI WEBGL</span>
-                <h2 id="home-floorplan-title" class="apex-h2">Kompleksi 3D Mimaride Keşfet</h2>
+                <span class="apex-eyebrow"><?php echo esc_html( apex_cms( 'home_arch_eyebrow' ) ); ?></span>
+                <h2 id="home-floorplan-title" class="apex-h2"><?php echo esc_html( apex_cms( 'home_arch_title' ) ); ?></h2>
             </div>
-            <p class="apex-muted" style="max-width:46ch;margin:0;">Farenizi 3D mimarideki herhangi bir salonun veya odanın üzerine getirin — kamera akıcı biçimde içeri yaklaşır. Tıklayarak odaya kilitlenebilir, sürükleyerek açıyı döndürebilirsiniz.</p>
+            <p class="apex-muted" style="max-width:46ch;margin:0;"><?php echo esc_html( apex_cms( 'home_arch_desc' ) ); ?></p>
         </div>
 
         <div class="apex-fp-layout apex-arch-layout">
@@ -546,7 +580,9 @@ $hero_sub   = get_theme_mod( 'apex_hero_subtitle', 'İki FIBA basketbol salonu, 
         </div>
     </div>
 </section>
+<?php endif; ?>
 
+<?php if ( apex_cms_show( 'show_reviews' ) ) : ?>
 <!-- 9. ÜYE PUANLAMA & CANLI DEĞERLENDİRMELER (v2.0.0) -->
 <?php
 global $wpdb;
@@ -558,8 +594,8 @@ $apex_rev_cnt = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}apex_
     <div class="apex-container">
         <div class="apex-section-head">
             <div>
-                <span class="apex-eyebrow">DOĞRULANMIŞ ÜYE DENEYİMLERİ</span>
-                <h2 id="home-reviews-title" class="apex-h2">Üyelerimiz Ne Diyor?</h2>
+                <span class="apex-eyebrow"><?php echo esc_html( apex_cms( 'home_rev_eyebrow' ) ); ?></span>
+                <h2 id="home-reviews-title" class="apex-h2"><?php echo esc_html( apex_cms( 'home_rev_title' ) ); ?></h2>
             </div>
             <div class="apex-rev-summary">
                 <strong class="apex-rev-score" id="apex-rev-avg"><?php echo esc_html( number_format( $apex_rev_avg, 1 ) ); ?></strong>
@@ -628,5 +664,6 @@ $apex_rev_cnt = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}apex_
         </div>
     </div>
 </section>
+<?php endif; ?>
 
 <?php get_footer(); ?>

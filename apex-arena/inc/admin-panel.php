@@ -69,6 +69,7 @@ add_action( 'admin_menu', function() {
     add_submenu_page( 'apex-arena-dashboard', 'PT Randevuları', 'PT Randevuları', 'manage_options', 'apex-pt-appointments', 'apex_admin_pt_appointments_page' );
     add_submenu_page( 'apex-arena-dashboard', 'Üyelik Başvuruları', 'Üyelikler & Mesajlar', 'manage_options', 'apex-memberships', 'apex_admin_memberships_page' );
     add_submenu_page( 'apex-arena-dashboard', 'Kafe Siparişleri & Yorumlar', 'Kafe & Yorumlar', 'manage_options', 'apex-cafe-reviews', 'apex_admin_cafe_reviews_page' );
+    add_submenu_page( 'apex-arena-dashboard', 'Site İçerik & Tasarım CMS', 'Site İçerik CMS', 'manage_options', 'apex-site-cms', 'apex_admin_site_cms_page' );
     add_submenu_page( 'apex-arena-dashboard', 'Gmail SMTP & Otomatik Hatırlatma Merkezi', 'E-posta & Hatırlatma', 'manage_options', 'apex-email-center', 'apex_admin_email_center_page' );
     add_submenu_page( 'apex-arena-dashboard', 'AI Chatbot & Tesis Ayarları', 'AI & Ayarlar', 'manage_options', 'apex-settings', 'apex_admin_settings_page' );
 } );
@@ -673,6 +674,7 @@ function apex_admin_dashboard_page() {
                 </div>
             </div>
             <div class="apex-ad-pills">
+                <a href="<?php echo esc_url( admin_url( 'admin.php?page=apex-site-cms' ) ); ?>" class="apex-ad-btn">🎨 Site İçerik CMS</a>
                 <a href="<?php echo esc_url( admin_url( 'admin.php?page=apex-email-center' ) ); ?>" class="apex-ad-btn">📧 E-posta &amp; Hatırlatma</a>
                 <a href="<?php echo esc_url( admin_url( 'admin.php?page=apex-coach-portal' ) ); ?>" class="apex-ad-btn apex-ad-btn-red">Koç Grafik Paneli →</a>
                 <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="apex-ad-btn" target="_blank">Canlı Siteyi Aç ↗</a>

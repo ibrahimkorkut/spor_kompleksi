@@ -10,18 +10,18 @@ get_header();
 $trainers = get_posts( [ 'post_type' => 'apex_trainer', 'numberposts' => 20, 'post_status' => 'publish', 'orderby' => 'menu_order', 'order' => 'ASC' ] );
 ?>
 
-<section class="apex-page-hero">
+<section class="apex-page-hero apex-editorial-hero">
     <div class="apex-container">
         <?php apex_breadcrumbs(); ?>
-        <span class="apex-eyebrow">UZMAN ANTRENÖR KADROSU · SERTİFİKALAR & CANLI TAKVİM</span>
-        <h1 class="apex-h1">ANTRENÖRLER VE ONLİNE TAKVİM</h1>
-        <p class="apex-lead">Her antrenörümüzün kimliğini, uzmanlık alanını, özgeçmişini, uluslararası sertifikalarını inceleyin ve canlı müsaitlik takviminden doğrudan randevu alın.</p>
+        <span class="apex-eyebrow"><?php echo esc_html( apex_cms( 'page_tr_eyebrow' ) ); ?></span>
+        <h1 class="apex-h1"><?php echo esc_html( apex_cms( 'page_tr_title' ) ); ?></h1>
+        <p class="apex-lead"><?php echo esc_html( apex_cms( 'page_tr_desc' ) ); ?></p>
     </div>
 </section>
 
 <section class="apex-section">
-    <div class="apex-container" style="display:grid;grid-template-columns:minmax(0,1fr);gap:36px;">
-        <?php foreach ( $trainers as $tr ) :
+    <div class="apex-container" style="display:grid;grid-template-columns:minmax(0,1fr);gap:28px;">
+        <?php foreach ( $trainers as $idx => $tr ) :
             $role   = get_post_meta( $tr->ID, '_apex_role', true );
             $spec   = get_post_meta( $tr->ID, '_apex_specialty', true );
             $exp    = get_post_meta( $tr->ID, '_apex_experience', true );
@@ -31,49 +31,73 @@ $trainers = get_posts( [ 'post_type' => 'apex_trainer', 'numberposts' => 20, 'po
             $photo  = apex_get_post_photo( $tr->ID, 'trainer-kerem.jpg' );
             $certs  = json_decode( (string) get_post_meta( $tr->ID, '_apex_certificates', true ), true ) ?: [];
             $sched  = json_decode( (string) get_post_meta( $tr->ID, '_apex_schedule', true ), true ) ?: [];
+            $num    = str_pad( (string) ( $idx + 1 ), 2, '0', STR_PAD_LEFT );
         ?>
-        <article class="apex-panel" id="trainer-<?php echo esc_attr( $tr->ID ); ?>">
+        <article class="apex-ed-dossier" id="trainer-<?php echo esc_attr( $tr->ID ); ?>">
             <div class="apex-split-profile">
-                <div>
-                    <div class="apex-card-media apex-card-media-portrait" style="border-radius:14px;overflow:hidden;border:1px solid var(--apex-border);">
-                        <img src="<?php echo esc_url( $photo ); ?>" alt="<?php echo esc_attr( $tr->post_title . ' - ' . $role ); ?>" loading="lazy">
-                        <span class="apex-card-badge">★ <?php echo esc_html( $rating ); ?> / 5.0 · <?php echo esc_html( $exp ); ?> YIL DENEYİM</span>
+                <div style="display:flex;flex-direction:column;gap:14px;">
+                    <div class="apex-coach-poster apex-dossier-poster">
+                        <div class="apex-coach-poster-media">
+                            <img src="<?php echo esc_url( $photo ); ?>" alt="<?php echo esc_attr( $tr->post_title . ' - ' . $role ); ?>" loading="lazy">
+                            <span class="apex-coach-poster-scrim" aria-hidden="true"></span>
+                        </div>
+                        <div class="apex-coach-poster-top">
+                            <span class="apex-coach-idx"><?php echo esc_html( $num ); ?></span>
+                            <span class="apex-coach-stat"><?php echo esc_html( $exp ); ?> YIL <i>/</i> <?php echo esc_html( $rating ); ?></span>
+                        </div>
+                        <div class="apex-coach-poster-body">
+                            <span class="apex-coach-rule" aria-hidden="true"></span>
+                            <span class="apex-coach-role"><?php echo esc_html( $role ); ?></span>
+                            <h2 class="apex-coach-name"><?php echo esc_html( $tr->post_title ); ?></h2>
+                        </div>
                     </div>
-                    <div style="margin-top:16px;display:grid;gap:10px;">
-                        <a href="<?php echo esc_url( get_permalink( $tr->ID ) ); ?>" class="apex-btn apex-btn-primary apex-btn-block">DETAYLI PROFİL & CANLI TAKVİM</a>
-                        <a href="<?php echo esc_url( home_url( '/pt-egitmenler/?trainer=' . $tr->ID . '#randevu' ) ); ?>" class="apex-btn apex-btn-outline apex-btn-block">HEMEN PT RANDEVUSU AL</a>
+                    <div style="display:grid;gap:8px;">
+                        <a href="<?php echo esc_url( home_url( '/pt-egitmenler/?trainer=' . $tr->ID . '#randevu' ) ); ?>" class="apex-pt-cta apex-ed-cta-fill">
+                            <span>Hemen PT Randevusu Al</span>
+                            <span class="apex-pt-cta-arrow" aria-hidden="true">↗</span>
+                        </a>
+                        <a href="<?php echo esc_url( get_permalink( $tr->ID ) ); ?>" class="apex-pt-cta" style="padding:12px 14px;border:1px solid rgba(255,255,255,0.12);border-radius:4px;">
+                            <span>Detaylı Profil &amp; Canlı Takvim</span>
+                            <span class="apex-pt-cta-arrow" aria-hidden="true">↗</span>
+                        </a>
                     </div>
                 </div>
 
-                <div style="display:grid;grid-template-columns:minmax(0,1fr);gap:18px;min-width:0;">
-                    <div>
-                        <span class="apex-eyebrow" style="margin:0;"><?php echo esc_html( $role ); ?></span>
-                        <h2 class="apex-h2" style="margin-top:4px;"><?php echo esc_html( $tr->post_title ); ?></h2>
-                        <div class="apex-tags" style="margin-top:10px;">
-                            <span class="apex-tag apex-tag-volt">🎯 Uzmanlık: <?php echo esc_html( $spec ); ?></span>
-                            <span class="apex-tag">🎓 <?php echo esc_html( $edu ); ?></span>
-                            <span class="apex-tag">💳 Tek Seans: <?php echo esc_html( apex_format_tl( $fee ) ); ?></span>
+                <div style="display:grid;grid-template-columns:minmax(0,1fr);gap:22px;min-width:0;align-content:start;">
+                    <div class="apex-ed-meta-strip">
+                        <div>
+                            <span>UZMANLIK</span>
+                            <strong><?php echo esc_html( $spec ); ?></strong>
+                        </div>
+                        <div>
+                            <span>EĞİTİM</span>
+                            <strong><?php echo esc_html( $edu ); ?></strong>
+                        </div>
+                        <div>
+                            <span>TEK SEANS</span>
+                            <strong style="color:var(--apex-crimson);"><?php echo esc_html( apex_format_tl( $fee ) ); ?></strong>
                         </div>
                     </div>
 
                     <div>
-                        <h3 class="apex-h4" style="color:var(--apex-volt);margin-bottom:6px;">ÖZGEÇMİŞ (CV)</h3>
-                        <p class="apex-muted" style="margin:0;"><?php echo esc_html( wp_strip_all_tags( $tr->post_content ) ); ?></p>
+                        <span class="apex-ed-subhead">ÖZGEÇMİŞ &amp; KOÇLUK YAKLAŞIMI</span>
+                        <p class="apex-muted" style="margin:8px 0 0;line-height:1.65;"><?php echo esc_html( wp_strip_all_tags( $tr->post_content ) ); ?></p>
                     </div>
 
                     <!-- Sertifikalar ve Belgeler -->
                     <div>
-                        <h3 class="apex-h4" style="color:var(--apex-volt);margin-bottom:10px;">SERTİFİKA VE BELGELER (İncelemek için tıklayın)</h3>
-                        <div style="display:flex;flex-wrap:wrap;gap:10px;">
+                        <span class="apex-ed-subhead">DOĞRULANMIŞ SERTİFİKA VE BELGELER (İncelemek için tıklayın)</span>
+                        <div class="apex-ed-cert-list">
                             <?php foreach ( $certs as $cert ) : ?>
-                                <button type="button" class="apex-btn apex-btn-ghost apex-btn-sm"
+                                <button type="button" class="apex-ed-cert-btn"
                                     data-cert-modal
                                     data-cert-trainer="<?php echo esc_attr( $tr->post_title ); ?>"
                                     data-cert-name="<?php echo esc_attr( $cert['name'] ?? '' ); ?>"
                                     data-cert-issuer="<?php echo esc_attr( $cert['issuer'] ?? '' ); ?>"
                                     data-cert-year="<?php echo esc_attr( $cert['year'] ?? '' ); ?>"
                                     data-cert-code="<?php echo esc_attr( $cert['code'] ?? '' ); ?>">
-                                    🏅 <?php echo esc_html( $cert['name'] ?? '' ); ?> (<?php echo esc_html( $cert['year'] ?? '' ); ?>)
+                                    <span><?php echo esc_html( $cert['name'] ?? '' ); ?></span>
+                                    <em><?php echo esc_html( $cert['year'] ?? '' ); ?> ↗</em>
                                 </button>
                             <?php endforeach; ?>
                         </div>
@@ -81,8 +105,8 @@ $trainers = get_posts( [ 'post_type' => 'apex_trainer', 'numberposts' => 20, 'po
 
                     <!-- Haftalık Online Müsaitlik Takvimi Önizleme -->
                     <div>
-                        <h3 class="apex-h4" style="color:var(--apex-volt);margin-bottom:10px;">ONLİNE MÜSAİTLİK TAKVİMİ (HAFTALIK)</h3>
-                        <div class="apex-table-wrap">
+                        <span class="apex-ed-subhead">ONLİNE MÜSAİTLİK TAKVİMİ (HAFTALIK)</span>
+                        <div class="apex-table-wrap" style="margin-top:10px;">
                             <table class="apex-table" style="min-width:520px;">
                                 <thead>
                                     <tr>
@@ -100,7 +124,7 @@ $trainers = get_posts( [ 'post_type' => 'apex_trainer', 'numberposts' => 20, 'po
                                                 <?php else : ?>
                                                     <div style="display:grid;gap:6px;">
                                                         <?php foreach ( $slots as $sl ) : ?>
-                                                            <a href="<?php echo esc_url( home_url( '/pt-egitmenler/?trainer=' . $tr->ID . '#randevu' ) ); ?>" class="apex-tag apex-tag-volt" style="text-align:center;"><?php echo esc_html( $sl ); ?></a>
+                                                            <a href="<?php echo esc_url( home_url( '/pt-egitmenler/?trainer=' . $tr->ID . '#randevu' ) ); ?>" class="apex-ed-slot-link"><?php echo esc_html( $sl ); ?></a>
                                                         <?php endforeach; ?>
                                                     </div>
                                                 <?php endif; ?>

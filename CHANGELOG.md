@@ -1,5 +1,14 @@
 # Changelog — APEX ARENA WordPress Theme
 
+## [2.3.0] — 2026-11-25
+- **Tam Kapsamlı Admin CMS Stüdyosu (`inc/site-cms.php`, `WP Admin → APEX ARENA → Site İçerik CMS`):** Yöneticilerin sitenin her bir parçasını kod yazmadan tek panelden düzenleyebilmesi için 5 sekmeli Obsidian Neon CMS Stüdyosu eklendi:
+  - **1. Marka, Renk & Menü:** Logo metinleri, canlı tema vurgu rengi seçici (`--apex-crimson`), 7 üst menü etiketi, giriş/kayıt buton adları, iletişim bilgileri, Google Harita konumu, WhatsApp numarası & hazır mesajı (yüzen buton + `/iletisim/` senkron), Pre-Footer ve Footer metinleri.
+  - **2. Ana Sayfa & Bölümler:** Ana sayfadaki tüm 10 bölüm için anlık Göster/Gizle anahtarları, Hero başlık/alt metin/CTA'lar, 4 KPI göstergesi, 3D Monolit tipografisi ve tüm bölüm başlıkları.
+  - **3. Üyelik Paketleri (`apex_cms_plans`):** Classic, Pro ve Elite paketlerinin adları, rozetleri, aylık/yıllık fiyatları, öne çıkan paket seçimi ve madde listeleri (`apex_get_membership_plans()` üzerinden ön yüz + kayıt API senkron).
+  - **4. Tesis & Protein Kafe Menüsü (`apex_cms_cafe_menu`):** Soyunma odası, otopark ve kafe metinleri ile Protein Kafe ürün ekleme/düzenleme/silme (ad, kategori, kalori, protein, fiyat).
+  - **5. 7 İç Sayfa Hero & İçerik Kısayolları:** Tüm 7 navigasyon sayfasının üst başlık/açıklama metinleri ve Salonlar, Antrenörler, PT Paketleri, Duyurular CPT yönetim kısayolları + tek tıkla Fabrika Varsayılanlarına Sıfırla.
+- **Tüm 7 İç Sayfada Bütünleşik Mimari Editoryal Tasarım (`page-*.php`, `front-page.php`, `assets/css/main.css`):** `PT Eğitmenler`, `Antrenörler`, `Salon Kiralama`, `Tesis`, `Üyelik`, `Duyurular` ve `İletişim` sayfaları ile ana sayfadaki Üyelik/Duyurular bölümleri klasik kutu kart görünümünden çıkarılarak kırmızı sol şeritli editoryal hero, `1px` ince ayırıcılı İsviçre tablo ızgaraları (`.apex-pt-ledger`, `.apex-ed-split-2`), tam çerçeve salon/antrenör posterleri ve alt çizgili filtre sekmeleriyle bütünleşik mimari tasarım diline kavuşturuldu.
+
 ## [2.2.4] — 2026-11-25
 - **Mimari Editoryal Maç Salonları Galerisi (`front-page.php`, `assets/css/main.css`, `assets/images/court-basketball-2.jpg`):** Ana sayfadaki "Profesyonel Maç Salonları" bölümü klasik kutu kartlar, rozet hapları ve etiket yığınlarından çıkarılarak tam çerçeve (full-bleed) 3'lü editoryal poster galerisine dönüştürüldü; `01`–`03` indeksleri, genişleyen kırmızı çizgi, saatlik ücret & `Rezerve Et ↗` alt satırı ve Basketbol 2 için yeni koyu mimari ahşap parkeli salon fotoğrafı eklendi.
 

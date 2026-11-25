@@ -15,36 +15,44 @@ $pre_tr   = absint( $_GET['trainer'] ?? ( $trainers[0]->ID ?? 0 ) );
 $cu       = is_user_logged_in() ? wp_get_current_user() : null;
 ?>
 
-<section class="apex-page-hero">
+<section class="apex-page-hero apex-editorial-hero">
     <div class="apex-container">
         <?php apex_breadcrumbs(); ?>
-        <span class="apex-eyebrow">PT EĞİTMENLER · BİREYSEL & GRUPSAL ANTRENMAN SİSTEMİ</span>
-        <h1 class="apex-h1">KİŞİSEL ANTRENMAN & GRUP PROGRAMLARI</h1>
-        <p class="apex-lead">Bilimsel ölçüm (InBody 570), kişiye özel dönemleme, yüksek enerjili küçük grup dersleri, şeffaf seans ücretleri ve anlık online randevu sistemi.</p>
+        <span class="apex-eyebrow"><?php echo esc_html( apex_cms( 'page_pt_eyebrow' ) ); ?></span>
+        <h1 class="apex-h1"><?php echo esc_html( apex_cms( 'page_pt_title' ) ); ?></h1>
+        <p class="apex-lead"><?php echo esc_html( apex_cms( 'page_pt_desc' ) ); ?></p>
     </div>
 </section>
 
-<!-- 1. Bireysel vs Grupsal Antrenman Özeti -->
+<!-- 1. Bireysel vs Grupsal Antrenman Özeti (İsviçre Tipi İnce Çizgili 2 Sütun) -->
 <section class="apex-section" id="bireysel">
     <div class="apex-container">
-        <div class="apex-grid-2">
-            <div class="apex-panel" style="border-top:4px solid var(--apex-crimson);">
-                <span class="apex-eyebrow">1-ON-1 KİŞİYE ÖZEL KOÇLUK</span>
-                <h2 class="apex-h2">BİREYSEL ANTRENMAN</h2>
-                <p class="apex-lead">Sadece senin biyomekaniğine, hedeflerine ve haftalık takvimine göre tasarlanan birebir özel PT seansları.</p>
-                <ul class="apex-checklist" style="margin-top:18px;">
-                    <li>Başlangıçta InBody 570 vücut analizi & postür değerlendirmesi</li>
+        <div class="apex-ed-split-2">
+            <div class="apex-ed-cell is-featured">
+                <div class="apex-pt-cell-top">
+                    <span class="apex-pt-num">01</span>
+                    <span class="apex-pt-meta">1-ON-1 KİŞİYE ÖZEL KOÇLUK</span>
+                </div>
+                <span class="apex-pt-rule" aria-hidden="true"></span>
+                <h2 class="apex-pt-title" style="min-height:auto;font-size:clamp(1.9rem,2.6vw,2.4rem);">BİREYSEL ANTRENMAN</h2>
+                <p class="apex-pt-days" style="font-size:0.9rem;color:rgba(212,212,216,0.82);">Sadece senin biyomekaniğine, hedeflerine ve haftalık takvimine göre tasarlanan birebir özel PT seansları.</p>
+                <ul class="apex-pt-list" style="margin-bottom:0;">
+                    <li>Başlangıçta InBody 570 vücut analizi &amp; postür değerlendirmesi</li>
                     <li>Kişiye özel hipertrofi, yağ yakımı, atletik performans veya rehabilitasyon planı</li>
                     <li>Esnek saat seçimi (08:00 – 22:00 arası antrenör canlı takviminden)</li>
-                    <li>Makro & beslenme rehberliği + 4 haftada bir ilerleme raporu</li>
+                    <li>Makro &amp; beslenme rehberliği + 4 haftada bir ilerleme raporu</li>
                 </ul>
             </div>
 
-            <div class="apex-panel" id="grupsal" style="border-top:4px solid var(--apex-volt);">
-                <span class="apex-eyebrow apex-eyebrow-volt">MAKSİMUM 8 KİŞİLİK YÜKSEK ENERJİ</span>
-                <h2 class="apex-h2">GRUPSAL ANTRENMAN</h2>
-                <p class="apex-lead">Takım motivasyonuyla sınırları zorlayan, butik kontenjanlı (6–8 kişi) HIIT, Fonksiyonel Kuvvet, Reformer Pilates ve Basketbol/Voleybol Kondisyon dersleri.</p>
-                <ul class="apex-checklist" style="margin-top:18px;">
+            <div class="apex-ed-cell" id="grupsal">
+                <div class="apex-pt-cell-top">
+                    <span class="apex-pt-num">02</span>
+                    <span class="apex-pt-meta">MAKSİMUM 8 KİŞİLİK BUTİK GRUP</span>
+                </div>
+                <span class="apex-pt-rule" aria-hidden="true"></span>
+                <h2 class="apex-pt-title" style="min-height:auto;font-size:clamp(1.9rem,2.6vw,2.4rem);">GRUPSAL ANTRENMAN</h2>
+                <p class="apex-pt-days" style="font-size:0.9rem;color:rgba(212,212,216,0.82);">Takım motivasyonuyla sınırları zorlayan, butik kontenjanlı (6–8 kişi) HIIT, Fonksiyonel Kuvvet, Reformer Pilates ve Basketbol/Voleybol Kondisyon dersleri.</p>
+                <ul class="apex-pt-list" style="margin-bottom:0;">
                     <li>Ekonomik seans başı ücretle profesyonel PT gözetimi</li>
                     <li>Sabit haftalık eğitim günleri ile sürdürülebilir disiplin</li>
                     <li>Seviyeye göre (Başlangıç / Orta / İleri) ölçeklenebilir ağırlık ve tempo</li>
@@ -55,23 +63,23 @@ $cu       = is_user_logged_in() ? wp_get_current_user() : null;
     </div>
 </section>
 
-<!-- 2. PT Paketleri, Seans Ücretleri, Eğitim Detayları & Kapsamı -->
+<!-- 2. PT Paketleri, Seans Ücretleri, Eğitim Detayları & Kapsamı (İsviçre Tipi Mimari Tablo) -->
 <section class="apex-section apex-section-alt" id="paketler" aria-labelledby="pt-packages-h">
     <div class="apex-container">
         <div class="apex-section-head">
             <div>
-                <span class="apex-eyebrow apex-eyebrow-volt">ŞEFFAF FİYATLANDIRMA · KAPSAMLARI VE GÜNLERİ</span>
-                <h2 id="pt-packages-h" class="apex-h2">PT PAKETLERİ VE SEANS ÜCRETLERİ</h2>
+                <span class="apex-eyebrow">ŞEFFAF FİYATLANDIRMA · KAPSAMLARI VE GÜNLERİ</span>
+                <h2 id="pt-packages-h" class="apex-h2">PT Paketleri ve Seans Ücretleri</h2>
             </div>
-            <div class="apex-tabs" role="tablist" aria-label="PT paket türü filtresi">
-                <button type="button" class="apex-tab-btn is-active" data-filter-group="pt-all" data-filter="all" role="tab" aria-selected="true">TÜM PAKETLER</button>
-                <button type="button" class="apex-tab-btn" data-filter-group="pt-all" data-filter="bireysel" role="tab" aria-selected="false">BİREYSEL PT</button>
-                <button type="button" class="apex-tab-btn" data-filter-group="pt-all" data-filter="grupsal" role="tab" aria-selected="false">GRUPSAL ANTRENMAN</button>
+            <div class="apex-pt-filter-bar" role="tablist" aria-label="PT paket türü filtresi">
+                <button type="button" class="apex-pt-tab is-active" data-filter-group="pt-all" data-filter="all" role="tab" aria-selected="true">Tümü</button>
+                <button type="button" class="apex-pt-tab" data-filter-group="pt-all" data-filter="bireysel" role="tab" aria-selected="false">Bireysel PT</button>
+                <button type="button" class="apex-pt-tab" data-filter-group="pt-all" data-filter="grupsal" role="tab" aria-selected="false">Grupsal</button>
             </div>
         </div>
 
-        <div class="apex-grid-3" data-filter-container="pt-all">
-            <?php foreach ( $packages as $pkg ) :
+        <div class="apex-pt-ledger" data-filter-container="pt-all">
+            <?php foreach ( $packages as $idx => $pkg ) :
                 $type  = get_post_meta( $pkg->ID, '_apex_training_type', true ) ?: 'bireysel';
                 $sess  = get_post_meta( $pkg->ID, '_apex_sessions', true );
                 $per   = (int) get_post_meta( $pkg->ID, '_apex_per_session_fee', true );
@@ -81,32 +89,34 @@ $cu       = is_user_logged_in() ? wp_get_current_user() : null;
                 $level = get_post_meta( $pkg->ID, '_apex_level', true );
                 $scope = array_filter( array_map( 'trim', explode( "\n", (string) get_post_meta( $pkg->ID, '_apex_scope', true ) ) ) );
                 $feat  = get_post_meta( $pkg->ID, '_apex_featured', true ) === '1';
+                $num   = str_pad( (string) ( $idx + 1 ), 2, '0', STR_PAD_LEFT );
             ?>
-            <article class="apex-card <?php echo $feat ? 'apex-card-featured' : ''; ?>" data-filter-item="<?php echo esc_attr( $type ); ?>">
-                <div class="apex-card-body">
-                    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
-                        <span class="apex-eyebrow <?php echo $type === 'grupsal' ? 'apex-eyebrow-volt' : ''; ?>" style="margin:0;">
-                            <?php echo $type === 'grupsal' ? 'GRUPSAL' : 'BİREYSEL'; ?> · <?php echo esc_html( $sess ); ?> SEANS · <?php echo esc_html( $dur ); ?> DK
-                        </span>
-                        <?php if ( $feat ) : ?><span class="apex-mini-badge">EN ÇOK TERCİH EDİLEN</span><?php endif; ?>
-                    </div>
-                    <h3 class="apex-h3"><?php echo esc_html( $pkg->post_title ); ?></h3>
-                    <div class="apex-price"><?php echo esc_html( apex_format_tl( $total ) ); ?> <small>· Seans başı <?php echo esc_html( apex_format_tl( $per ) ); ?></small></div>
-                    <p class="apex-muted" style="margin:0;font-size:0.9rem;"><?php echo esc_html( $pkg->post_excerpt ?: wp_trim_words( $pkg->post_content, 24 ) ); ?></p>
-                    <div class="apex-tags">
-                        <span class="apex-tag">📅 <?php echo esc_html( $days ); ?></span>
-                        <span class="apex-tag">🎯 <?php echo esc_html( $level ); ?></span>
-                    </div>
-                    <strong style="font-size:0.84rem;color:var(--apex-volt);text-transform:uppercase;letter-spacing:0.06em;">Eğitim Kapsamı & İçeriği:</strong>
-                    <ul class="apex-checklist">
-                        <?php foreach ( $scope as $line ) : ?>
-                            <li><?php echo esc_html( $line ); ?></li>
-                        <?php endforeach; ?>
-                    </ul>
-                    <div class="apex-card-foot">
-                        <button type="button" class="apex-btn <?php echo $feat ? 'apex-btn-primary' : 'apex-btn-outline'; ?> apex-btn-block" data-select-pt-package="<?php echo esc_attr( $pkg->ID ); ?>" data-pt-type="<?php echo esc_attr( $type ); ?>">BU PAKETLE RANDEVU AL</button>
-                    </div>
+            <article class="apex-pt-cell <?php echo $feat ? 'is-featured' : ''; ?>" data-filter-item="<?php echo esc_attr( $type ); ?>">
+                <div class="apex-pt-cell-top">
+                    <span class="apex-pt-num"><?php echo esc_html( $num ); ?></span>
+                    <span class="apex-pt-meta">
+                        <?php echo $type === 'grupsal' ? 'GRUPSAL' : 'BİREYSEL PT'; ?> <i>/</i> <?php echo esc_html( $sess ); ?> SEANS · <?php echo esc_html( $dur ); ?> DK
+                    </span>
+                    <?php if ( $feat ) : ?><span class="apex-pt-pick"><i aria-hidden="true"></i>Önerilen</span><?php endif; ?>
                 </div>
+                <div class="apex-pt-cell-head">
+                    <span class="apex-pt-rule" aria-hidden="true"></span>
+                    <h3 class="apex-pt-title"><?php echo esc_html( $pkg->post_title ); ?></h3>
+                </div>
+                <div class="apex-pt-price-row">
+                    <span class="apex-pt-total"><?php echo esc_html( apex_format_tl( $total ) ); ?></span>
+                    <span class="apex-pt-unit"><?php echo esc_html( apex_format_tl( $per ) ); ?> <em>/ seans</em></span>
+                </div>
+                <p class="apex-pt-days"><?php echo esc_html( $days . ( $level ? ' · ' . $level : '' ) ); ?></p>
+                <ul class="apex-pt-list">
+                    <?php foreach ( $scope as $line ) : ?>
+                        <li><?php echo esc_html( $line ); ?></li>
+                    <?php endforeach; ?>
+                </ul>
+                <button type="button" class="apex-pt-cta apex-pt-cta-btn" data-select-pt-package="<?php echo esc_attr( $pkg->ID ); ?>" data-pt-type="<?php echo esc_attr( $type ); ?>">
+                    <span>Bu Paketle Randevu Al</span>
+                    <span class="apex-pt-cta-arrow" aria-hidden="true">↗</span>
+                </button>
             </article>
             <?php endforeach; ?>
         </div>
