@@ -262,40 +262,52 @@ $hero_sub   = get_theme_mod( 'apex_hero_subtitle', 'İki FIBA basketbol salonu, 
     </div>
 </section>
 
-<!-- 4. ANTRENÖRLER -->
-<section class="apex-section" aria-labelledby="home-trainers-title">
+<!-- 4. ANTRENÖRLER — EDİTORYAL PORTRE GALERİSİ (v2.2.1) -->
+<section class="apex-section apex-coaches-section" aria-labelledby="home-trainers-title">
     <div class="apex-container">
-        <div class="apex-section-head">
+        <div class="apex-section-head apex-coaches-head">
             <div>
                 <span class="apex-eyebrow">Uzman Kadro · Sertifika &amp; Online Takvim</span>
                 <h2 id="home-trainers-title" class="apex-h2">Antrenörlerimizle Tanış</h2>
                 <p class="apex-lead">Her eğitmenimizin özgeçmişini, uluslararası sertifikalarını inceleyin ve canlı online takviminden doğrudan randevu alın.</p>
             </div>
-            <a href="<?php echo esc_url( home_url( '/antrenorler/' ) ); ?>" class="apex-btn apex-btn-outline apex-btn-sm">Tüm Kadro →</a>
+            <a href="<?php echo esc_url( home_url( '/antrenorler/' ) ); ?>" class="apex-editorial-all-link">
+                <span>Tüm Kadroyu Gör</span>
+                <span class="apex-editorial-arrow" aria-hidden="true">↗</span>
+            </a>
         </div>
 
-        <div class="apex-grid-4">
-            <?php foreach ( $trainers as $tr ) :
+        <div class="apex-coach-gallery">
+            <?php foreach ( $trainers as $idx => $tr ) :
                 $role  = get_post_meta( $tr->ID, '_apex_role', true );
                 $spec  = get_post_meta( $tr->ID, '_apex_specialty', true );
                 $exp   = get_post_meta( $tr->ID, '_apex_experience', true );
                 $rate  = get_post_meta( $tr->ID, '_apex_rating', true ) ?: '4.9';
                 $photo = apex_get_post_photo( $tr->ID, 'trainer-kerem.jpg' );
+                $num   = str_pad( (string) ( $idx + 1 ), 2, '0', STR_PAD_LEFT );
             ?>
-            <article class="apex-card">
-                <div class="apex-card-media apex-card-media-portrait">
+            <a href="<?php echo esc_url( get_permalink( $tr->ID ) ); ?>" class="apex-coach-poster">
+                <div class="apex-coach-poster-media">
                     <img src="<?php echo esc_url( $photo ); ?>" alt="<?php echo esc_attr( $tr->post_title . ' - ' . $role ); ?>" loading="lazy">
-                    <span class="apex-card-badge">★ <?php echo esc_html( $rate ); ?> · <?php echo esc_html( $exp ); ?> Yıl</span>
+                    <span class="apex-coach-poster-scrim" aria-hidden="true"></span>
                 </div>
-                <div class="apex-card-body">
-                    <span class="apex-eyebrow" style="margin:0;font-size:0.72rem;"><?php echo esc_html( $role ); ?></span>
-                    <h3 class="apex-h3"><?php echo esc_html( $tr->post_title ); ?></h3>
-                    <p class="apex-muted" style="margin:0;font-size:0.86rem;"><?php echo esc_html( $spec ); ?></p>
-                    <div class="apex-card-foot">
-                        <a href="<?php echo esc_url( get_permalink( $tr->ID ) ); ?>" class="apex-btn apex-btn-outline apex-btn-sm apex-btn-block">Profil ve Takvim</a>
-                    </div>
+
+                <div class="apex-coach-poster-top">
+                    <span class="apex-coach-idx"><?php echo esc_html( $num ); ?></span>
+                    <span class="apex-coach-stat"><?php echo esc_html( $exp ); ?> YIL <i>/</i> <?php echo esc_html( $rate ); ?></span>
                 </div>
-            </article>
+
+                <div class="apex-coach-poster-body">
+                    <span class="apex-coach-rule" aria-hidden="true"></span>
+                    <span class="apex-coach-role"><?php echo esc_html( $role ); ?></span>
+                    <h3 class="apex-coach-name"><?php echo esc_html( $tr->post_title ); ?></h3>
+                    <p class="apex-coach-spec"><?php echo esc_html( $spec ); ?></p>
+                    <span class="apex-coach-link">
+                        <span>Profil &amp; Takvim</span>
+                        <span class="apex-coach-link-arrow" aria-hidden="true">↗</span>
+                    </span>
+                </div>
+            </a>
             <?php endforeach; ?>
         </div>
     </div>

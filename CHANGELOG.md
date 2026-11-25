@@ -1,5 +1,8 @@
 # Changelog — APEX ARENA WordPress Theme
 
+## [2.2.1] — 2026-11-25
+- **Editoryal Antrenör Portre Galerisi (`front-page.php`, `assets/css/main.css`, `assets/images/trainer-mert.jpg`):** Ana sayfadaki "Antrenörlerimizle Tanış" bölümü klasik şablon kutu kartlarından çıkarılarak asimetrik dergi/lookbook ritmine sahip tam çerçeve (full-bleed) editoryal portre galerisine dönüştürüldü; üst indeks numaraları (`01`–`04`), hover ile renklenen sinematik film tonlaması, genişleyen kırmızı editoryal çizgi, `Profil & Takvim ↗` alt bağlantısı ve Mert Demir için voleybol salonunda doğal 35mm portre fotoğrafı eklendi.
+
 ## [2.2.0] — 2026-11-25
 - **İnteraktif 3D Mimari Kesit Spor Kompleksi (`assets/js/complex-3d.js`, `front-page.php`):** Ana sayfadaki `#kat-plani` bölümü, sıfır CDN (yerel Three.js WebGL) ile çalışan tam izometrik **3D Mimari Kesit (Dollhouse Cutaway)** spor kompleksi maketine yükseltildi:
   - **6 Detaylı 3D Oda & Alan:** FIBA akçaağaç parkeli Basketbol 1 (çift 3D pota, cam panya, canlı `84 : 79` LED skorboard), CEV Taraflex Voleybol Pro (3D file, hakem kürsüsü, top arabası), traverten merkez lobi (heykelsi 3D sarmal merdiven, QR turnikeler, EV şarjlı araç bölmesi), PT & Kuvvet Stüdyosu (çift olimpik power squat rack, yeşil sprint turf pisti, koşu bantları, dambıl rafı), RFID Soyunma + Cam Yağmur Duş + 85°C Sedir Fin Saunası (sıcak amber ışık & yanan sauna taşları) ve Apex Protein Kafe & Lounge (mermer barista barı, tabureler, ahşap masalar, iç mekan bitkileri).
