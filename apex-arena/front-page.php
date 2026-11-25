@@ -166,45 +166,56 @@ $hero_sub   = get_theme_mod( 'apex_hero_subtitle', 'İki FIBA basketbol salonu, 
     </div>
 </section>
 
-<!-- 3. SALON VE KİRALAMA -->
-<section class="apex-section" aria-labelledby="home-courts-title">
+<!-- 3. SALON VE KİRALAMA — MİMARİ EDİTORYAL SALON GALERİSİ (v2.2.4) -->
+<section class="apex-section apex-courts-section" aria-labelledby="home-courts-title">
     <div class="apex-container">
         <div class="apex-section-head">
             <div>
-                <span class="apex-eyebrow">Salon ve Kiralama</span>
+                <span class="apex-eyebrow">Salon ve Kiralama · FIBA &amp; CEV</span>
                 <h2 id="home-courts-title" class="apex-h2">Profesyonel Maç Salonları</h2>
                 <p class="apex-lead">FIBA standartlarında 2 basketbol ve CEV standartlarında 1 voleybol salonumuzu canlı saat seçimi ve lisanslı hakem opsiyonuyla rezerve edin.</p>
             </div>
-            <a href="<?php echo esc_url( home_url( '/salon-kiralama/' ) ); ?>" class="apex-btn apex-btn-outline apex-btn-sm">Tüm Salonlar →</a>
+            <a href="<?php echo esc_url( home_url( '/salon-kiralama/' ) ); ?>" class="apex-editorial-all-link">
+                <span>Tüm Salonlar</span>
+                <span class="apex-editorial-arrow" aria-hidden="true">↗</span>
+            </a>
         </div>
 
-        <div class="apex-grid-3">
-            <?php foreach ( $courts as $court ) :
+        <div class="apex-court-gallery">
+            <?php foreach ( $courts as $idx => $court ) :
                 $sport = get_post_meta( $court->ID, '_apex_sport', true );
                 $dim   = get_post_meta( $court->ID, '_apex_dimensions', true );
                 $surf  = get_post_meta( $court->ID, '_apex_surface', true );
                 $rate  = (int) get_post_meta( $court->ID, '_apex_hourly_rate', true );
                 $ref   = (int) get_post_meta( $court->ID, '_apex_referee_fee', true );
                 $photo = apex_get_post_photo( $court->ID, 'court-basketball-1.jpg' );
+                $num   = str_pad( (string) ( $idx + 1 ), 2, '0', STR_PAD_LEFT );
             ?>
-            <article class="apex-card">
-                <div class="apex-card-media">
+            <a href="<?php echo esc_url( home_url( '/salon-kiralama/?court=' . $court->ID . '#rezervasyon' ) ); ?>" class="apex-court-poster">
+                <div class="apex-court-media">
                     <img src="<?php echo esc_url( $photo ); ?>" alt="<?php echo esc_attr( $court->post_title . ' - ' . $surf ); ?>" loading="lazy">
-                    <span class="apex-card-badge"><?php echo esc_html( ucfirst( $sport ) . ' · ' . $dim ); ?></span>
+                    <span class="apex-court-scrim" aria-hidden="true"></span>
                 </div>
-                <div class="apex-card-body">
-                    <h3 class="apex-h3"><?php echo esc_html( $court->post_title ); ?></h3>
-                    <p class="apex-muted" style="margin:0;font-size:0.9rem;"><?php echo esc_html( wp_trim_words( $court->post_excerpt ?: $court->post_content, 19 ) ); ?></p>
-                    <div class="apex-tags">
-                        <span class="apex-tag"><?php echo esc_html( $surf ); ?></span>
-                        <span class="apex-tag apex-tag-volt">Hakem Opsiyonu +<?php echo esc_html( apex_format_tl( $ref ) ); ?></span>
-                    </div>
-                    <div class="apex-card-foot">
-                        <div class="apex-price"><?php echo esc_html( apex_format_tl( $rate ) ); ?> <small>/ saat</small></div>
-                        <a href="<?php echo esc_url( home_url( '/salon-kiralama/?court=' . $court->ID . '#rezervasyon' ) ); ?>" class="apex-btn apex-btn-outline apex-btn-sm">Rezerve Et</a>
+
+                <div class="apex-court-top">
+                    <span class="apex-coach-idx"><?php echo esc_html( $num ); ?></span>
+                    <span class="apex-coach-stat"><?php echo esc_html( strtoupper( $sport ) ); ?> <i>/</i> <?php echo esc_html( $dim ); ?></span>
+                </div>
+
+                <div class="apex-court-body">
+                    <span class="apex-coach-rule" aria-hidden="true"></span>
+                    <span class="apex-coach-role"><?php echo esc_html( $surf ); ?> · HAKEM +<?php echo esc_html( apex_format_tl( $ref ) ); ?></span>
+                    <h3 class="apex-court-title"><?php echo esc_html( $court->post_title ); ?></h3>
+                    <p class="apex-court-desc"><?php echo esc_html( wp_trim_words( $court->post_excerpt ?: $court->post_content, 18 ) ); ?></p>
+                    <div class="apex-court-foot">
+                        <span class="apex-court-rate"><?php echo esc_html( apex_format_tl( $rate ) ); ?> <em>/ saat</em></span>
+                        <span class="apex-court-action">
+                            <span>Rezerve Et</span>
+                            <span class="apex-coach-link-arrow" aria-hidden="true">↗</span>
+                        </span>
                     </div>
                 </div>
-            </article>
+            </a>
             <?php endforeach; ?>
         </div>
     </div>

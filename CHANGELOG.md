@@ -1,5 +1,8 @@
 # Changelog — APEX ARENA WordPress Theme
 
+## [2.2.4] — 2026-11-25
+- **Mimari Editoryal Maç Salonları Galerisi (`front-page.php`, `assets/css/main.css`, `assets/images/court-basketball-2.jpg`):** Ana sayfadaki "Profesyonel Maç Salonları" bölümü klasik kutu kartlar, rozet hapları ve etiket yığınlarından çıkarılarak tam çerçeve (full-bleed) 3'lü editoryal poster galerisine dönüştürüldü; `01`–`03` indeksleri, genişleyen kırmızı çizgi, saatlik ücret & `Rezerve Et ↗` alt satırı ve Basketbol 2 için yeni koyu mimari ahşap parkeli salon fotoğrafı eklendi.
+
 ## [2.2.3] — 2026-11-25
 - **İsviçre Tipi Mimari PT Program Tablosu (`front-page.php`, `assets/css/main.css`):** Ana sayfadaki "PT Paketleri ve Seans Ücretleri" bölümü klasik 6'lı kutu fiyat kartlarından çıkarılarak `1px` ince ayırıcılı (hairline) mimari editoryal programa dönüştürüldü; üst indeks numaraları (`01`–`06`), alt çizgili `Tümü / Bireysel / Grupsal` filtre çubuğu, sağ-sol dengeli fiyat satırı, kırmızı çizgili kapsam listesi ve `Randevu Oluştur ↗` alt bağlantısı eklendi.
 
