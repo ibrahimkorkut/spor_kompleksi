@@ -4128,3 +4128,149 @@ html.a11y-reduce-motion .apex-reveal {
   border-radius: 12px;
   background: #090a0d;
 }
+
+/* 9. v2.2.0 — 3D Mimari Kesit Spor Kompleksi Sahnesi (#kat-plani) */
+.apex-arch-layout {
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 0.85fr);
+  align-items: stretch;
+}
+.apex-arch-stage-card {
+  position: relative;
+  min-height: 520px;
+  border-radius: 22px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background:
+    radial-gradient(ellipse 75% 65% at 50% 42%, rgba(255, 255, 255, 0.1) 0%, rgba(28, 32, 44, 0.55) 48%, rgba(10, 11, 16, 0.96) 100%),
+    linear-gradient(160deg, #171a24 0%, #0b0d13 100%);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+.apex-arch-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 520px;
+  cursor: grab;
+  touch-action: pan-y;
+}
+.apex-arch-hud-top {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  right: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  flex-wrap: wrap;
+  pointer-events: none;
+}
+.apex-arch-hud-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  border-radius: 14px;
+  background: rgba(12, 13, 18, 0.78);
+  backdrop-filter: blur(14px) saturate(1.5);
+  -webkit-backdrop-filter: blur(14px) saturate(1.5);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  max-width: 100%;
+}
+.apex-arch-hud-pill.is-focused {
+  border-color: rgba(227, 24, 55, 0.58);
+  box-shadow: 0 0 24px rgba(227, 24, 55, 0.22);
+}
+.apex-arch-hud-pill strong {
+  display: block;
+  font-size: 0.84rem;
+  color: #ffffff;
+  line-height: 1.25;
+}
+.apex-arch-hud-pill span {
+  display: block;
+  font-size: 0.73rem;
+  color: #a1a1aa;
+  margin-top: 2px;
+}
+.apex-arch-hud-actions {
+  display: flex;
+  gap: 8px;
+  pointer-events: auto;
+}
+.apex-arch-ctrl-btn {
+  padding: 8px 13px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(12, 13, 18, 0.82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #f4f4f5;
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+.apex-arch-ctrl-btn:hover,
+.apex-arch-ctrl-btn.is-active {
+  background: rgba(227, 24, 55, 0.86);
+  border-color: rgba(255, 130, 155, 0.65);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+.apex-arch-chips {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  justify-content: center;
+  pointer-events: none;
+}
+.apex-arch-chip {
+  pointer-events: auto;
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(11, 12, 17, 0.78);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #e4e4e7;
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+.apex-arch-chip:hover,
+.apex-arch-chip.is-active {
+  background: rgba(227, 24, 55, 0.9);
+  border-color: rgba(255, 140, 160, 0.75);
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(227, 24, 55, 0.35);
+}
+@media (max-width: 960px) {
+  .apex-arch-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .apex-arch-stage-card,
+  .apex-arch-canvas {
+    min-height: 400px;
+  }
+}
+@media (max-width: 560px) {
+  .apex-arch-stage-card,
+  .apex-arch-canvas {
+    min-height: 360px;
+  }
+  .apex-arch-hud-pill span {
+    display: none;
+  }
+  .apex-arch-chip {
+    font-size: 0.7rem;
+    padding: 5px 9px;
+  }
+}

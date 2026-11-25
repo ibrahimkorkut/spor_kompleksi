@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'APEX_VERSION', '2.1.0' );
+define( 'APEX_VERSION', '2.2.0' );
 define( 'APEX_DIR', get_template_directory() );
 define( 'APEX_URI', get_template_directory_uri() );
 
@@ -117,6 +117,7 @@ function apex_enqueue_assets() {
     if ( is_front_page() ) {
         wp_enqueue_script( 'apex-scroll-cinema', APEX_URI . '/assets/js/scroll-cinema.js', [], APEX_VERSION, true );
         wp_enqueue_script( 'apex-motion-3d', APEX_URI . '/assets/js/motion-3d.js', [], APEX_VERSION, true );
+        wp_enqueue_script( 'apex-complex-3d', APEX_URI . '/assets/js/complex-3d.js', [], APEX_VERSION . '.' . filemtime( APEX_DIR . '/assets/js/complex-3d.js' ), true );
     }
 
     $settings = apex_get_settings();
@@ -148,8 +149,8 @@ add_action( 'wp_enqueue_scripts', 'apex_enqueue_assets' );
  * ES Module desteği (Three.js 3D Kintsugi sahnesi için)
  */
 add_filter( 'script_loader_tag', function( $tag, $handle, $src ) {
-    if ( 'apex-motion-3d' === $handle ) {
-        return '<script type="module" src="' . esc_url( $src ) . '" id="apex-motion-3d-js"></script>' . "\n";
+    if ( in_array( $handle, [ 'apex-motion-3d', 'apex-complex-3d' ], true ) ) {
+        return '<script type="module" src="' . esc_url( $src ) . '" id="' . esc_attr( $handle ) . '-js"></script>' . "\n";
     }
     return $tag;
 }, 10, 3 );

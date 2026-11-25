@@ -2,8 +2,8 @@
 
 ![APEX ARENA Ana Sayfa — Liquid Glass Shape Morph Menü, Obsidian Neon WhatsApp & Kırmızı Glow AI Koç](teslim_belgeleri/ekran_goruntuleri/16_whatsapp_hero_v170.png)
 
-> **Modern spor kompleksleri için sıfırdan geliştirilmiş, tam entegre özel WordPress teması ve çok rollü yönetim ekosistemi (`v2.1.0`).**  
-> 60/120 FPS kaydırmayla oynayan mimari tur videosu, Three.js prosedürel 3D dambıl sahnesi, **Gmail SMTP Hoş Geldin & Otomatik Hatırlatma E-posta Motoru**, **Obsidian Neon Glow Operasyon Yönetim Paneli**, **7 Uzman Koçluk Apple Fitness Neon Glow Koç Performans Stüdyosu (3 İç İçe Aktivite Halkası + Etkileşimli Grafikler + Beslenme Takvimi + 1-1 Mesajlaşma)**, **Liquid Glass Shape Morph üst menü & satır içi arama**, dönen zümrüt neon **WhatsApp Destek Hattı**, kırmızı glow **Gemini 2.5 Flash AI Spor Koçu**, büyütülebilir **Dijital QR Kart Pop-up**, interaktif tesis kat planı, makro hesaplı Protein Kafe ön sipariş sepeti, lisanslı hakem + `.ics` takvimli salon kiralama, **Excel/CSV Rapor Merkezi**, gerçek **Google Maps** ve **WCAG 2.2 AA/AAA** erişilebilirlik merkezini tek çatı altında sunar.
+> **Modern spor kompleksleri için sıfırdan geliştirilmiş, tam entegre özel WordPress teması ve çok rollü yönetim ekosistemi (`v2.2.0`).**  
+> 60/120 FPS kaydırmayla oynayan mimari tur videosu, Three.js prosedürel 3D dambıl sahnesi, **Mouse Hover ile Oda İçine Yaklaşan 3D Mimari Kesit Spor Kompleksi Maketi**, **Gmail SMTP Hoş Geldin & Otomatik Hatırlatma E-posta Motoru**, **Obsidian Neon Glow Operasyon Yönetim Paneli**, **7 Uzman Koçluk Apple Fitness Neon Glow Koç Performans Stüdyosu (3 İç İçe Aktivite Halkası + Etkileşimli Grafikler + Beslenme Takvimi + 1-1 Mesajlaşma)**, **Liquid Glass Shape Morph üst menü & satır içi arama**, dönen zümrüt neon **WhatsApp Destek Hattı**, kırmızı glow **Gemini 2.5 Flash AI Spor Koçu**, büyütülebilir **Dijital QR Kart Pop-up**, makro hesaplı Protein Kafe ön sipariş sepeti, lisanslı hakem + `.ics` takvimli salon kiralama, **Excel/CSV Rapor Merkezi**, gerçek **Google Maps** ve **WCAG 2.2 AA/AAA** erişilebilirlik merkezini tek çatı altında sunar.
 
 ---
 
@@ -16,9 +16,17 @@
 
 ---
 
-## v2.1.0 Yeni Modüller & Güncel Ekran Görüntüleri
+## v2.2.0 Yeni Modüller & Güncel Ekran Görüntüleri
 
-### 0. Gmail SMTP, Kayıt Hoş Geldin & Otomatik Hatırlatma Merkezi (`inc/mailer.php`)
+### 0A. İnteraktif 3D Mimari Kesit Spor Kompleksi (`assets/js/complex-3d.js`, `/#kat-plani`)
+- **Tam İzometrik 3D Dollhouse Kesit Mimarisi:** Koyu kesit üst şeritli mimari duvarlar, merkez traverten lobide heykelsi **3D sarmal merdiven** + QR turnikeler + EV şarj bölmesi, **FIBA Basketbol 1** (akçaağaç parke, 3D cam panyalı potalar, canlı `84 : 79` LED skorboard), **CEV Voleybol Pro** (Taraflex zemin, 3D file), **PT & Kuvvet Stüdyosu** (çift olimpik squat rack, sprint turf, koşu bantları), **RFID Soyunma + Yağmur Duş + 85°C Sedir Fin Saunası** ve **Apex Protein Kafe & Lounge**.
+- **Mouse Hover ile 3D Oda İçi Kamera Yaklaşması:** Fareyi herhangi bir odanın veya çipin üzerine getirdiğinizde kamera akıcı biçimde o odanın içine dalar; tıklayarak kilitleyebilir, sürükleyerek açıyı değiştirebilir veya `⟳ 3D Tur` modunu açabilirsiniz.
+
+| 3D Mimari Kesit — İzometrik Genel Bakış (`/#kat-plani`) | Mouse Hover ile Basketbol 1 İçine 3D Kamera Yaklaşması |
+| :---: | :---: |
+| ![3D Mimari Kesit Genel Bakış](teslim_belgeleri/ekran_goruntuleri/30_3d_mimari_kesit_v220.png) | ![3D Mimari Hover Zoom](teslim_belgeleri/ekran_goruntuleri/31_3d_mimari_hover_zoom_v220.png) |
+
+### 0B. Gmail SMTP, Kayıt Hoş Geldin & Otomatik Hatırlatma Merkezi (`inc/mailer.php`)
 - **Kayıt Sonrası Hoş Geldin & Dijital QR Kart E-postası:** Yeni üye kaydı (`/uyelik/`) tamamlandığında üyenin e-posta adresine APEX ARENA markalı, karanlık/crimson HTML şablonlu Hoş Geldin & QR Kart e-postası gönderilir.
 - **Salon & PT Rezervasyon Onayları + 24 Saat Kala Otomatik Hatırlatma:** Salon ve PT randevularında anında onay e-postası iletilir; saatlik WP-Cron görevi yaklaşan randevulara 24 saat kala ve bitimine 7 gün kalan üyeliklere otomatik hatırlatma gönderir.
 - **Obsidian Neon E-posta Merkezi (`WP Admin → APEX ARENA → E-posta & Hatırlatma`):** Gmail adresi + 16 haneli Google Uygulama Şifresi (App Password) ile sıfır eklentisiz canlı Gmail SMTP, tek tıkla Test Maili, anlık üye hatırlatması, CSV dışa aktarımı ve gönderilen tüm e-postaların canlı HTML `iframe` önizlemesi (`wp_apex_email_logs`).
@@ -158,4 +166,4 @@ Tüm sayfalar **Masaüstü (`1440×900`)**, **Tablet (`768×1024`)** ve **Mobil 
 
 ---
 
-**Geliştirici:** İbrahim Korkut · **Sürüm:** `v2.1.0` · **Lisans:** GPL v2 or later
+**Geliştirici:** İbrahim Korkut · **Sürüm:** `v2.2.0` · **Lisans:** GPL v2 or later

@@ -421,77 +421,57 @@ $hero_sub   = get_theme_mod( 'apex_hero_subtitle', 'İki FIBA basketbol salonu, 
 </section>
 <?php endif; ?>
 
-<!-- 8. İNTERAKTİF TESİS KAT PLANI & BÖLGE KEŞFİ (v2.0.0) -->
+<!-- 8. İNTERAKTİF 3D MİMARİ KESİT SPOR KOMPLEKSİ (Three.js Dollhouse Cutaway · v2.2.0) -->
 <section class="apex-section" id="kat-plani" aria-labelledby="home-floorplan-title">
     <div class="apex-container">
         <div class="apex-section-head">
             <div>
-                <span class="apex-eyebrow">İNTERAKTİF MİMARİ KAT PLANI · 14.500 M²</span>
-                <h2 id="home-floorplan-title" class="apex-h2">Kompleksi Haritada Keşfet</h2>
+                <span class="apex-eyebrow">3D MİMARİ KESİT MAKETİ · 14.500 M² · GERÇEK ZAMANLI WEBGL</span>
+                <h2 id="home-floorplan-title" class="apex-h2">Kompleksi 3D Mimaride Keşfet</h2>
             </div>
-            <p class="apex-muted" style="max-width:44ch;margin:0;">Kat planındaki herhangi bir alana tıklayarak teknik özellikleri, anlık yoğunluğu ve rezervasyon bağlantısını inceleyin.</p>
+            <p class="apex-muted" style="max-width:46ch;margin:0;">Farenizi 3D mimarideki herhangi bir salonun veya odanın üzerine getirin — kamera akıcı biçimde içeri yaklaşır. Tıklayarak odaya kilitlenebilir, sürükleyerek açıyı döndürebilirsiniz.</p>
         </div>
 
-        <div class="apex-fp-layout">
-            <div class="apex-fp-map-card">
-                <svg class="apex-fp-svg" viewBox="0 0 680 410" role="group" aria-label="APEX ARENA interaktif kat planı">
-                    <rect x="8" y="8" width="664" height="394" rx="18" fill="#0b0c10" stroke="rgba(255,255,255,0.12)" stroke-width="1.5" />
-                    <path d="M8 215 H672 M340 8 V402" stroke="rgba(255,255,255,0.05)" stroke-dasharray="6 6" />
+        <div class="apex-fp-layout apex-arch-layout">
+            <div class="apex-arch-stage-card" id="apex-arch-3d-stage">
+                <canvas class="apex-arch-canvas" data-arch-canvas aria-label="APEX ARENA 3D spor kompleksi mimari kesit maketi"></canvas>
 
-                    <g class="apex-fp-zone is-active" tabindex="0" role="button" data-fp-zone="basket1" aria-label="Arena Basketbol 1 FIBA Salonu">
-                        <rect x="26" y="26" width="202" height="172" rx="14" />
-                        <text x="127" y="96" text-anchor="middle" class="fp-lbl">BASKETBOL 1</text>
-                        <text x="127" y="118" text-anchor="middle" class="fp-sub">FIBA Parke · 28×15m</text>
-                        <text x="127" y="142" text-anchor="middle" class="fp-chip">● Müsait</text>
-                    </g>
+                <!-- Üst Yüzen Liquid Glass Durum Çubuğu -->
+                <div class="apex-arch-hud-top">
+                    <div class="apex-arch-hud-pill" id="apex-arch-hud-pill">
+                        <span class="apex-live-dot" aria-hidden="true"></span>
+                        <div>
+                            <strong id="apex-arch-hud-title">3D Kompleks Mimarisi · 6 Aktif Bölge</strong>
+                            <span id="apex-arch-hud-hint">Mouse ile bir odanın üstüne gel — kamera 3D içine yaklaşır</span>
+                        </div>
+                    </div>
+                    <div class="apex-arch-hud-actions">
+                        <button type="button" class="apex-arch-ctrl-btn" id="apex-arch-reset-btn" hidden>← Genel Bakış</button>
+                        <button type="button" class="apex-arch-ctrl-btn" id="apex-arch-orbit-btn" title="Otomatik 3D turu aç/kapat">⟳ 3D Tur</button>
+                    </div>
+                </div>
 
-                    <g class="apex-fp-zone" tabindex="0" role="button" data-fp-zone="basket2" aria-label="Arena Basketbol 2 Performans Salonu">
-                        <rect x="242" y="26" width="202" height="172" rx="14" />
-                        <text x="343" y="96" text-anchor="middle" class="fp-lbl">BASKETBOL 2</text>
-                        <text x="343" y="118" text-anchor="middle" class="fp-sub">Performans · Skorboard</text>
-                        <text x="343" y="142" text-anchor="middle" class="fp-chip">● Müsait</text>
-                    </g>
-
-                    <g class="apex-fp-zone" tabindex="0" role="button" data-fp-zone="voleybol" aria-label="Arena Voleybol Pro CEV Salonu">
-                        <rect x="458" y="26" width="196" height="172" rx="14" />
-                        <text x="556" y="96" text-anchor="middle" class="fp-lbl">VOLEYBOL PRO</text>
-                        <text x="556" y="118" text-anchor="middle" class="fp-sub">CEV Taraflex · 18×9m</text>
-                        <text x="556" y="142" text-anchor="middle" class="fp-chip">● Hakemli</text>
-                    </g>
-
-                    <g class="apex-fp-zone" tabindex="0" role="button" data-fp-zone="pt" aria-label="Kuvvet ve PT Stüdyosu">
-                        <rect x="26" y="216" width="212" height="168" rx="14" />
-                        <text x="132" y="286" text-anchor="middle" class="fp-lbl">PT &amp; KUVVET</text>
-                        <text x="132" y="308" text-anchor="middle" class="fp-sub">Olimpik Bar · Reformer</text>
-                        <text x="132" y="332" text-anchor="middle" class="fp-chip">4 Sertifikalı Koç</text>
-                    </g>
-
-                    <g class="apex-fp-zone" tabindex="0" role="button" data-fp-zone="spa" aria-label="RFID Soyunma Odaları, Duş ve Fin Saunası">
-                        <rect x="252" y="216" width="192" height="168" rx="14" />
-                        <text x="348" y="286" text-anchor="middle" class="fp-lbl">SOYUNMA &amp; SAUNA</text>
-                        <text x="348" y="308" text-anchor="middle" class="fp-sub">240 RFID Dolap · 85°C</text>
-                        <text x="348" y="332" text-anchor="middle" class="fp-chip">Yağmur Duş</text>
-                    </g>
-
-                    <g class="apex-fp-zone" tabindex="0" role="button" data-fp-zone="cafe" aria-label="Apex Protein Kafe ve 180 Araçlık EV Otopark">
-                        <rect x="458" y="216" width="196" height="168" rx="14" />
-                        <text x="556" y="286" text-anchor="middle" class="fp-lbl">KAFE &amp; OTOPARK</text>
-                        <text x="556" y="308" text-anchor="middle" class="fp-sub">Makro Menü · 6 EV Şarj</text>
-                        <text x="556" y="332" text-anchor="middle" class="fp-chip">Ön Sipariş Açık</text>
-                    </g>
-                </svg>
+                <!-- Alt Hızlı Oda Seçici Çipler (Hover ile anında içeri yaklaşır · Mobil uyumlu) -->
+                <div class="apex-arch-chips" role="tablist" aria-label="3D spor kompleksi alanları">
+                    <button type="button" class="apex-arch-chip" data-arch-chip="basket1">🏀 Basketbol 1</button>
+                    <button type="button" class="apex-arch-chip" data-arch-chip="lobby">🌀 Lobi &amp; EV</button>
+                    <button type="button" class="apex-arch-chip" data-arch-chip="voleybol">🏐 Voleybol Pro</button>
+                    <button type="button" class="apex-arch-chip" data-arch-chip="pt">🏋️ PT &amp; Kuvvet</button>
+                    <button type="button" class="apex-arch-chip" data-arch-chip="spa">🔥 Sauna &amp; Duş</button>
+                    <button type="button" class="apex-arch-chip" data-arch-chip="cafe">🥤 Protein Kafe</button>
+                </div>
             </div>
 
             <aside class="apex-panel apex-fp-detail" id="apex-fp-detail" aria-live="polite">
-                <span class="apex-eyebrow" id="fp-d-tag">FIBA STANDARTI · ZEMİN KAT</span>
+                <span class="apex-eyebrow" id="fp-d-tag">FIBA STANDARTI · KUZEYBATI KANAT</span>
                 <h3 class="apex-h2" id="fp-d-title" style="margin:6px 0 10px;">Arena Basketbol 1 (FIBA Parke)</h3>
-                <p class="apex-muted" id="fp-d-desc" style="margin:0 0 18px;">28×15m uluslararası FIBA ölçülerinde esnek akçaağaç parke, LED skorboard, 120 kişilik tribün ve isteğe bağlı lisanslı TBF hakem hizmeti.</p>
+                <p class="apex-muted" id="fp-d-desc" style="margin:0 0 18px;">28×15m uluslararası FIBA ölçülerinde esnek akçaağaç parke, çift cam panyalı profesyonel pota, LED skorboard ve isteğe bağlı lisanslı TBF hakem hizmeti.</p>
                 <div class="apex-fp-specs" id="fp-d-specs">
-                    <span>🏀 28×15m FIBA</span>
-                    <span>⚖️ Hakem (+₺450)</span>
-                    <span>🚗 2 Saat Ücretsiz Park</span>
+                    <span>🏀 28×15m FIBA Parke</span>
+                    <span>⚖️ Lisanslı Hakem (+₺450)</span>
+                    <span>📺 4 Yönlü LED Skorboard</span>
                 </div>
-                <a href="<?php echo esc_url( home_url( '/salon-kiralama/#rezervasyon' ) ); ?>" id="fp-d-cta" class="apex-btn apex-btn-primary apex-btn-block" style="margin-top:20px;">Bu Alanı Rezerve Et →</a>
+                <a href="<?php echo esc_url( home_url( '/salon-kiralama/#rezervasyon' ) ); ?>" id="fp-d-cta" class="apex-btn apex-btn-primary apex-btn-block" style="margin-top:20px;">Basketbol Salonunu Kirala →</a>
             </aside>
         </div>
     </div>
