@@ -1,38 +1,43 @@
 # APEX ARENA — Spor ve Performans Kompleksi (WordPress Özel Tema & Ekosistem)
 
-![APEX ARENA Ana Sayfa — 60/120 FPS Scroll Mimari Tur & Animasyonlu WhatsApp Hattı](teslim_belgeleri/ekran_goruntuleri/16_whatsapp_hero_v170.png)
+![APEX ARENA Ana Sayfa — Liquid Glass Shape Morph Menü, Obsidian Neon WhatsApp & Kırmızı Glow AI Koç](teslim_belgeleri/ekran_goruntuleri/16_whatsapp_hero_v170.png)
 
-> **Modern spor kompleksleri için sıfırdan geliştirilmiş, tam entegre özel WordPress teması ve çok rollü yönetim ekosistemi (`v2.0.2`).**  
-> 60/120 FPS kaydırmayla oynayan mimari tur videosu, Three.js prosedürel 3D dambıl sahnesi, **Apple Fitness Neon Glow Koç Performans Stüdyosu (3 İç İçe Aktivite Halkası + Etkileşimli Grafikler + Beslenme Takvimi + 1-1 Mesajlaşma)**, interaktif tesis kat planı, makro hesaplı Protein Kafe ön sipariş sepeti, canlı **Gemini 2.5 Flash AI Spor Koçu**, lisanslı hakem + `.ics` takvim / WhatsApp maç davetli salon kiralama, **Excel/CSV Rapor Merkezi**, gerçek **Google Maps** ve **WCAG 2.2 AA/AAA** erişilebilirlik merkezini tek çatı altında sunar.
+> **Modern spor kompleksleri için sıfırdan geliştirilmiş, tam entegre özel WordPress teması ve çok rollü yönetim ekosistemi (`v2.0.3`).**  
+> 60/120 FPS kaydırmayla oynayan mimari tur videosu, Three.js prosedürel 3D dambıl sahnesi, **Obsidian Neon Glow Operasyon Yönetim Paneli**, **7 Uzman Koçluk Apple Fitness Neon Glow Koç Performans Stüdyosu (3 İç İçe Aktivite Halkası + Etkileşimli Grafikler + Beslenme Takvimi + 1-1 Mesajlaşma)**, **Liquid Glass Shape Morph üst menü & satır içi arama**, dönen zümrüt neon **WhatsApp Destek Hattı**, kırmızı glow **Gemini 2.5 Flash AI Spor Koçu**, büyütülebilir **Dijital QR Kart Pop-up**, interaktif tesis kat planı, makro hesaplı Protein Kafe ön sipariş sepeti, lisanslı hakem + `.ics` takvimli salon kiralama, **Excel/CSV Rapor Merkezi**, gerçek **Google Maps** ve **WCAG 2.2 AA/AAA** erişilebilirlik merkezini tek çatı altında sunar.
 
 ---
 
 ## Projenin Amacı
 
 **APEX ARENA**, bir spor ve performans kompleksinin 3 farklı kullanıcı rolünü tek bir özel WordPress + MySQL mimarisi üzerinde kesintisiz ve tam responsive (`1440px` Masaüstü · `768px` Tablet · `390px` Mobil) biçimde yönetmek amacıyla geliştirilmiştir:
-1. **Ziyaretçiler & Üyeler:** İnteraktif kat planıyla tesisi keşfeder, 3 soruluk akıllı quizle paketini bulur, salon/PT rezervasyonu yapar (`.ics` takvime ekler & WhatsApp maç daveti paylaşır), antrenman çıkışı Protein Kafe siparişi verir, dijital QR kartını kullanır ve kendi koçunun hazırladığı canlı beslenme takvimiyle 1-1 mesajlaşır.
-2. **Koçlar (`apex_coach` Özel Rolü):** Sadece kendi öğrencilerini görebildikleri izole grafiksel panelden seans/ilerleme/uyum grafiklerini takip eder, öğrenci durumuna göre 5 öğünlük beslenme takvimi + koç önerisi yayınlar ve birebir mesajlaşır.
-3. **Yöneticiler (`root`):** Canlı MySQL gelir dağılımını izler, tek tıkla Türkçe Excel uyumlu UTF-8 BOM CSV raporları indirir, kafe siparişlerini ve üye yorumlarını yönetir, tüm koçların portföylerini denetler.
+1. **Ziyaretçiler & Üyeler:** İnteraktif kat planıyla tesisi keşfeder, 3 soruluk akıllı quizle paketini bulur, salon/PT rezervasyonu yapar (`.ics` takvime ekler & WhatsApp maç daveti paylaşır), antrenman çıkışı Protein Kafe siparişi verir, tıklayınca büyüyen dijital QR kartını kullanır ve kendi koçunun hazırladığı canlı beslenme takvimiyle özel neon kaydırma çubuklu ekranda 1-1 mesajlaşır.
+2. **7 Uzman Koç (`apex_coach` Özel Rolü):** Sadece kendi öğrencilerini görebildikleri izole neon grafiksel panelden seans/ilerleme/uyum grafiklerini ve Apple Fitness aktivite halkalarını takip eder, öğrenci durumuna göre 5 öğünlük beslenme takvimi + koç önerisi yayınlar ve birebir mesajlaşır.
+3. **Yöneticiler (`root`):** Neon Glow Operasyon Paneli'nden canlı MySQL gelir dağılımını, 7 günlük talep & AI trendini, 3'lü tesis aktivite halkalarını ve canlı işlem akışını izler; tek tıkla Türkçe Excel uyumlu UTF-8 BOM CSV raporları indirir ve tüm 7 koçun (17 öğrenci) portföylerini denetler.
 
 ---
 
-## v2.0.0 Yeni Modüller & Ekran Görüntüleri
+## v2.0.3 Yeni Modüller & Güncel Ekran Görüntüleri
 
-### 1. Koça Özel Grafiksel Öğrenci Yönetim Paneli (`inc/coach-portal.php`)
-- **Tam Rol İzolasyonu (`apex_coach`):** Koçlar `/wp-login.php` üzerinden giriş yaptığında doğrudan **Koç Grafik & Öğrenci Yönetim Paneli**'ne (`admin.php?page=apex-coach-portal`) yönlendirilir. WordPress'in Eklentiler/Ayarlar/Kullanıcılar menüleri gizlenir ve her koç **yalnızca kendi atanmış öğrencilerini** görür ve düzenleyebilir *(REST API düzeyinde de `coach_user_id` sahiplik kontrolü uygulanır)*.
-- **5 Kartlık Koyu SVG Analiz Ekranı (0 Harici CDN):**
-  1. **Seans Karşılaştırması (Gruplu Sütun Grafiği):** Planlanan vs Tamamlanan PT seansları
-  2. **Gelişim & Uyum Trendi (Yumuşak Alan Grafiği):** Hedef ilerleme vs Beslenme/Program uyumu
-  3. **Öğrenci Durum Dağılımı (Pasta / Donut Grafiği):** *Hedefte, Dikkat, Yeni Başladı, Yoğun Takip*
-  4. **Program Uyum Oranları (İlerleme Barları):** Öğrenci bazlı canlı uyum yüzdeleri
-  5. **Öğrenci Durum Tablosu:** Renkli durum rozetleri, `↑` / `↓` trend göstergeleri ve tek tıkla düzenleme
-- **Canlı Beslenme Takvimi & Birebir Mesajlaşma:** Koçun kaydettiği **5 öğünlük beslenme takvimi + makrolar**, **koç önerisi** ve **birebir mesajlar** öğrencinin `/uyelik/?panel=1` paneline anında senkronize olur.
+### 1. Obsidian Neon Glow Yönetim Operasyon Paneli (`inc/admin-panel.php`)
+- **Canlı MySQL Telemetri & 4 Neon KPI Kartı:** Aktif salon rezervasyonları (hakemli maçlar dahil), PT randevuları, dijital QR üyelikler ve toplam işlem hacmi.
+- **3 Dinamik Neon Grafik + Apple Fitness 3'lü Tesis Aktivite Halkası:**
+  1. **Gelir Kanalı Performansı (Neon Bar Grafik):** Salon, PT, Üyelik ve Kafe için Hedef vs Gerçekleşen etkileşimli çubuklar.
+  2. **Operasyon & AI Trendi (Çift Neon Eğri):** Son 7 günlük Talep & Gelir (neon yeşil) ve Tesis & AI (turkuaz) eğrileri.
+  3. **Tesis Aktivite Halkaları (`Tesis` / `Gelir` Modlu):** Anlık Doluluk (%), Üye Memnuniyeti (`★ / 5.0`), Otopark Boş Alan (`118/180`) ve kanal ciro payları.
+- **Parlayan Küre Uçlu Gelir Barları, Filtrelenebilir Canlı Operasyon Akışı & 5'li UTF-8 BOM Excel/CSV Rapor Merkezi.**
 
-![Koç Grafik & Öğrenci Yönetim Paneli — Rol İzolasyonlu 5 Kartlı SVG Analiz](teslim_belgeleri/ekran_goruntuleri/22_koc_grafik_paneli_v200.png)
+![APEX ARENA — Obsidian Neon Glow Spor Kompleksi Operasyon Paneli](teslim_belgeleri/ekran_goruntuleri/26_admin_gelir_csv_v200.png)
 
-| Üye Panelinde Canlı Koç Beslenme Takvimi & 1-1 Sohbet | Admin Operasyon Merkezi — Canlı Gelir & CSV Raporları |
+### 2. 7 Uzman Koçlu Grafiksel Öğrenci Yönetim Paneli (`inc/coach-portal.php`)
+- **Tam Rol İzolasyonu (`apex_coach` · 7 Koç / 17 Öğrenci):** Koçlar `/wp-login.php` üzerinden giriş yaptığında doğrudan **Koç Grafik & Öğrenci Yönetim Paneli**'ne (`admin.php?page=apex-coach-portal`) yönlendirilir; her koç yalnızca kendi öğrencilerini yönetir. Yöneticiler üstteki **`Tüm Koçlar (7 Koç · 17 Öğrenci)`** menüsünden tüm koçlar arasında anlık geçiş yapabilir.
+- **Apple Fitness 3'lü Neon Aktivite Halkaları & Etkileşimli Grafikler:** Seans Performansı (bar), Gelişim & Beslenme Trendi (çift neon eğri), Aktivite Halkaları (`Öğrenci / Genel`), Program Uyumu barları ve filtrelenebilir Öğrenci Takip Listesi.
+- **Canlı Beslenme Takvimi & Birebir Mesajlaşma:** Koçun kaydettiği **5 öğünlük beslenme takvimi + makrolar**, **koç önerisi** ve **birebir mesajlar** öğrencinin `/uyelik/#uye-paneli` ekranına anında senkronize olur.
+
+![Koç Grafik & Öğrenci Yönetim Paneli — 7 Koçlu Apple Fitness Neon Glow Stüdyosu](teslim_belgeleri/ekran_goruntuleri/22_koc_grafik_paneli_v200.png)
+
+| Üye Paneli — Büyütülebilir Dijital QR Geçiş Kartı | Eşit Yükseklikli Beslenme Takvimi & Neon Scrollbar Koç Sohbeti |
 | :---: | :---: |
-| ![Üye Beslenme ve Koç Sohbet](teslim_belgeleri/ekran_goruntuleri/24_uye_beslenme_koc_sohbet_v200.png) | ![Admin Gelir ve CSV Raporları](teslim_belgeleri/ekran_goruntuleri/26_admin_gelir_csv_v200.png) |
+| ![Üye Paneli Dijital QR](teslim_belgeleri/ekran_goruntuleri/05-uye-paneli-dijital-qr.png) | ![Üye Beslenme ve Koç Sohbet](teslim_belgeleri/ekran_goruntuleri/24_uye_beslenme_koc_sohbet_v200.png) |
 
 ### 2. İnteraktif Tesis Kat Planı, Canlı 5 Yıldızlı Yorumlar & Protein Kafe Ön Sipariş Sepeti
 - **İnteraktif SVG Mimari Kat Planı (`/#kat-plani`):** 6 tıklanabilir kompleks bölgesi (*Basketbol 1, Basketbol 2, Voleybol Pro, PT & Kuvvet, Soyunma & Sauna, Kafe & Otopark*) ile anlık teknik özellik ve doğrudan rezervasyon bağlantısı.
@@ -66,10 +71,11 @@
 
 | Rol | Giriş Adresi | Kullanıcı Adı | Şifre | Açıklama |
 | :--- | :--- | :--- | :--- | :--- |
-| **WordPress Yönetici (Admin)** | `/wp-login.php` | `root` | `korkut2006` | Tam yönetim, Gelir/CSV, Kafe/Yorumlar, Tüm Koçlar |
-| **Koç Portalı (Kerem Alkan)** | `/wp-login.php` | `koc_kerem` | `ApexKoc2026!` | Yalnızca kendi 5 öğrencisi (Grafik + Beslenme + 1-1 Sohbet) |
-| **Koç Portalı (Elif Karaca)** | `/wp-login.php` | `koc_elif` | `ApexKoc2026!` | Yalnızca kendi 2 öğrencisi (Rol izolasyonlu) |
-| **Demo Üye (QR & Koç Takibi)** | `/uyelik/#giris` | `uye_demo` | `ApexUye2026!` | QR Kart + Koç Beslenme Takvimi + 1-1 Mesaj + Antrenman Günlüğü |
+| **WordPress Yönetici (Admin)** | `/wp-login.php` | `root` | `korkut2006` | Tam yönetim, Neon Glow Grafikler, CSV, Tüm 7 Koç |
+| **Koç Portalı (Kerem Alkan)** | `/wp-login.php` | `koc_kerem` | `ApexKoc2026!` | Kendi 5 öğrencisi (Grafik + Beslenme + 1-1 Sohbet) |
+| **Koç Portalı (Elif Karaca)** | `/wp-login.php` | `koc_elif` | `ApexKoc2026!` | Kendi 2 öğrencisi (Rol izolasyonlu) |
+| **Diğer 5 Uzman Koç** | `/wp-login.php` | `koc_selin`, `koc_mert`, `koc_caner`, `koc_buse`, `koc_emirhan` | `ApexKoc2026!` | Her biri kendi 2 öğrencisi, beslenme planı ve grafikleriyle |
+| **Demo Üye (QR & Koç Takibi)** | `/uyelik/#giris` | `uye_demo` | `ApexUye2026!` | Büyüyen QR Kart + Koç Beslenme Takvimi + 1-1 Mesaj + Antrenman Günlüğü |
 
 ---
 
@@ -144,4 +150,4 @@ Tüm sayfalar **Masaüstü (`1440×900`)**, **Tablet (`768×1024`)** ve **Mobil 
 
 ---
 
-**Geliştirici:** İbrahim Korkut · **Sürüm:** `v2.0.2` · **Lisans:** GPL v2 or later
+**Geliştirici:** İbrahim Korkut · **Sürüm:** `v2.0.3` · **Lisans:** GPL v2 or later
