@@ -26,16 +26,21 @@ $wa_url  = 'https://wa.me/' . $wa_digits . '?text=' . $wa_text;
 >
     <span class="apex-wa-ring apex-wa-ring-1" aria-hidden="true"></span>
     <span class="apex-wa-ring apex-wa-ring-2" aria-hidden="true"></span>
-    <span class="apex-wa-ring apex-wa-ring-3" aria-hidden="true"></span>
-    <span class="apex-wa-tooltip" aria-hidden="true">
-        <span class="apex-wa-tooltip-dot"></span>WhatsApp Destek Hattı
-    </span>
-    <span class="apex-wa-orb" aria-hidden="true">
-        <span class="apex-wa-sheen"></span>
-        <svg class="apex-wa-icon" width="28" height="28" viewBox="0 0 32 32" fill="none">
-            <path d="M16.003 3.2C8.943 3.2 3.2 8.943 3.2 16.003c0 2.27.595 4.487 1.725 6.44L3.1 28.9l6.632-1.739a12.75 12.75 0 0 0 6.271 1.644h.005c7.06 0 12.802-5.743 12.802-12.802S23.063 3.2 16.003 3.2Z" stroke="#FFFFFF" stroke-width="2.4" stroke-linejoin="round"/>
-            <path d="M22.25 19.34c-.34-.17-2.01-.99-2.32-1.1-.31-.12-.54-.17-.77.17-.23.34-.88 1.1-1.08 1.33-.2.23-.4.26-.74.09-.34-.17-1.44-.53-2.74-1.69-1.01-.9-1.7-2.02-1.9-2.36-.2-.34-.02-.52.15-.69.15-.15.34-.4.51-.6.17-.2.23-.34.34-.57.11-.23.06-.43-.03-.6-.09-.17-.77-1.85-1.05-2.54-.28-.67-.56-.58-.77-.59-.2-.01-.43-.01-.66-.01-.23 0-.6.09-.91.43-.31.34-1.2 1.17-1.2 2.85 0 1.68 1.23 3.31 1.4 3.54.17.23 2.41 3.68 5.84 5.16.82.35 1.45.56 1.95.72.82.26 1.56.22 2.15.14.66-.1 2.01-.82 2.3-1.62.28-.8.28-1.48.2-1.62-.09-.14-.31-.23-.66-.4Z" fill="#FFFFFF"/>
-        </svg>
+    <span class="apex-wa-shell" aria-hidden="true">
+        <span class="apex-wa-border-spin"></span>
+        <span class="apex-wa-core">
+            <span class="apex-wa-sheen"></span>
+            <span class="apex-wa-label">
+                <span class="apex-wa-status"><span class="apex-wa-live-dot"></span>CANLI DESTEK</span>
+                <strong class="apex-wa-title">WhatsApp’tan Yaz</strong>
+            </span>
+            <span class="apex-wa-icon-wrap">
+                <svg class="apex-wa-icon" width="26" height="26" viewBox="0 0 32 32" fill="none">
+                    <path d="M16.003 3.2C8.943 3.2 3.2 8.943 3.2 16.003c0 2.27.595 4.487 1.725 6.44L3.1 28.9l6.632-1.739a12.75 12.75 0 0 0 6.271 1.644h.005c7.06 0 12.802-5.743 12.802-12.802S23.063 3.2 16.003 3.2Z" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
+                    <path d="M22.25 19.34c-.34-.17-2.01-.99-2.32-1.1-.31-.12-.54-.17-.77.17-.23.34-.88 1.1-1.08 1.33-.2.23-.4.26-.74.09-.34-.17-1.44-.53-2.74-1.69-1.01-.9-1.7-2.02-1.9-2.36-.2-.34-.02-.52.15-.69.15-.15.34-.4.51-.6.17-.2.23-.34.34-.57.11-.23.06-.43-.03-.6-.09-.17-.77-1.85-1.05-2.54-.28-.67-.56-.58-.77-.59-.2-.01-.43-.01-.66-.01-.23 0-.6.09-.91.43-.31.34-1.2 1.17-1.2 2.85 0 1.68 1.23 3.31 1.4 3.54.17.23 2.41 3.68 5.84 5.16.82.35 1.45.56 1.95.72.82.26 1.56.22 2.15.14.66-.1 2.01-.82 2.3-1.62.28-.8.28-1.48.2-1.62-.09-.14-.31-.23-.66-.4Z" fill="currentColor"/>
+                </svg>
+            </span>
+        </span>
     </span>
     <span class="apex-wa-badge" aria-hidden="true">1</span>
 </a>
@@ -58,8 +63,15 @@ $wa_url  = 'https://wa.me/' . $wa_digits . '?text=' . $wa_text;
         </div>
     </header>
 
-    <div class="apex-ai-messages" id="apex-ai-messages" aria-live="polite">
-        <div class="apex-msg apex-msg-bot" style="white-space:normal;">Selam, ben <strong>Apex AI Spor Koçu</strong>. Seninle her konuda doğal şekilde sohbet edebilir, antrenman ya da beslenme tavsiyesi verebilir veya salon müsaitliği, PT paketleri ve üyelikler hakkında canlı bilgi paylaşabilirim. Nasıl gidiyor, ne konuşalım?</div>
+    <div class="apex-ai-messages-wrap">
+        <div class="apex-ai-messages" id="apex-ai-messages" aria-live="polite">
+            <div class="apex-msg apex-msg-bot" style="white-space:normal;">Selam, ben <strong>Apex AI Spor Koçu</strong>. Seninle her konuda doğal şekilde sohbet edebilir, antrenman ya da beslenme tavsiyesi verebilir veya salon müsaitliği, PT paketleri ve üyelikler hakkında canlı bilgi paylaşabilirim. Nasıl gidiyor, ne konuşalım?</div>
+        </div>
+        <div class="apex-ai-scrollbar is-hidden" id="apex-ai-scrollbar" role="scrollbar" aria-controls="apex-ai-messages" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" aria-label="Sohbet kaydırma çubuğu">
+            <div class="apex-ai-scrollbar-track">
+                <div class="apex-ai-scrollbar-thumb" id="apex-ai-scrollbar-thumb"></div>
+            </div>
+        </div>
     </div>
 
     <div class="apex-ai-chips" id="apex-ai-chips" aria-label="Hızlı sorular">

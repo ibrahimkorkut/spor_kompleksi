@@ -181,10 +181,11 @@ $cu       = is_user_logged_in() ? wp_get_current_user() : null;
         <span class="apex-eyebrow apex-eyebrow-volt">ANTRENÖR SEÇİMİ & ONLİNE RANDEVU</span>
         <h2 id="pt-booking-h" class="apex-h2" style="margin-bottom:28px;">ANTRENÖRÜNÜ SEÇ VE ANINDA RANDEVU AL</h2>
 
-        <div class="apex-grid-2" style="align-items:start;">
+        <div class="apex-grid-2" style="align-items:stretch;">
             <!-- Antrenör Seçim Kartları -->
-            <div style="display:grid;gap:14px;">
-                <h3 class="apex-h3">1. Antrenör Seçimi</h3>
+            <div class="apex-panel apex-pt-picker-panel">
+                <h3 class="apex-h3" style="margin-bottom:18px;">1. Antrenör Seçimi</h3>
+                <div class="apex-pt-picker-list">
                 <?php foreach ( $trainers as $tr ) :
                     $role  = get_post_meta( $tr->ID, '_apex_role', true );
                     $spec  = get_post_meta( $tr->ID, '_apex_specialty', true );
@@ -192,18 +193,24 @@ $cu       = is_user_logged_in() ? wp_get_current_user() : null;
                     $photo = apex_get_post_photo( $tr->ID, 'trainer-kerem.jpg' );
                     $sel   = ( $tr->ID === $pre_tr );
                 ?>
-                <div class="apex-panel apex-trainer-pick <?php echo $sel ? 'apex-card-featured' : ''; ?>" data-pick-trainer="<?php echo esc_attr( $tr->ID ); ?>" style="padding:16px;display:flex;gap:16px;align-items:center;cursor:pointer;">
+                <div class="apex-trainer-pick <?php echo $sel ? 'apex-card-featured' : ''; ?>" data-pick-trainer="<?php echo esc_attr( $tr->ID ); ?>">
                     <img src="<?php echo esc_url( $photo ); ?>" alt="<?php echo esc_attr( $tr->post_title ); ?>" style="width:76px;height:76px;border-radius:10px;object-fit:cover;object-position:top;flex-shrink:0;">
-                    <div style="flex:1;">
+                    <div style="flex:1;min-width:0;">
                         <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap;">
-                            <strong style="font-size:1.05rem;"><?php echo esc_html( $tr->post_title ); ?></strong>
+                            <strong style="font-size:1.04rem;"><?php echo esc_html( $tr->post_title ); ?></strong>
                             <span class="apex-tag apex-tag-volt"><?php echo esc_html( apex_format_tl( $fee ) ); ?> / seans</span>
                         </div>
-                        <div style="color:var(--apex-crimson);font-size:0.8rem;font-weight:700;"><?php echo esc_html( $role ); ?></div>
-                        <div class="apex-muted" style="font-size:0.83rem;margin-top:3px;"><?php echo esc_html( $spec ); ?></div>
+                        <div style="color:var(--apex-crimson);font-size:0.8rem;font-weight:700;margin-top:2px;"><?php echo esc_html( $role ); ?></div>
+                        <div class="apex-muted" style="font-size:0.83rem;margin-top:4px;"><?php echo esc_html( $spec ); ?></div>
                     </div>
                 </div>
                 <?php endforeach; ?>
+                </div>
+                <div class="apex-pt-picker-foot">
+                    <span>✓ Ücretsiz InBody Analizi</span>
+                    <span>✓ Canlı Beslenme Takvimi</span>
+                    <span>✓ 24 Saat Esnek İptal</span>
+                </div>
             </div>
 
             <!-- Canlı Randevu Formu -->

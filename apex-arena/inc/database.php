@@ -273,27 +273,34 @@ function apex_setup_coach_roles_and_seed() {
         $admin_role->add_cap( 'apex_coach_access' );
     }
 
-    // 2. Demo Koç Hesaplarını Garanti Et (koc_kerem / ApexKoc2026!, koc_elif / ApexKoc2026!)
-    $kerem = get_user_by( 'login', 'koc_kerem' );
-    if ( ! $kerem ) {
-        $kid = wp_create_user( 'koc_kerem', 'ApexKoc2026!', 'kerem.alkan@apexarena.com.tr' );
-        if ( ! is_wp_error( $kid ) ) {
-            wp_update_user( [ 'ID' => $kid, 'display_name' => 'Kerem Alkan', 'role' => 'apex_coach' ] );
-            update_user_meta( $kid, 'apex_coach_title', 'Baş Performans & Kuvvet Koçu (CSCS)' );
-            $kerem = get_user_by( 'id', $kid );
+    // 2. Demo Koç Hesaplarını Garanti Et (Toplam 7 Uzman Koç — Şifre: ApexKoc2026!)
+    $coach_defs = [
+        'koc_kerem'   => [ 'name' => 'Kerem Alkan',   'email' => 'kerem.alkan@apexarena.com.tr',   'title' => 'Baş Performans & Kuvvet Koçu (CSCS)' ],
+        'koc_elif'    => [ 'name' => 'Elif Karaca',   'email' => 'elif.karaca@apexarena.com.tr',   'title' => 'HIIT, Metabolik Kondisyon & Beslenme Koçu' ],
+        'koc_selin'   => [ 'name' => 'Selin Yılmaz',  'email' => 'selin.yilmaz@apexarena.com.tr',  'title' => 'Reformer Pilates, Mobilite & Core Koçu' ],
+        'koc_mert'    => [ 'name' => 'Mert Demir',    'email' => 'mert.demir@apexarena.com.tr',    'title' => 'Basketbol & Atletik Patlayıcılık Koçu' ],
+        'koc_caner'   => [ 'name' => 'Caner Kaya',    'email' => 'caner.kaya@apexarena.com.tr',    'title' => 'Voleybol & Dikey Sıçrama Performans Koçu' ],
+        'koc_buse'    => [ 'name' => 'Buse Aydın',    'email' => 'buse.aydin@apexarena.com.tr',    'title' => 'Fonksiyonel Fitness & Yağ Yakımı Koçu' ],
+        'koc_emirhan' => [ 'name' => 'Emirhan Çelik', 'email' => 'emirhan.celik@apexarena.com.tr', 'title' => 'Hipertrofi & Sporcu Beslenmesi Koçu' ],
+    ];
+    $coach_users = [];
+    foreach ( $coach_defs as $login => $cdef ) {
+        $u = get_user_by( 'login', $login );
+        if ( ! $u ) {
+            $uid = wp_create_user( $login, 'ApexKoc2026!', $cdef['email'] );
+            if ( ! is_wp_error( $uid ) ) {
+                wp_update_user( [ 'ID' => $uid, 'display_name' => $cdef['name'], 'role' => 'apex_coach' ] );
+                update_user_meta( $uid, 'apex_coach_title', $cdef['title'] );
+                $u = get_user_by( 'id', $uid );
+            }
+        }
+        if ( $u ) {
+            $coach_users[ $login ] = $u;
         }
     }
 
-    $elif = get_user_by( 'login', 'koc_elif' );
-    if ( ! $elif ) {
-        $eid = wp_create_user( 'koc_elif', 'ApexKoc2026!', 'elif.karaca@apexarena.com.tr' );
-        if ( ! is_wp_error( $eid ) ) {
-            wp_update_user( [ 'ID' => $eid, 'display_name' => 'Elif Karaca', 'role' => 'apex_coach' ] );
-            update_user_meta( $eid, 'apex_coach_title', 'HIIT, Metabolik Kondisyon & Beslenme Koçu' );
-            $elif = get_user_by( 'id', $eid );
-        }
-    }
-
+    $kerem    = $coach_users['koc_kerem'] ?? null;
+    $elif     = $coach_users['koc_elif'] ?? null;
     $kerem_id = $kerem ? (int) $kerem->ID : 1;
     $elif_id  = $elif ? (int) $elif->ID : $kerem_id;
     $demo_u   = get_user_by( 'login', 'uye_demo' );
@@ -472,6 +479,262 @@ function apex_setup_coach_roles_and_seed() {
                 'message'       => 'Teşekkürler hocam! Yeni beslenme planını panelden gördüm, Perşembe 19:00 seansına kadar birebir uygulayacağım.',
                 'is_read'       => 0,
             ] );
+        }
+    }
+
+    // 3b. Ek 5 Koç İçin Öğrenci, Beslenme Planı & Mesaj Seed (Sadece ilgili koçun öğrencisi yoksa)
+    $extra_coach_students = [
+        'koc_selin' => [
+            [
+                'student_name'     => 'Ece Demirtaş',
+                'student_email'    => 'ece.demirtas@example.com',
+                'goal'             => 'Reformer Pilates & Postür Düzeltme',
+                'status'           => 'hedefte',
+                'progress_pct'     => 89,
+                'progress_trend'   => 'up',
+                'adherence_pct'    => 93,
+                'current_weight'   => 57.2,
+                'target_weight'    => 56.0,
+                'sessions_planned' => 12,
+                'sessions_done'    => 11,
+                'coach_advice'     => 'Torasik mobilite ve core stabilizasyonunda harika ilerleme var. Bu hafta Cadillac serisine orta direnç yay ile geçiyoruz.',
+                'kcal'             => 1820,
+                'pro'              => 125,
+                'carb'             => 175,
+                'fat'              => 62,
+            ],
+            [
+                'student_name'     => 'Merve Aksu',
+                'student_email'    => 'merve.aksu@example.com',
+                'goal'             => 'Bel Mobilite & Esneklik',
+                'status'           => 'yeni',
+                'progress_pct'     => 46,
+                'progress_trend'   => 'up',
+                'adherence_pct'    => 82,
+                'current_weight'   => 62.5,
+                'target_weight'    => 60.0,
+                'sessions_planned' => 10,
+                'sessions_done'    => 5,
+                'coach_advice'     => 'Nefes koordinasyonu oturdu; seans dışı günlerde 10 dk kalça fleksör açma rutini bel rahatlığını hızlandıracak.',
+                'kcal'             => 1750,
+                'pro'              => 118,
+                'carb'             => 170,
+                'fat'              => 58,
+            ],
+        ],
+        'koc_mert' => [
+            [
+                'student_name'     => 'Kaan Yıldırım',
+                'student_email'    => 'kaan.yildirim@example.com',
+                'goal'             => 'Basketbol Çeviklik & Patlayıcı Kuvvet',
+                'status'           => 'hedefte',
+                'progress_pct'     => 84,
+                'progress_trend'   => 'up',
+                'adherence_pct'    => 88,
+                'current_weight'   => 86.0,
+                'target_weight'    => 84.5,
+                'sessions_planned' => 14,
+                'sessions_done'    => 12,
+                'coach_advice'     => 'Dikey sıçramada +4 cm artış kaydedildi. FIBA salon antrenmanları öncesi ayak bileği stabilite bloğunu 6 dk tutalım.',
+                'kcal'             => 2680,
+                'pro'              => 192,
+                'carb'             => 310,
+                'fat'              => 72,
+            ],
+            [
+                'student_name'     => 'Arda Koç',
+                'student_email'    => 'arda.koc@example.com',
+                'goal'             => 'Şut Mekaniği & Maç Kondisyonu',
+                'status'           => 'dikkat',
+                'progress_pct'     => 63,
+                'progress_trend'   => 'up',
+                'adherence_pct'    => 71,
+                'current_weight'   => 79.4,
+                'target_weight'    => 78.0,
+                'sessions_planned' => 12,
+                'sessions_done'    => 7,
+                'coach_advice'     => 'Yüksek tempo sprint geçişlerinde nabız toparlanmasını artırmak için Salı günleri 15 dk interval ekliyoruz.',
+                'kcal'             => 2520,
+                'pro'              => 180,
+                'carb'             => 285,
+                'fat'              => 68,
+            ],
+        ],
+        'koc_caner' => [
+            [
+                'student_name'     => 'İrem Şenol',
+                'student_email'    => 'irem.senol@example.com',
+                'goal'             => 'Voleybol Smaç & Blok Sıçrama',
+                'status'           => 'hedefte',
+                'progress_pct'     => 91,
+                'progress_trend'   => 'up',
+                'adherence_pct'    => 94,
+                'current_weight'   => 64.0,
+                'target_weight'    => 63.0,
+                'sessions_planned' => 16,
+                'sessions_done'    => 15,
+                'coach_advice'     => 'Blok zamanlaması ve iniş mekaniği kusursuz. Turnuva haftasına girerken yüklemeyi %15 düşürüp patlayıcılığı koruyoruz.',
+                'kcal'             => 2180,
+                'pro'              => 152,
+                'carb'             => 245,
+                'fat'              => 64,
+            ],
+            [
+                'student_name'     => 'Oğuzhan Tekin',
+                'student_email'    => 'oguzhan.tekin@example.com',
+                'goal'             => 'Omuz Kuvveti & Servis Hızı',
+                'status'           => 'yeni',
+                'progress_pct'     => 52,
+                'progress_trend'   => 'up',
+                'adherence_pct'    => 80,
+                'current_weight'   => 83.5,
+                'target_weight'    => 81.0,
+                'sessions_planned' => 10,
+                'sessions_done'    => 5,
+                'coach_advice'     => 'Skapular kontrol testlerinde güçlü başlangıç yaptık; haftada 3 gün rotator cuff protokolü devam ediyor.',
+                'kcal'             => 2460,
+                'pro'              => 176,
+                'carb'             => 270,
+                'fat'              => 68,
+            ],
+        ],
+        'koc_buse' => [
+            [
+                'student_name'     => 'Dilara Şen',
+                'student_email'    => 'dilara.sen@example.com',
+                'goal'             => 'Fonksiyonel Sıkılaşma & Yağ Yakımı',
+                'status'           => 'hedefte',
+                'progress_pct'     => 83,
+                'progress_trend'   => 'up',
+                'adherence_pct'    => 89,
+                'current_weight'   => 61.4,
+                'target_weight'    => 58.0,
+                'sessions_planned' => 12,
+                'sessions_done'    => 10,
+                'coach_advice'     => 'Kettlebell komplekslerinde tempo çok iyi. Günlük 10.000 adım ve 2.8L su hedefini bozmadan devam edelim.',
+                'kcal'             => 1720,
+                'pro'              => 132,
+                'carb'             => 155,
+                'fat'              => 58,
+            ],
+            [
+                'student_name'     => 'Onur Aksoy',
+                'student_email'    => 'onur.aksoy@example.com',
+                'goal'             => 'Metabolik Kondisyon & Kilo Kontrolü',
+                'status'           => 'dikkat',
+                'progress_pct'     => 58,
+                'progress_trend'   => 'down',
+                'adherence_pct'    => 66,
+                'current_weight'   => 89.2,
+                'target_weight'    => 82.0,
+                'sessions_planned' => 12,
+                'sessions_done'    => 7,
+                'coach_advice'     => 'Hafta sonu kaçamaklarını dengelemek için Cumartesi sabahı 40 dk tempolu yürüyüş + protein kahvaltı ekleyelim.',
+                'kcal'             => 2150,
+                'pro'              => 168,
+                'carb'             => 205,
+                'fat'              => 65,
+            ],
+        ],
+        'koc_emirhan' => [
+            [
+                'student_name'     => 'Berkay Tunç',
+                'student_email'    => 'berkay.tunc@example.com',
+                'goal'             => 'Temiz Hacim & Hipertrofi',
+                'status'           => 'hedefte',
+                'progress_pct'     => 88,
+                'progress_trend'   => 'up',
+                'adherence_pct'    => 92,
+                'current_weight'   => 77.8,
+                'target_weight'    => 81.0,
+                'sessions_planned' => 14,
+                'sessions_done'    => 13,
+                'coach_advice'     => 'Haftalık +0.35 kg temiz kas artışı hedef bandında. Kreatin 5g ve antrenman sonrası 45g hızlı karbonhidratı koruyoruz.',
+                'kcal'             => 2950,
+                'pro'              => 205,
+                'carb'             => 360,
+                'fat'              => 78,
+            ],
+            [
+                'student_name'     => 'Seda Karahan',
+                'student_email'    => 'seda.karahan@example.com',
+                'goal'             => 'Alt Vücut Kuvvet & Makro Dengesi',
+                'status'           => 'hedefte',
+                'progress_pct'     => 76,
+                'progress_trend'   => 'up',
+                'adherence_pct'    => 84,
+                'current_weight'   => 58.6,
+                'target_weight'    => 57.5,
+                'sessions_planned' => 12,
+                'sessions_done'    => 9,
+                'coach_advice'     => 'Hip thrust ve RDL ağırlıklarında istikrarlı artış var. Akşam öğününde protein kaynağını 160g üzerine sabitliyoruz.',
+                'kcal'             => 1940,
+                'pro'              => 140,
+                'carb'             => 195,
+                'fat'              => 62,
+            ],
+        ],
+    ];
+
+    $t_nut   = $wpdb->prefix . 'apex_nutrition_plans';
+    $t_cmsgs = $wpdb->prefix . 'apex_coach_messages';
+    foreach ( $extra_coach_students as $login => $st_rows ) {
+        if ( empty( $coach_users[ $login ] ) ) {
+            continue;
+        }
+        $cu_obj = $coach_users[ $login ];
+        $cid    = (int) $cu_obj->ID;
+        $cname  = $cu_obj->display_name;
+        if ( (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$t_students} WHERE coach_user_id = %d", $cid ) ) > 0 ) {
+            continue;
+        }
+        foreach ( $st_rows as $sr ) {
+            $wpdb->insert( $t_students, [
+                'coach_user_id'    => $cid,
+                'coach_name'       => $cname,
+                'student_user_id'  => 0,
+                'student_name'     => $sr['student_name'],
+                'student_email'    => $sr['student_email'],
+                'goal'             => $sr['goal'],
+                'status'           => $sr['status'],
+                'progress_pct'     => $sr['progress_pct'],
+                'progress_trend'   => $sr['progress_trend'],
+                'adherence_pct'    => $sr['adherence_pct'],
+                'current_weight'   => $sr['current_weight'],
+                'target_weight'    => $sr['target_weight'],
+                'sessions_planned' => $sr['sessions_planned'],
+                'sessions_done'    => $sr['sessions_done'],
+                'coach_advice'     => $sr['coach_advice'],
+            ] );
+            $sid = (int) $wpdb->insert_id;
+            if ( $sid > 0 ) {
+                $meals = [
+                    'sabah'     => '3 yumurta, 55g yulaf veya tam buğday ekşi maya tost, avokado, yeşil çay',
+                    'ara1'      => '25g çiğ badem/ceviz + 1 porsiyon mevsim meyvesi',
+                    'ogle'      => '180g ızgara tavuk veya hindi, 140g kinoa/basmati, zeytinyağlı yeşil salata',
+                    'ant_sonra' => 'Apex Protein Kafe Whey İzolat Shake (32g protein) + muz',
+                    'aksam'     => '190g ızgara somon veya yağsız dana, fırınlanmış sebze, 1 kase yoğurt',
+                ];
+                $wpdb->insert( $t_nut, [
+                    'student_id'    => $sid,
+                    'coach_user_id' => $cid,
+                    'daily_kcal'    => $sr['kcal'],
+                    'protein_g'     => $sr['pro'],
+                    'carbs_g'       => $sr['carb'],
+                    'fat_g'         => $sr['fat'],
+                    'water_l'       => 3.0,
+                    'meals_json'    => wp_json_encode( $meals, JSON_UNESCAPED_UNICODE ),
+                    'weekly_notes'  => 'Antrenman günlerinde kompleks karbonhidrat zamanlaması seans öncesi 90 dk ve sonrası 45 dk içine yerleştirilir.',
+                ] );
+                $wpdb->insert( $t_cmsgs, [
+                    'student_id'    => $sid,
+                    'coach_user_id' => $cid,
+                    'sender_role'   => 'coach',
+                    'sender_name'   => $cname,
+                    'message'       => 'Merhaba ' . explode( ' ', $sr['student_name'] )[0] . '! Haftalık antrenman ve beslenme takibini güncelledim, bir sonraki seans öncesi sorularını buradan yazabilirsin.',
+                    'is_read'       => 1,
+                ] );
+            }
         }
     }
 

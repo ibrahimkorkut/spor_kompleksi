@@ -304,7 +304,10 @@ body.admin-bar .apex-header-wrap { top: 32px; }
   backdrop-filter: blur(16px) saturate(1.65);
   border: 1px solid var(--glass-border);
   box-shadow: var(--glass-shadow), var(--glass-specular);
-  transition: background var(--apex-transition), border-color var(--apex-transition);
+  transition: max-width 0.36s cubic-bezier(0.22, 1, 0.36, 1), background var(--apex-transition), border-color var(--apex-transition);
+}
+.apex-header.is-search-open {
+  max-width: 1360px;
 }
 
 .apex-header-inner {
@@ -339,22 +342,95 @@ body.admin-bar .apex-header-wrap { top: 32px; }
 }
 .apex-brand-accent { color: var(--apex-text); font-weight: 800; }
 
+.apex-nav {
+  min-width: 0;
+  transition: opacity 0.22s ease, transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
 .apex-nav-list {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 4px;
   list-style: none;
   margin: 0;
   padding: 0;
+  transition: gap 0.3s ease;
+}
+.apex-header.is-search-open .apex-nav-list {
+  gap: 1px;
+}
+.apex-header.is-search-open .apex-nav-link {
+  padding: 7px 8px;
+}
+.apex-nav-morph-slot {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.apex-nav-morph {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-radius: var(--apex-radius-pill);
+  opacity: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.19) 0%, rgba(255, 255, 255, 0.1) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.34),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.18),
+    0 6px 18px rgba(0, 0, 0, 0.28);
+  transform-origin: center center;
+  will-change: transform, width, height, opacity, border-radius;
+  transition:
+    transform 0.46s cubic-bezier(0.22, 1.16, 0.36, 1),
+    width 0.44s cubic-bezier(0.22, 1.16, 0.36, 1),
+    height 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.24s ease,
+    border-radius 0.36s ease,
+    background 0.26s ease,
+    border-color 0.26s ease,
+    box-shadow 0.26s ease;
+}
+.apex-nav-morph.is-visible {
+  opacity: 1;
+}
+.apex-nav-morph.is-morphing {
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.24) 0%, rgba(227, 24, 55, 0.14) 100%);
+  border-color: rgba(255, 255, 255, 0.28);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.44),
+    0 6px 22px rgba(227, 24, 55, 0.22),
+    0 4px 14px rgba(0, 0, 0, 0.3);
+}
+.apex-nav-morph.is-instant {
+  transition: none !important;
+}
+html.a11y-light-mode .apex-nav-morph {
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.08) 0%, rgba(0, 0, 0, 0.05) 100%);
+  border-color: rgba(0, 0, 0, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+html.a11y-light-mode .apex-nav-morph.is-morphing {
+  background: linear-gradient(180deg, rgba(227, 24, 55, 0.12) 0%, rgba(0, 0, 0, 0.07) 100%);
+  border-color: rgba(227, 24, 55, 0.26);
 }
 .apex-nav-link {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
   font-size: 0.84rem;
   font-weight: 500;
   color: rgba(245, 245, 247, 0.78);
   padding: 7px 12px;
   border-radius: var(--apex-radius-pill);
   white-space: nowrap;
-  transition: background var(--apex-transition), color var(--apex-transition);
+  transition: background var(--apex-transition), color 0.22s ease;
 }
 .apex-nav-link:hover {
   color: #ffffff;
@@ -364,6 +440,14 @@ body.admin-bar .apex-header-wrap { top: 32px; }
   color: #ffffff;
   background: rgba(255, 255, 255, 0.14);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+.apex-nav-list.has-morph .apex-nav-link:hover,
+.apex-nav-list.has-morph .apex-nav-link.is-active {
+  background: transparent;
+  box-shadow: none;
+}
+html.a11y-light-mode .apex-nav-list.has-morph .apex-nav-link.is-active {
+  background: transparent;
 }
 
 .apex-header-actions {
@@ -427,30 +511,159 @@ body.admin-bar .apex-header-wrap { top: 32px; }
   cursor: pointer;
 }
 
-/* Search Bar (Liquid Glass Floating Drop) */
-.apex-search-bar {
-  max-width: 720px;
-  margin: 10px auto 0;
-  padding: 10px 12px;
+/* Inline Expanding Header Search Pill (In-Flow on Desktop — Menus Stay Visible!) */
+.apex-search-inline {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  z-index: 6;
+  transition: width 0.36s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.apex-search-inline.is-open {
+  width: 210px;
+}
+.apex-search-inline-form {
+  position: relative;
+  width: 100%;
+  height: 36px;
+  display: flex;
+  align-items: center;
   border-radius: var(--apex-radius-pill);
-  pointer-events: auto;
-  background: var(--glass-bg-regular);
-  -webkit-backdrop-filter: blur(30px) saturate(1.8);
-  backdrop-filter: blur(30px) saturate(1.8);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow), var(--glass-specular);
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  transition:
+    background 0.24s ease,
+    border-color 0.24s ease,
+    box-shadow 0.24s ease;
 }
-.apex-search-bar[hidden] { display: none !important; }
-.apex-search-form { display: flex; gap: 8px; }
-.apex-search-form input {
-  flex: 1;
-  background: transparent;
+.apex-search-inline:not(.is-open) .apex-search-inline-form:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+.apex-search-inline.is-open .apex-search-inline-form {
+  background: rgba(22, 22, 26, 0.94);
+  border-color: rgba(255, 255, 255, 0.22);
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+.apex-search-trigger {
+  width: 34px;
+  height: 34px;
+  padding: 0;
   border: 0;
-  padding: 8px 16px;
+  background: transparent;
   color: var(--apex-text);
-  font-size: 0.94rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
 }
-.apex-search-form input:focus { outline: none; }
+.apex-search-inline-input {
+  flex: 1;
+  min-width: 0;
+  width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--apex-text);
+  font-size: 0.84rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.apex-search-inline-input::placeholder { color: var(--apex-text-muted); }
+.apex-search-inline-input:focus { outline: none; }
+.apex-search-inline-input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+}
+.apex-search-inline.is-open .apex-search-inline-input {
+  width: auto;
+  padding: 0 6px 0 2px;
+  opacity: 1;
+  pointer-events: auto;
+}
+.apex-search-inline-close {
+  width: 0;
+  height: 26px;
+  padding: 0;
+  margin-right: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--apex-text-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: width 0.22s ease, opacity 0.18s ease, background 0.18s ease, color 0.18s ease;
+}
+.apex-search-inline.is-open .apex-search-inline-close {
+  width: 26px;
+  margin-right: 4px;
+  opacity: 1;
+  pointer-events: auto;
+}
+.apex-search-inline-close:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+html.a11y-light-mode .apex-search-inline-form {
+  background: rgba(0, 0, 0, 0.06);
+  border-color: rgba(0, 0, 0, 0.12);
+}
+html.a11y-light-mode .apex-search-inline:not(.is-open) .apex-search-inline-form:hover {
+  background: rgba(0, 0, 0, 0.11);
+}
+html.a11y-light-mode .apex-search-inline.is-open .apex-search-inline-form {
+  background: rgba(255, 255, 255, 0.96);
+  border-color: rgba(0, 0, 0, 0.18);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+html.a11y-light-mode .apex-search-trigger { color: #1d1d1f; }
+html.a11y-light-mode .apex-search-inline-close:hover {
+  background: rgba(0, 0, 0, 0.08);
+  color: #000000;
+}
+@media (max-width: 1260px) {
+  .apex-header.is-search-open .apex-nav-link {
+    padding: 6px 7px;
+    font-size: 0.79rem;
+  }
+  .apex-search-inline.is-open {
+    width: 185px;
+  }
+}
+@media (max-width: 1024px) {
+  .apex-search-inline.is-open {
+    width: 36px;
+  }
+  .apex-search-inline-form {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 36px;
+    transition: width 0.34s cubic-bezier(0.22, 1, 0.36, 1), background 0.24s ease, border-color 0.24s ease, box-shadow 0.24s ease;
+  }
+  .apex-search-inline.is-open .apex-search-inline-form {
+    width: min(260px, calc(100vw - 150px));
+  }
+}
+@media (max-width: 520px) {
+  .apex-brand-text { transition: opacity 0.2s ease; }
+  .apex-header.is-search-open .apex-brand-text {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .apex-search-inline.is-open .apex-search-inline-form {
+    width: min(240px, calc(100vw - 138px));
+  }
+}
 
 /* Live Status Pill (Clear Liquid Glass over media, subtle Apple System Green dot) */
 .apex-live-pill {
@@ -655,7 +868,7 @@ body.home .apex-section {
 .apex-grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
 .apex-grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
 .apex-grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
-.apex-split-booking { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.85fr); gap: 24px; align-items: start; min-width: 0; }
+.apex-split-booking { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.85fr); gap: 24px; align-items: stretch; min-width: 0; }
 .apex-split-profile { display: grid; grid-template-columns: minmax(260px, 340px) minmax(0, 1fr); gap: 32px; align-items: start; min-width: 0; }
 .apex-split-booking > *,
 .apex-split-profile > *,
@@ -1064,11 +1277,17 @@ body.home .apex-section {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px 16px;
   flex-wrap: wrap;
   padding-top: 24px;
   color: var(--apex-text-tertiary);
   font-size: 0.82rem;
+}
+.apex-footer-bottom p { margin: 0; }
+.apex-footer-bottom .apex-open-badge {
+  margin-left: 0;
+  padding: 4px 12px;
+  font-size: 0.74rem;
 }
 .apex-footer-bottom-links { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 
@@ -1077,62 +1296,128 @@ body.home .apex-section {
    ========================================================================== */
 .apex-wa-launcher {
   position: fixed;
-  right: 22px;
-  bottom: 82px;
+  right: 20px;
+  bottom: 80px;
   z-index: 9095;
-  width: 56px;
   height: 56px;
-  border-radius: 50%;
+  border-radius: var(--apex-radius-pill);
   color: #ffffff;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
   text-decoration: none;
-  animation: apexWaFloat 3.8s ease-in-out infinite;
-  transition: transform 0.34s cubic-bezier(0.22, 1, 0.36, 1), filter 0.3s ease;
+  transform: translate3d(var(--wa-mx, 0px), var(--wa-my, 0px), 0);
+  transition: transform 0.34s cubic-bezier(0.22, 1, 0.36, 1);
   will-change: transform;
 }
-.apex-wa-launcher:hover,
-.apex-wa-launcher:focus-visible {
-  animation-play-state: paused;
-  transform: translate3d(0, -4px, 0) scale(1.09);
-}
 .apex-wa-launcher:active {
-  transform: translate3d(0, -1px, 0) scale(0.97);
-}
-@keyframes apexWaFloat {
-  0%, 100% { transform: translate3d(0, 0, 0); }
-  50% { transform: translate3d(0, -5px, 0); }
+  transform: translate3d(var(--wa-mx, 0px), var(--wa-my, 0px), 0) scale(0.97);
 }
 
-.apex-wa-orb {
+/* Razor-Fine Emerald Radar Rings behind the Orb */
+.apex-wa-ring {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 56px;
+  height: 56px;
+  z-index: 0;
+  border-radius: 50%;
+  background: transparent;
+  border: 1.4px solid rgba(60, 255, 143, 0.58);
+  box-shadow: 0 0 12px rgba(37, 211, 102, 0.32);
+  pointer-events: none;
+  animation: apexWaPulse 2.8s cubic-bezier(0.16, 0.78, 0.34, 1) infinite;
+  transition: opacity 0.25s ease;
+  will-change: transform, opacity;
+}
+.apex-wa-ring-2 {
+  animation-delay: -1.4s;
+}
+.apex-wa-launcher:hover .apex-wa-ring,
+.apex-wa-launcher:focus-visible .apex-wa-ring {
+  opacity: 0;
+  animation-play-state: paused;
+}
+@keyframes apexWaPulse {
+  0% { transform: scale(1); opacity: 0.75; }
+  65% { transform: scale(1.62); opacity: 0.18; }
+  100% { transform: scale(1.92); opacity: 0; }
+}
+
+/* Morphing Obsidian Glass Shell with Orbiting Emerald Neon Rim */
+.apex-wa-shell {
   position: relative;
   z-index: 2;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
+  width: 56px;
+  height: 56px;
+  padding: 1.5px;
+  border-radius: var(--apex-radius-pill);
   overflow: hidden;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: radial-gradient(circle at 30% 24%, #4bf08a 0%, #25d366 56%, #18ad4f 100%);
+  display: flex;
   box-shadow:
-    0 12px 30px rgba(37, 211, 102, 0.48),
-    0 3px 10px rgba(0, 0, 0, 0.36),
-    inset 0 1.5px 2px rgba(255, 255, 255, 0.45),
-    inset 0 -3px 8px rgba(10, 92, 42, 0.35);
-  transition: box-shadow 0.3s ease;
+    0 14px 36px rgba(0, 0, 0, 0.52),
+    0 0 22px rgba(37, 211, 102, 0.28);
+  transition:
+    width 0.42s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.32s ease;
 }
-.apex-wa-launcher:hover .apex-wa-orb,
-.apex-wa-launcher:focus-visible .apex-wa-orb {
+.apex-wa-launcher:hover .apex-wa-shell,
+.apex-wa-launcher:focus-visible .apex-wa-shell {
+  width: 214px;
   box-shadow:
-    0 16px 38px rgba(37, 211, 102, 0.65),
-    0 4px 14px rgba(0, 0, 0, 0.42),
-    inset 0 1.5px 2px rgba(255, 255, 255, 0.58),
-    inset 0 -3px 8px rgba(10, 92, 42, 0.28);
+    0 18px 44px rgba(0, 0, 0, 0.62),
+    0 0 32px rgba(48, 245, 130, 0.42);
 }
 
-/* Liquid Glass Specular Shimmer Sweep across the Green Sphere */
+.apex-wa-border-spin {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 260px;
+  height: 260px;
+  margin-top: -130px;
+  margin-left: -130px;
+  background: conic-gradient(
+    from 0deg,
+    rgba(37, 211, 102, 0.12) 0deg,
+    rgba(37, 211, 102, 0.18) 120deg,
+    #25d366 195deg,
+    #82ffb6 225deg,
+    #ffffff 238deg,
+    #3cff8f 255deg,
+    rgba(37, 211, 102, 0.14) 315deg,
+    rgba(37, 211, 102, 0.12) 360deg
+  );
+  animation: apexWaOrbit 3.4s linear infinite;
+  pointer-events: none;
+  will-change: transform;
+}
+@keyframes apexWaOrbit {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.apex-wa-core {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  background:
+    radial-gradient(circle at 86% 24%, rgba(48, 232, 122, 0.24) 0%, rgba(13, 18, 16, 0.94) 58%, #090c0b 100%);
+  -webkit-backdrop-filter: blur(18px) saturate(1.7);
+  backdrop-filter: blur(18px) saturate(1.7);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -2px 10px rgba(0, 0, 0, 0.48);
+}
+
+/* Liquid Glass Specular Shimmer Sweep */
 .apex-wa-sheen {
   position: absolute;
   top: -20%;
@@ -1142,134 +1427,146 @@ body.home .apex-section {
   background: linear-gradient(
     90deg,
     rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.46) 50%,
+    rgba(180, 255, 214, 0.26) 50%,
     rgba(255, 255, 255, 0) 100%
   );
   transform: translate3d(-120%, 0, 0) skewX(-24deg);
   pointer-events: none;
-  animation: apexWaSheen 4.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation: apexWaSheen 4.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   will-change: transform;
 }
 @keyframes apexWaSheen {
   0%, 66% { transform: translate3d(-120%, 0, 0) skewX(-24deg); opacity: 0; }
   70% { opacity: 1; }
-  92% { transform: translate3d(360%, 0, 0) skewX(-24deg); opacity: 0.9; }
-  100% { transform: translate3d(360%, 0, 0) skewX(-24deg); opacity: 0; }
+  92% { transform: translate3d(420%, 0, 0) skewX(-24deg); opacity: 0.9; }
+  100% { transform: translate3d(420%, 0, 0) skewX(-24deg); opacity: 0; }
 }
 
-/* Continuous Expanding Green Ghost-Ripple Circles (3 Staggered Waves in Endless Loop) */
-.apex-wa-ring {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(37, 211, 102, 0.42) 48%, rgba(46, 232, 118, 0.72) 100%);
-  border: 2px solid rgba(75, 240, 138, 0.88);
-  box-shadow: 0 0 18px rgba(37, 211, 102, 0.42);
+/* Dynamic Label Revealed inside Expanded Glass Pill */
+.apex-wa-label {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  padding-left: 18px;
+  padding-right: 4px;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate3d(12px, 0, 0);
+  transition: opacity 0.24s ease 0.06s, transform 0.34s cubic-bezier(0.22, 1, 0.36, 1) 0.04s;
   pointer-events: none;
-  animation: apexWaPulse 2.4s cubic-bezier(0.16, 0.78, 0.34, 1) infinite;
-  will-change: transform, opacity;
 }
-.apex-wa-ring-2 {
-  animation-delay: -0.8s;
+.apex-wa-launcher:hover .apex-wa-label,
+.apex-wa-launcher:focus-visible .apex-wa-label {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
 }
-.apex-wa-ring-3 {
-  animation-delay: -1.6s;
+.apex-wa-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.63rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  color: #5cf59b;
 }
-@keyframes apexWaPulse {
-  0% { transform: scale(1); opacity: 0.82; }
-  55% { transform: scale(1.62); opacity: 0.3; }
-  100% { transform: scale(2.12); opacity: 0; }
+.apex-wa-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #3cff8f;
+  box-shadow: 0 0 8px rgba(60, 255, 143, 0.95);
+}
+.apex-wa-title {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
 }
 
-/* Subtle Periodic Chime Nod on WhatsApp Icon + Spring Hover Tilt */
+/* Glowing Emerald Icon Chamber */
+.apex-wa-icon-wrap {
+  width: 53px;
+  height: 53px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
 .apex-wa-icon {
   position: relative;
   z-index: 2;
   display: block;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.18));
+  color: #3cff8f;
+  filter: drop-shadow(0 0 9px rgba(48, 232, 122, 0.8));
   animation: apexWaIconTilt 5.4s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
-  transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform 0.34s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.25s ease, filter 0.25s ease;
   will-change: transform;
 }
 .apex-wa-launcher:hover .apex-wa-icon,
 .apex-wa-launcher:focus-visible .apex-wa-icon {
   animation: none;
-  transform: rotate(-10deg) scale(1.09);
+  color: #7bffb3;
+  filter: drop-shadow(0 0 14px rgba(60, 255, 143, 0.95));
+  transform: rotate(-10deg) scale(1.08);
 }
 @keyframes apexWaIconTilt {
-  0%, 74%, 100% { transform: rotate(0deg) scale(1); }
-  79% { transform: rotate(-11deg) scale(1.07); }
-  84% { transform: rotate(10deg) scale(1.07); }
-  89% { transform: rotate(-6deg) scale(1.03); }
-  94% { transform: rotate(4deg) scale(1.01); }
+  0%, 76%, 100% { transform: rotate(0deg) scale(1); }
+  81% { transform: rotate(-10deg) scale(1.06); }
+  86% { transform: rotate(9deg) scale(1.06); }
+  91% { transform: rotate(-5deg) scale(1.02); }
+  95% { transform: rotate(3deg) scale(1.01); }
 }
 
-/* Elastic Spring Pop on Notification Badge Synced with Icon Chime */
+/* Surgical Dark-Rimmed Neon Crimson Notification Counter */
 .apex-wa-badge {
   position: absolute;
   top: -3px;
-  right: -3px;
+  right: -2px;
   z-index: 4;
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
-  background: linear-gradient(145deg, #ff5247 0%, #ff2d20 100%);
-  border: 2.5px solid #25d366;
+  background: linear-gradient(145deg, #ff3b6b 0%, #fa114f 100%);
+  border: 2px solid #0b0e0d;
   color: #ffffff;
-  font-size: 0.74rem;
+  font-size: 0.68rem;
   font-weight: 800;
   line-height: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(255, 59, 48, 0.6);
+  box-shadow: 0 0 12px rgba(250, 17, 79, 0.78);
   animation: apexWaBadgePop 5.4s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
-  will-change: transform;
+  transition: opacity 0.2s ease, transform 0.25s ease;
+  will-change: transform, opacity;
+}
+.apex-wa-launcher:hover .apex-wa-badge,
+.apex-wa-launcher:focus-visible .apex-wa-badge {
+  opacity: 0;
+  transform: scale(0.6);
+  animation: none;
 }
 @keyframes apexWaBadgePop {
-  0%, 74%, 100% { transform: scale(1); }
-  80% { transform: scale(1.24) translate3d(0, -1.5px, 0); }
-  86% { transform: scale(0.92); }
-  91% { transform: scale(1.1); }
+  0%, 76%, 100% { transform: scale(1); }
+  82% { transform: scale(1.22) translate3d(0, -1.5px, 0); }
+  88% { transform: scale(0.92); }
+  93% { transform: scale(1.08); }
 }
 
-/* Expanding Liquid Glass Tooltip with Live Green Dot */
-.apex-wa-tooltip {
-  position: absolute;
-  right: calc(100% + 14px);
-  top: 50%;
-  transform: translate3d(8px, -50%, 0) scale(0.96);
-  padding: 8px 14px;
-  border-radius: var(--apex-radius-pill);
-  background: rgba(16, 17, 22, 0.92);
-  -webkit-backdrop-filter: blur(12px) saturate(1.5);
-  backdrop-filter: blur(12px) saturate(1.5);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  color: #ffffff;
-  font-size: 0.79rem;
-  font-weight: 600;
-  white-space: nowrap;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.16);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.24s ease, transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+/* Light Mode Adaptation */
+html.a11y-light-mode .apex-wa-core {
+  background: radial-gradient(circle at 86% 24%, rgba(37, 211, 102, 0.18) 0%, rgba(255, 255, 255, 0.94) 60%, #ffffff 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 -2px 8px rgba(0, 0, 0, 0.05);
 }
-.apex-wa-tooltip-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #25d366;
-  box-shadow: 0 0 8px rgba(37, 211, 102, 0.85);
+html.a11y-light-mode .apex-wa-icon {
+  color: #16a34a;
+  filter: drop-shadow(0 0 6px rgba(22, 163, 74, 0.35));
 }
-.apex-wa-launcher:hover .apex-wa-tooltip,
-.apex-wa-launcher:focus-visible .apex-wa-tooltip {
-  opacity: 1;
-  transform: translate3d(0, -50%, 0) scale(1);
-}
+html.a11y-light-mode .apex-wa-title { color: #111827; }
+html.a11y-light-mode .apex-wa-status { color: #15803d; }
+html.a11y-light-mode .apex-wa-badge { border-color: #ffffff; }
 
 .apex-ai-launcher {
   position: fixed;
@@ -1279,27 +1576,65 @@ body.home .apex-section {
   display: inline-flex;
   align-items: center;
   gap: 9px;
-  background: var(--glass-bg-regular);
+  background:
+    radial-gradient(ellipse 80% 120% at 18% 50%, rgba(227, 24, 55, 0.18) 0%, transparent 65%),
+    var(--glass-bg-regular);
   -webkit-backdrop-filter: blur(14px) saturate(1.65);
   backdrop-filter: blur(14px) saturate(1.65);
   color: #ffffff;
-  border: 1px solid var(--glass-border);
+  border: 1px solid rgba(250, 17, 79, 0.34);
   border-radius: var(--apex-radius-pill);
   padding: 11px 20px;
   min-height: 46px;
   font-size: 0.88rem;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: var(--glass-shadow), var(--glass-specular);
-  transition: transform var(--apex-transition), background var(--apex-transition);
+  box-shadow:
+    var(--glass-shadow),
+    var(--glass-specular),
+    0 0 22px rgba(227, 24, 55, 0.34),
+    0 0 44px rgba(250, 17, 79, 0.16);
+  transition: transform var(--apex-transition), background var(--apex-transition), border-color 0.25s ease, box-shadow 0.28s ease;
 }
-.apex-ai-launcher:hover { transform: translateY(-2px); background: rgba(36, 36, 42, 0.78); }
+.apex-ai-launcher::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  background: radial-gradient(ellipse at center, rgba(250, 17, 79, 0.48) 0%, rgba(227, 24, 55, 0.16) 55%, transparent 78%);
+  filter: blur(14px);
+  z-index: -1;
+  pointer-events: none;
+  animation: apexAiGlowBreath 3.6s ease-in-out infinite;
+}
+@keyframes apexAiGlowBreath {
+  0%, 100% { opacity: 0.72; transform: scale(0.98); }
+  50% { opacity: 1; transform: scale(1.06); }
+}
+.apex-ai-launcher:hover,
+.apex-ai-launcher:focus-visible {
+  transform: translateY(-2px);
+  background:
+    radial-gradient(ellipse 80% 120% at 18% 50%, rgba(250, 17, 79, 0.26) 0%, transparent 65%),
+    rgba(30, 22, 26, 0.86);
+  border-color: rgba(255, 75, 124, 0.58);
+  box-shadow:
+    var(--glass-shadow),
+    var(--glass-specular),
+    0 0 28px rgba(250, 17, 79, 0.52),
+    0 0 56px rgba(227, 24, 55, 0.26);
+}
 .apex-ai-launcher-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--apex-crimson);
-  box-shadow: 0 0 8px rgba(227, 24, 55, 0.8);
+  background: #ff2d55;
+  box-shadow: 0 0 10px rgba(255, 45, 85, 0.95);
+  animation: apexAiDotPulse 2.4s ease-in-out infinite;
+}
+@keyframes apexAiDotPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.22); opacity: 0.72; }
 }
 
 .apex-ai-panel {
@@ -1338,9 +1673,17 @@ body.home .apex-section {
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
+.apex-ai-messages-wrap {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  overflow: hidden;
+}
 .apex-ai-messages {
   flex: 1;
-  padding: 16px;
+  min-height: 0;
+  padding: 16px 26px 16px 16px;
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: none;
@@ -1353,6 +1696,81 @@ body.home .apex-section {
   display: none;
   width: 0;
   height: 0;
+}
+.apex-ai-scrollbar {
+  position: absolute;
+  top: 10px;
+  right: 4px;
+  bottom: 10px;
+  width: 18px;
+  z-index: 4;
+  display: flex;
+  justify-content: center;
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+  opacity: 1;
+  transition: opacity 0.25s ease;
+}
+.apex-ai-scrollbar.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+.apex-ai-scrollbar-track {
+  position: relative;
+  width: 5px;
+  height: 100%;
+  border-radius: var(--apex-radius-pill);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  transition: width 0.2s ease, background 0.2s ease;
+}
+.apex-ai-scrollbar:hover .apex-ai-scrollbar-track,
+.apex-ai-scrollbar.is-dragging .apex-ai-scrollbar-track {
+  width: 7px;
+  background: rgba(255, 255, 255, 0.1);
+}
+.apex-ai-scrollbar-thumb {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  min-height: 36px;
+  border-radius: var(--apex-radius-pill);
+  background: linear-gradient(180deg, #ff4d6d 0%, var(--apex-crimson) 55%, #b80f2a 100%);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.45),
+    0 0 8px rgba(227, 24, 55, 0.65),
+    0 0 18px rgba(227, 24, 55, 0.28);
+  cursor: grab;
+  will-change: transform, height;
+  transition: box-shadow 0.2s ease, filter 0.2s ease;
+}
+.apex-ai-scrollbar-thumb::before {
+  content: '';
+  position: absolute;
+  inset: -4px -7px;
+}
+.apex-ai-scrollbar:hover .apex-ai-scrollbar-thumb,
+.apex-ai-scrollbar.is-dragging .apex-ai-scrollbar-thumb {
+  filter: brightness(1.1);
+  box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.6),
+    0 0 10px rgba(255, 59, 92, 0.85),
+    0 0 24px rgba(227, 24, 55, 0.45);
+}
+.apex-ai-scrollbar.is-dragging .apex-ai-scrollbar-thumb {
+  cursor: grabbing;
+}
+html.a11y-light-mode .apex-ai-scrollbar-track {
+  background: rgba(15, 23, 42, 0.09);
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.06);
+}
+html.a11y-light-mode .apex-ai-scrollbar-thumb {
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.45),
+    0 0 8px rgba(227, 24, 55, 0.45),
+    0 0 14px rgba(227, 24, 55, 0.2);
 }
 .apex-msg {
   max-width: 88%;
@@ -1885,6 +2303,12 @@ body.home .apex-section {
 /* ==========================================================================
    SPLIT SLIDING CURVED AUTH STAGE (/uyelik/ — Photo 2 Layout × APEX Dark/Crimson)
    ========================================================================== */
+#kayit,
+#paketler,
+#uye-paneli {
+  scroll-margin-top: 86px;
+}
+
 .apex-anchor-target {
   display: block;
   position: relative;
@@ -1918,13 +2342,15 @@ body.home .apex-section {
   align-items: center;
   justify-content: center;
   padding: clamp(26px, 3.2vw, 44px);
-  transition: transform 0.65s cubic-bezier(0.65, 0, 0.35, 1), opacity 0.45s ease;
+  will-change: transform, opacity;
+  transition: transform 0.72s cubic-bezier(0.76, 0, 0.24, 1), opacity 0.42s ease 0.12s;
 }
 
 .apex-auth-pane-login {
   left: 0;
   z-index: 2;
   opacity: 1;
+  transform: translate3d(0, 0, 0);
 }
 
 .apex-auth-pane-register {
@@ -1932,21 +2358,24 @@ body.home .apex-section {
   z-index: 1;
   opacity: 0;
   pointer-events: none;
+  transform: translate3d(0, 0, 0);
 }
 
 /* When Register mode is active, Register pane slides smoothly to the RIGHT half */
 .apex-auth-stage.is-register .apex-auth-pane-login {
-  transform: translateX(100%);
+  transform: translate3d(100%, 0, 0);
   opacity: 0;
   pointer-events: none;
   z-index: 1;
+  transition: transform 0.72s cubic-bezier(0.76, 0, 0.24, 1), opacity 0.28s ease;
 }
 
 .apex-auth-stage.is-register .apex-auth-pane-register {
-  transform: translateX(100%);
+  transform: translate3d(100%, 0, 0);
   opacity: 1;
   pointer-events: auto;
   z-index: 5;
+  transition: transform 0.72s cubic-bezier(0.76, 0, 0.24, 1), opacity 0.42s ease 0.16s;
 }
 
 .apex-auth-pane-inner {
@@ -2102,11 +2531,16 @@ body.home .apex-section {
   z-index: 10;
   border-radius: 150px 0 0 110px;
   box-shadow: -20px 0 60px rgba(0, 0, 0, 0.45);
-  transition: transform 0.65s cubic-bezier(0.65, 0, 0.35, 1), border-radius 0.65s cubic-bezier(0.65, 0, 0.35, 1);
+  transform: translate3d(0, 0, 0);
+  will-change: transform, border-radius;
+  transition:
+    transform 0.72s cubic-bezier(0.76, 0, 0.24, 1),
+    border-radius 0.72s cubic-bezier(0.76, 0, 0.24, 1),
+    box-shadow 0.72s ease;
 }
 
 .apex-auth-stage.is-register .apex-auth-overlay-wrap {
-  transform: translateX(-100%);
+  transform: translate3d(-100%, 0, 0);
   border-radius: 0 150px 110px 0;
   box-shadow: 20px 0 60px rgba(0, 0, 0, 0.45);
 }
@@ -2120,12 +2554,13 @@ body.home .apex-section {
     radial-gradient(ellipse 80% 70% at 25% 20%, rgba(255, 110, 130, 0.28) 0%, rgba(227, 24, 55, 0) 60%),
     linear-gradient(138deg, #e31837 0%, #b50f2b 52%, #680717 100%);
   color: #ffffff;
-  transform: translateX(0);
-  transition: transform 0.65s cubic-bezier(0.65, 0, 0.35, 1);
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+  transition: transform 0.72s cubic-bezier(0.76, 0, 0.24, 1);
 }
 
 .apex-auth-stage.is-register .apex-auth-overlay {
-  transform: translateX(50%);
+  transform: translate3d(50%, 0, 0);
 }
 
 .apex-auth-overlay-panel {
@@ -2140,23 +2575,28 @@ body.home .apex-section {
   justify-content: center;
   text-align: center;
   gap: 14px;
-  transition: transform 0.65s cubic-bezier(0.65, 0, 0.35, 1);
+  will-change: transform, opacity;
+  transition: transform 0.72s cubic-bezier(0.76, 0, 0.24, 1), opacity 0.46s ease;
 }
 
 .apex-auth-overlay-left {
   left: 0;
-  transform: translateX(-18%);
+  opacity: 0;
+  transform: translate3d(-24%, 0, 0);
 }
 .apex-auth-stage.is-register .apex-auth-overlay-left {
-  transform: translateX(0);
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
 }
 
 .apex-auth-overlay-right {
   right: 0;
-  transform: translateX(0);
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
 }
 .apex-auth-stage.is-register .apex-auth-overlay-right {
-  transform: translateX(18%);
+  opacity: 0;
+  transform: translate3d(24%, 0, 0);
 }
 
 .apex-auth-ov-eyebrow {
@@ -2211,9 +2651,9 @@ body.home .apex-section {
    ========================================================================== */
 .apex-contact-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.06fr) minmax(0, 0.94fr);
-  gap: 36px;
-  align-items: start;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 28px;
+  align-items: stretch;
 }
 
 .apex-contact-form-card {
@@ -2376,11 +2816,20 @@ body.home .apex-section {
 
 /* Right Info Column — 5 Individual Icon Cards */
 .apex-contact-info-col {
-  padding-top: 8px;
+  background: var(--apex-surface);
+  border: 1px solid var(--apex-border-strong);
+  border-radius: 22px;
+  padding: 36px 34px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.48);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .apex-contact-info-list {
+  flex: 1 1 auto;
   display: grid;
+  grid-auto-rows: 1fr;
   gap: 14px;
 }
 
@@ -2388,9 +2837,9 @@ body.home .apex-section {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 18px 20px;
+  padding: 16px 20px;
   border-radius: 16px;
-  background: var(--apex-surface);
+  background: var(--apex-bg);
   border: 1px solid var(--apex-border);
   text-decoration: none;
   color: inherit;
@@ -2612,6 +3061,9 @@ body.admin-bar .apex-scroll-progress { top: 32px; }
   font-size: 0.71rem;
   font-weight: 700;
   letter-spacing: 0.01em;
+  line-height: 1.4;
+  white-space: nowrap;
+  flex-shrink: 0;
   vertical-align: middle;
 }
 .apex-open-badge:empty { display: none; }
@@ -2832,7 +3284,8 @@ html.a11y-reduce-motion .apex-reveal {
     grid-template-columns: 1fr;
     gap: 28px;
   }
-  .apex-contact-form-card {
+  .apex-contact-form-card,
+  .apex-contact-info-col {
     padding: 26px 22px;
   }
 }
@@ -2852,10 +3305,13 @@ html.a11y-reduce-motion .apex-reveal {
   .apex-footer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .apex-hero { min-height: auto; padding: 112px 0 48px; }
   .apex-hero-ctas .apex-btn { flex: 1 1 170px; }
-  .apex-wa-launcher { right: 14px; bottom: 70px; width: 50px; height: 50px; }
-  .apex-wa-icon { width: 25px; height: 25px; }
-  .apex-wa-badge { width: 20px; height: 20px; font-size: 0.7rem; }
-  .apex-wa-tooltip { display: none; }
+  .apex-wa-launcher { right: 14px; bottom: 70px; height: 50px; }
+  .apex-wa-shell, .apex-wa-ring { width: 50px; height: 50px; }
+  .apex-wa-launcher:hover .apex-wa-shell, .apex-wa-launcher:focus-visible .apex-wa-shell { width: 50px; }
+  .apex-wa-icon-wrap { width: 47px; height: 47px; }
+  .apex-wa-icon { width: 23px; height: 23px; }
+  .apex-wa-label { display: none; }
+  .apex-wa-badge { width: 18px; height: 18px; font-size: 0.65rem; }
   .apex-back-top { left: 14px; bottom: 70px; width: 44px; height: 44px; }
   .apex-kbd { display: none; }
   .apex-footer { padding-bottom: 92px; }
@@ -3160,16 +3616,37 @@ html.a11y-reduce-motion .apex-reveal {
   font-size: 0.87rem;
   color: var(--apex-text);
 }
-.apex-member-chat-box {
-  height: 310px;
-  overflow-y: auto;
-  padding: 14px;
+.apex-member-chat-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+.apex-member-chat-wrap {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 340px;
   border-radius: 14px;
   background: var(--apex-bg);
   border: 1px solid var(--apex-border);
+  overflow: hidden;
+}
+.apex-member-chat-box {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 14px 26px 14px 14px;
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+.apex-member-chat-box::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 .apex-mchat-bubble {
   max-width: 85%;
@@ -3200,6 +3677,304 @@ html.a11y-reduce-motion .apex-reveal {
 .apex-wk-bars {
   display: grid;
   gap: 12px;
+}
+.apex-wk-form-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 18px;
+  height: 100%;
+  padding: 20px;
+  border-radius: 14px;
+  background: var(--apex-bg);
+  border: 1px solid var(--apex-border);
+}
+.apex-wk-form-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.apex-wk-form-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--apex-text-muted);
+}
+.apex-wk-presets {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.apex-wk-preset {
+  padding: 4px 10px;
+  border-radius: var(--apex-radius-pill);
+  border: 1px solid var(--apex-border-strong);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--apex-text-muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+.apex-wk-preset:hover,
+.apex-wk-preset.is-active {
+  background: rgba(227, 24, 55, 0.16);
+  border-color: rgba(227, 24, 55, 0.45);
+  color: #ffffff;
+}
+.apex-wk-goal-box {
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--apex-border);
+  display: grid;
+  gap: 9px;
+}
+.apex-wk-goal-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.82rem;
+  color: var(--apex-text-muted);
+}
+.apex-wk-goal-top strong { color: var(--apex-text); }
+.apex-wk-goal-track {
+  height: 8px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+.apex-wk-goal-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, #e31837 0%, #ff4b7c 55%, #f4e268 100%);
+  box-shadow: 0 0 12px rgba(227, 24, 55, 0.45);
+  transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.apex-wk-goal-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.78rem;
+  color: var(--apex-text-muted);
+}
+.apex-wk-goal-meta strong { color: var(--apex-text); }
+
+.apex-pt-picker-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.apex-pt-picker-list {
+  flex: 1 1 auto;
+  display: grid;
+  grid-auto-rows: 1fr;
+  gap: 14px;
+}
+.apex-trainer-pick {
+  padding: 16px 18px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  cursor: pointer;
+  border-radius: 14px;
+  background: var(--apex-bg);
+  border: 1px solid var(--apex-border);
+  transition: border-color 0.22s ease, background 0.22s ease, transform 0.22s ease, box-shadow 0.22s ease;
+}
+.apex-trainer-pick:hover {
+  border-color: var(--apex-border-strong);
+  background: rgba(255, 255, 255, 0.03);
+  transform: translateY(-1px);
+}
+.apex-trainer-pick.apex-card-featured {
+  border-color: rgba(227, 24, 55, 0.65);
+  background: linear-gradient(135deg, rgba(227, 24, 55, 0.1) 0%, var(--apex-bg) 65%);
+  box-shadow: 0 0 0 1px rgba(227, 24, 55, 0.24), 0 10px 26px rgba(227, 24, 55, 0.14);
+}
+.apex-pt-picker-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--apex-border);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--apex-text-muted);
+}
+
+.apex-court-summary-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 20px;
+  height: 100%;
+}
+.apex-court-summary-foot {
+  display: grid;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--apex-border);
+}
+.apex-court-summary-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.apex-court-summary-pills span {
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 5px 11px;
+  border-radius: var(--apex-radius-pill);
+  background: var(--apex-bg);
+  border: 1px solid var(--apex-border);
+  color: var(--apex-text-muted);
+}
+.apex-court-summary-help {
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--apex-bg);
+  border: 1px solid var(--apex-border);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 0.8rem;
+}
+.apex-court-summary-help a {
+  color: var(--apex-text);
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+.apex-court-summary-help a:hover {
+  color: var(--apex-crimson);
+}
+
+/* Clickable Digital QR Card & Enlarged Apple-Wallet Popup */
+.apex-qr-trigger {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 18px;
+  padding: 10px 12px;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), background 0.22s ease, border-color 0.22s ease, box-shadow 0.28s ease;
+}
+.apex-qr-trigger .apex-qr-svg {
+  border-radius: 12px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.36);
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.28s ease;
+}
+.apex-qr-trigger:hover,
+.apex-qr-trigger:focus-visible {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(227, 24, 55, 0.42);
+  transform: translateY(-2px);
+}
+.apex-qr-trigger:hover .apex-qr-svg,
+.apex-qr-trigger:focus-visible .apex-qr-svg {
+  transform: scale(1.05);
+  box-shadow: 0 12px 30px rgba(227, 24, 55, 0.32);
+}
+.apex-qr-trigger-lbl {
+  font-size: 0.75rem;
+  color: var(--apex-volt);
+  font-weight: 800;
+  letter-spacing: 0.03em;
+}
+.apex-qr-trigger-hint {
+  font-size: 0.7rem;
+  color: var(--apex-text-muted);
+  opacity: 0.85;
+}
+.apex-qr-backdrop {
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+}
+.apex-qr-modal {
+  max-width: 400px !important;
+  width: min(400px, calc(100vw - 28px));
+  padding: 24px 24px 22px !important;
+  border-radius: 26px !important;
+  background:
+    radial-gradient(ellipse 80% 45% at 50% 0%, rgba(227, 24, 55, 0.2) 0%, transparent 65%),
+    #121318 !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  box-shadow: 0 32px 90px rgba(0, 0, 0, 0.7), 0 0 40px rgba(227, 24, 55, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.16) !important;
+  animation: apexQrPopIn 0.32s cubic-bezier(0.22, 1.18, 0.36, 1) both;
+}
+@keyframes apexQrPopIn {
+  from { opacity: 0; transform: scale(0.86) translateY(14px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.apex-qr-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.apex-qr-stage {
+  position: relative;
+  width: min(280px, 72vw);
+  height: min(280px, 72vw);
+  margin: 0 auto;
+  padding: 12px;
+  border-radius: 22px;
+  background: #ffffff;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45), 0 0 28px rgba(227, 24, 55, 0.24);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.apex-qr-stage .apex-qr-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.apex-qr-scanline {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  top: 12px;
+  height: 2.5px;
+  border-radius: 99px;
+  background: linear-gradient(90deg, transparent 0%, #e31837 25%, #ff4d6d 50%, #e31837 75%, transparent 100%);
+  box-shadow: 0 0 12px rgba(227, 24, 55, 0.85);
+  opacity: 0.72;
+  pointer-events: none;
+  animation: apexQrScan 2.8s ease-in-out infinite;
+}
+@keyframes apexQrScan {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(calc(min(280px, 72vw) - 28px)); }
+}
+.apex-qr-code-pill {
+  margin-top: 18px;
+  padding: 10px 16px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.84rem;
+  color: var(--apex-text-muted);
+}
+.apex-qr-code-pill strong {
+  color: #ffffff;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  letter-spacing: 0.06em;
+  font-size: 0.94rem;
 }
 .apex-wk-row {
   padding: 10px 12px;

@@ -170,22 +170,36 @@ $cu       = is_user_logged_in() ? wp_get_current_user() : null;
             </div>
 
             <!-- Canlı Fiyat & Özet Kartı -->
-            <aside class="apex-panel" aria-label="Rezervasyon özeti">
-                <h3 class="apex-h3" style="margin-bottom:16px;">REZERVASYON ÖZETİ</h3>
-                <div class="apex-summary-box">
-                    <div class="apex-summary-row"><span class="apex-muted">Salon:</span><strong id="sum-court">-</strong></div>
-                    <div class="apex-summary-row"><span class="apex-muted">Tarih & Saat:</span><strong id="sum-datetime">Saat seçiniz</strong></div>
-                    <div class="apex-summary-row"><span class="apex-muted">Süre:</span><strong id="sum-duration">1 Saat</strong></div>
-                    <div class="apex-summary-row"><span class="apex-muted">Salon Ücreti:</span><strong id="sum-base">₺0</strong></div>
-                    <div class="apex-summary-row"><span class="apex-muted">Hakem Hizmeti:</span><strong id="sum-referee">Dahil Değil (₺0)</strong></div>
-                    <div class="apex-summary-row apex-summary-total"><span>TOPLAM TUTAR</span><span id="sum-total">₺0</span></div>
+            <aside class="apex-panel apex-court-summary-panel" aria-label="Rezervasyon özeti">
+                <div>
+                    <h3 class="apex-h3" style="margin-bottom:16px;">REZERVASYON ÖZETİ</h3>
+                    <div class="apex-summary-box">
+                        <div class="apex-summary-row"><span class="apex-muted">Salon:</span><strong id="sum-court">-</strong></div>
+                        <div class="apex-summary-row"><span class="apex-muted">Tarih & Saat:</span><strong id="sum-datetime">Saat seçiniz</strong></div>
+                        <div class="apex-summary-row"><span class="apex-muted">Süre:</span><strong id="sum-duration">1 Saat</strong></div>
+                        <div class="apex-summary-row"><span class="apex-muted">Salon Ücreti:</span><strong id="sum-base">₺0</strong></div>
+                        <div class="apex-summary-row"><span class="apex-muted">Hakem Hizmeti:</span><strong id="sum-referee">Dahil Değil (₺0)</strong></div>
+                        <div class="apex-summary-row apex-summary-total"><span>TOPLAM TUTAR</span><span id="sum-total">₺0</span></div>
+                    </div>
+                    <ul class="apex-checklist" style="margin-top:20px;">
+                        <li>Maç topları ve dijital skorboard kullanımı ücretsizdir.</li>
+                        <li>Soyunma odası, yağmur duş ve ilk 2 saat kapalı otopark dahildir.</li>
+                        <li>Maç saatinden 12 saat öncesine kadar ücretsiz iptal/değişiklik.</li>
+                        <li>APEX PRO üyelerine gişede anında %25 üye indirimi uygulanır.</li>
+                    </ul>
                 </div>
-                <ul class="apex-checklist" style="margin-top:20px;">
-                    <li>Maç topları ve dijital skorboard kullanımı ücretsizdir.</li>
-                    <li>Soyunma odası, yağmur duş ve ilk 2 saat kapalı otopark dahildir.</li>
-                    <li>Maç saatinden 12 saat öncesine kadar ücretsiz iptal/değişiklik.</li>
-                    <li>APEX PRO üyelerine gişede anında %25 üye indirimi uygulanır.</li>
-                </ul>
+
+                <div class="apex-court-summary-foot">
+                    <div class="apex-court-summary-pills">
+                        <span>FIBA &amp; CEV Parke</span>
+                        <span>180 Araç Otopark</span>
+                        <span>Duş &amp; Sauna</span>
+                    </div>
+                    <div class="apex-court-summary-help">
+                        <span class="apex-muted">Kurumsal turnuva &amp; toplu rezervasyon hattı</span>
+                        <a href="tel:<?php echo esc_attr( preg_replace( '/\s+/', '', $settings['phone'] ) ); ?>"><?php echo esc_html( $settings['phone'] ); ?></a>
+                    </div>
+                </div>
             </aside>
         </div>
     </div>

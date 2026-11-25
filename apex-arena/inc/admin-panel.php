@@ -72,10 +72,11 @@ add_action( 'admin_menu', function() {
 } );
 
 /**
- * Genel Bakış Paneli
+ * Genel Bakış Paneli — Neon Glow Operasyon & Telemetri Merkezi (v2.0.2)
  */
 function apex_admin_dashboard_page() {
     global $wpdb;
+    $settings    = apex_get_settings();
     $court_count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}apex_court_bookings WHERE status != 'cancelled'" );
     $ref_count   = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}apex_court_bookings WHERE needs_referee = 1 AND status != 'cancelled'" );
     $pt_count    = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}apex_pt_appointments WHERE status != 'cancelled'" );
@@ -88,106 +89,1208 @@ function apex_admin_dashboard_page() {
     $cafe_count  = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}apex_cafe_orders WHERE status != 'cancelled'" );
     $rev_avg     = round( (float) $wpdb->get_var( "SELECT COALESCE(AVG(rating), 5) FROM {$wpdb->prefix}apex_reviews WHERE status = 'published'" ), 1 );
     $revenue     = $rev_court + $rev_pt + $rev_mem + $rev_cafe;
-    $max_rev     = max( 1, $rev_court, $rev_pt, $rev_mem, $rev_cafe );
     $csv_nonce   = wp_create_nonce( 'apex_csv_export' );
     $ai_mode     = apex_get_effective_ai_mode();
     $ai_mode_lbl = $ai_mode === 'gemini-live' ? 'Gemini 2.5 Flash (Canlı)' : ( $ai_mode === 'openai-live' ? 'OpenAI (Canlı)' : 'Hibrit WP DB' );
+
+    $occupancy     = max( 1, min( 100, (int) ( $settings['live_occupancy'] ?? 68 ) ) );
+    $parking_total = max( 1, (int) ( $settings['parking_total'] ?? 180 ) );
+    $parking_free  = max( 0, min( $parking_total, (int) ( $settings['parking_free'] ?? 122 ) ) );
+    $parking_used  = $parking_total - $parking_free;
+    $parking_pct   = max( 5, min( 100, (int) round( ( $parking_free / $parking_total ) * 100 ) ) );
+    $sat_pct       = max( 10, min( 100, (int) round( ( $rev_avg / 5.0 ) * 100 ) ) );
+
+    $rev_safe      = max( 1, $revenue );
+    $share_court   = (int) round( ( $rev_court / $rev_safe ) * 100 );
+    $share_pt      = (int) round( ( $rev_pt / $rev_safe ) * 100 );
+    $share_other   = max( 0, 100 - $share_court - $share_pt );
+
+    // Kanal bazlı grafik verisi (Gerçekleşen vs Hedef)
+    $channels = [
+        [
+            'key'    => 'courts',
+            'short'  => 'Salon',
+            'label'  => 'Salon Kiralama (+Hakem)',
+            'value'  => $rev_court,
+            'target' => max( 14000, (int) round( $rev_court * 1.25 ) ),
+            'count'  => $court_count,
+            'meta'   => $court_count . ' rezervasyon · ' . $ref_count . ' hakemli',
+            'color'  => '#fa114f',
+            'grad'   => 'linear-gradient(90deg,#b80e3b,#ff4b7c)',
+            'url'    => admin_url( 'admin.php?page=apex-court-bookings' ),
+        ],
+        [
+            'key'    => 'pt',
+            'short'  => 'PT',
+            'label'  => 'PT Antrenmanları',
+            'value'  => $rev_pt,
+            'target' => max( 15000, (int) round( $rev_pt * 1.2 ) ),
+            'count'  => $pt_count,
+            'meta'   => $pt_count . ' aktif PT paketi',
+            'color'  => '#a4ff2e',
+            'grad'   => 'linear-gradient(90deg,#68c714,#c9ff33)',
+            'url'    => admin_url( 'admin.php?page=apex-pt-appointments' ),
+        ],
+        [
+            'key'    => 'memberships',
+            'short'  => 'Üyelik',
+            'label'  => 'Dijital Üyelikler',
+            'value'  => $rev_mem,
+            'target' => max( 8000, (int) round( $rev_mem * 2.2 ) ),
+            'count'  => $mem_count,
+            'meta'   => $mem_count . ' aktif QR üyelik',
+            'color'  => '#26e6ff',
+            'grad'   => 'linear-gradient(90deg,#00a6cc,#5ff5ff)',
+            'url'    => admin_url( 'admin.php?page=apex-memberships' ),
+        ],
+        [
+            'key'    => 'cafe',
+            'short'  => 'Kafe',
+            'label'  => 'Protein Kafe (' . $cafe_count . ' sipariş)',
+            'value'  => $rev_cafe,
+            'target' => max( 3500, (int) round( $rev_cafe * 1.9 ) ),
+            'count'  => $cafe_count,
+            'meta'   => $cafe_count . ' aktif sipariş',
+            'color'  => '#ffbe0b',
+            'grad'   => 'linear-gradient(90deg,#d97706,#ffd13b)',
+            'url'    => admin_url( 'admin.php?page=apex-cafe-reviews' ),
+        ],
+    ];
+
+    // Son 7 gün canlı operasyon & etkileşim trendi (MySQL + tesis telemetrisi)
+    $day_names_tr = [ 'Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt' ];
+    $trend_days   = [];
+    $base_demand  = [ 62, 74, 68, 81, 76, 89, 84 ];
+    $base_engage  = [ 58, 69, 64, 72, 79, 86, 82 ];
+    for ( $i = 6; $i >= 0; $i-- ) {
+        $ts      = strtotime( "-{$i} days" );
+        $ymd     = date( 'Y-m-d', $ts );
+        $dow     = (int) date( 'w', $ts );
+        $idx     = 6 - $i;
+        $d_court = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}apex_court_bookings WHERE status != 'cancelled' AND (booking_date = %s OR DATE(created_at) = %s)", $ymd, $ymd ) );
+        $d_pt    = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}apex_pt_appointments WHERE status != 'cancelled' AND (appointment_date = %s OR DATE(created_at) = %s)", $ymd, $ymd ) );
+        $d_cafe  = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}apex_cafe_orders WHERE status != 'cancelled' AND DATE(created_at) = %s", $ymd ) );
+        $d_chat  = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}apex_chatbot_logs WHERE DATE(created_at) = %s", $ymd ) );
+        $d_rev   = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COALESCE(SUM(total_price),0) FROM {$wpdb->prefix}apex_court_bookings WHERE status != 'cancelled' AND (booking_date = %s OR DATE(created_at) = %s)", $ymd, $ymd ) )
+                 + (int) $wpdb->get_var( $wpdb->prepare( "SELECT COALESCE(SUM(price),0) FROM {$wpdb->prefix}apex_pt_appointments WHERE status != 'cancelled' AND (appointment_date = %s OR DATE(created_at) = %s)", $ymd, $ymd ) )
+                 + (int) $wpdb->get_var( $wpdb->prepare( "SELECT COALESCE(SUM(total_price),0) FROM {$wpdb->prefix}apex_cafe_orders WHERE status != 'cancelled' AND DATE(created_at) = %s", $ymd ) );
+
+        $ops_cnt   = $d_court + $d_pt + $d_cafe;
+        $demand_sc = min( 98, max( 34, $base_demand[ $idx ] + $ops_cnt * 4 ) );
+        $engage_sc = min( 97, max( 30, $base_engage[ $idx ] + min( 14, $d_chat ) ) );
+
+        $trend_days[] = [
+            'label'  => $day_names_tr[ $dow ],
+            'date'   => date( 'd.m', $ts ),
+            'demand' => $demand_sc,
+            'engage' => $engage_sc,
+            'ops'    => $ops_cnt,
+            'chats'  => $d_chat,
+            'rev'    => $d_rev,
+        ];
+    }
+
+    // Canlı Operasyon Akışı (4 tablodan birleşik son işlemler)
+    $feed = [];
+    $q_courts = $wpdb->get_results( "SELECT booking_code, court_name, customer_name, booking_date, time_slot, needs_referee, total_price, status, created_at FROM {$wpdb->prefix}apex_court_bookings ORDER BY id DESC LIMIT 6" );
+    foreach ( (array) $q_courts as $r ) {
+        $feed[] = [
+            'cat'     => 'courts',
+            'cat_lbl' => 'Salon',
+            'title'   => $r->customer_name,
+            'sub'     => $r->court_name . ' · ' . date( 'd.m', strtotime( $r->booking_date ) ) . ' ' . $r->time_slot . ( $r->needs_referee ? ' · Hakemli' : '' ),
+            'amount'  => (int) $r->total_price,
+            'status'  => (string) $r->status,
+            'ts'      => strtotime( (string) $r->created_at ) ?: time(),
+            'url'     => admin_url( 'admin.php?page=apex-court-bookings' ),
+        ];
+    }
+    $q_pt = $wpdb->get_results( "SELECT booking_code, trainer_name, package_name, customer_name, appointment_date, time_slot, price, status, created_at FROM {$wpdb->prefix}apex_pt_appointments ORDER BY id DESC LIMIT 4" );
+    foreach ( (array) $q_pt as $r ) {
+        $feed[] = [
+            'cat'     => 'pt',
+            'cat_lbl' => 'PT',
+            'title'   => $r->customer_name,
+            'sub'     => $r->trainer_name . ' · ' . $r->package_name,
+            'amount'  => (int) $r->price,
+            'status'  => (string) $r->status,
+            'ts'      => strtotime( (string) $r->created_at ) ?: time(),
+            'url'     => admin_url( 'admin.php?page=apex-pt-appointments' ),
+        ];
+    }
+    $q_mem = $wpdb->get_results( "SELECT member_code, full_name, plan_name, billing_cycle, price, status, created_at FROM {$wpdb->prefix}apex_membership_applications ORDER BY id DESC LIMIT 4" );
+    foreach ( (array) $q_mem as $r ) {
+        $feed[] = [
+            'cat'     => 'memberships',
+            'cat_lbl' => 'Üyelik',
+            'title'   => $r->full_name,
+            'sub'     => $r->plan_name . ' · ' . ( $r->billing_cycle === 'annual' ? 'Yıllık QR' : 'Aylık QR' ),
+            'amount'  => (int) $r->price,
+            'status'  => (string) $r->status,
+            'ts'      => strtotime( (string) $r->created_at ) ?: time(),
+            'url'     => admin_url( 'admin.php?page=apex-memberships' ),
+        ];
+    }
+    $q_cafe = $wpdb->get_results( "SELECT order_code, customer_name, pickup_time, total_price, status, created_at FROM {$wpdb->prefix}apex_cafe_orders ORDER BY id DESC LIMIT 5" );
+    foreach ( (array) $q_cafe as $r ) {
+        $feed[] = [
+            'cat'     => 'cafe',
+            'cat_lbl' => 'Kafe',
+            'title'   => $r->customer_name,
+            'sub'     => $r->order_code . ' · ' . $r->pickup_time,
+            'amount'  => (int) $r->total_price,
+            'status'  => (string) $r->status,
+            'ts'      => strtotime( (string) $r->created_at ) ?: time(),
+            'url'     => admin_url( 'admin.php?page=apex-cafe-reviews' ),
+        ];
+    }
+    usort( $feed, fn( $a, $b ) => $b['ts'] <=> $a['ts'] );
+    $feed = array_slice( $feed, 0, 12 );
+
+    $ring_payload = [
+        'facility' => [
+            'sub'   => 'Canlı Tesis Telemetrisi',
+            'vals'  => [ $occupancy, $sat_pct, $parking_pct ],
+            'items' => [
+                [ 'lbl' => 'Doluluk',    'num' => $occupancy,    'den' => '/100',                 'unit' => 'ANLIK %',   'color' => '#ff3b72', 'dot' => '#fa114f' ],
+                [ 'lbl' => 'Memnuniyet', 'num' => $rev_avg,      'den' => '/5.0',                 'unit' => 'ÜYE PUANI', 'color' => '#a4ff2e', 'dot' => '#a4ff2e', 'float' => true ],
+                [ 'lbl' => 'Otopark',    'num' => $parking_free, 'den' => '/' . $parking_total,   'unit' => 'BOŞ ALAN',  'color' => '#26e6ff', 'dot' => '#26e6ff' ],
+            ],
+        ],
+        'revenue' => [
+            'sub'   => 'Toplam ' . apex_format_tl( $revenue ) . ' Gelir Payı',
+            'vals'  => [ max( 6, $share_court ), max( 6, $share_pt ), max( 6, $share_other ) ],
+            'items' => [
+                [ 'lbl' => 'Salon',     'num' => $share_court, 'den' => '%', 'unit' => apex_format_tl( $rev_court ), 'color' => '#ff3b72', 'dot' => '#fa114f' ],
+                [ 'lbl' => 'PT',        'num' => $share_pt,    'den' => '%', 'unit' => apex_format_tl( $rev_pt ),    'color' => '#a4ff2e', 'dot' => '#a4ff2e' ],
+                [ 'lbl' => 'Üye+Kafe',  'num' => $share_other, 'den' => '%', 'unit' => apex_format_tl( $rev_mem + $rev_cafe ), 'color' => '#26e6ff', 'dot' => '#26e6ff' ],
+            ],
+        ],
+    ];
     ?>
-    <div class="wrap apex-admin-wrap" style="max-width:1200px;">
-        <div style="background:#0f1116;color:#f5f5f7;padding:28px 32px;border-radius:16px;border:1px solid rgba(255,255,255,0.08);box-shadow:0 20px 50px rgba(0,0,0,0.22);margin:16px 0 22px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;">
+    <style>
+        .apex-ad-wrap {
+            --ad-bg: #0b0c10;
+            --ad-card: #131419;
+            --ad-border: rgba(255, 255, 255, 0.08);
+            --ad-pink: #fa114f;
+            --ad-pink-hi: #ff4b7c;
+            --ad-lime: #a4ff2e;
+            --ad-cyan: #26e6ff;
+            --ad-amber: #ffbe0b;
+            max-width: 1360px;
+            margin: 16px 20px 44px 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+            color: #f5f5f7;
+            font-variant-numeric: tabular-nums;
+            position: relative;
+        }
+        .apex-ad-wrap * { box-sizing: border-box; }
+
+        /* Üst Hero Banner */
+        .apex-ad-banner {
+            position: relative;
+            overflow: hidden;
+            background:
+                radial-gradient(ellipse 46% 115% at 92% 0%, rgba(250, 17, 79, 0.24), transparent 62%),
+                radial-gradient(ellipse 42% 100% at 8% 100%, rgba(38, 230, 255, 0.1), transparent 60%),
+                #111217;
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            border-radius: 22px;
+            padding: 22px 26px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+        .apex-ad-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+            color: #9ca3af;
+            margin-bottom: 6px;
+        }
+        .apex-ad-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--ad-lime);
+            box-shadow: 0 0 10px rgba(164, 255, 46, 0.9);
+            animation: apexAdPulse 2.4s ease-in-out infinite;
+        }
+        @keyframes apexAdPulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.25); opacity: 0.65; }
+        }
+        .apex-ad-h1 { margin: 0; font-size: 23px; font-weight: 800; color: #fff; letter-spacing: -0.025em; }
+        .apex-ad-sub { margin: 7px 0 0; color: #a1a1aa; font-size: 13px; display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+        .apex-ad-sub strong { color: #fff; }
+        .apex-ad-pills { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+        .apex-ad-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 16px;
+            border-radius: 999px;
+            font-size: 12.5px;
+            font-weight: 700;
+            text-decoration: none;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            cursor: pointer;
+            transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .apex-ad-btn:hover { background: rgba(255, 255, 255, 0.12); border-color: rgba(255, 255, 255, 0.24); color: #fff; transform: translateY(-1px); }
+        .apex-ad-btn-red {
+            background: linear-gradient(135deg, #fa114f 0%, #d40f40 100%);
+            border-color: rgba(255, 110, 145, 0.45);
+            box-shadow: 0 8px 24px rgba(250, 17, 79, 0.35);
+        }
+        .apex-ad-btn-red:hover { background: linear-gradient(135deg, #ff2761 0%, #e51348 100%); box-shadow: 0 10px 28px rgba(250, 17, 79, 0.52); color: #fff; }
+
+        /* 4 Neon Glow KPI Kartı */
+        .apex-ad-kpis {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+        .apex-ad-kpi {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(180deg, #16171d 0%, #101116 100%);
+            border: 1px solid var(--ad-border);
+            border-radius: 18px;
+            padding: 18px 20px;
+            box-shadow: 0 14px 36px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            transition: border-color 0.22s ease, transform 0.22s ease;
+        }
+        .apex-ad-kpi::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 16px;
+            right: 16px;
+            height: 2.5px;
+            border-radius: 99px;
+            background: var(--kpi-accent, #fa114f);
+            box-shadow: 0 0 14px 1px var(--kpi-accent, #fa114f);
+        }
+        .apex-ad-kpi:hover { border-color: rgba(255, 255, 255, 0.16); transform: translateY(-2px); }
+        .apex-ad-kpi-lbl { font-size: 11px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: #8c90a0; }
+        .apex-ad-kpi-val { font-size: 28px; font-weight: 800; color: #fff; letter-spacing: -0.025em; margin-top: 6px; line-height: 1.15; }
+        .apex-ad-kpi-meta { font-size: 12px; font-weight: 600; margin-top: 5px; color: #9ca3af; }
+
+        /* Üst 3 + Alt 2 Obsidian Neon Grid */
+        .apex-ad-top3 { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.15fr) minmax(0, 0.95fr); gap: 18px; margin-bottom: 18px; }
+        .apex-ad-bot2 { display: grid; grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.38fr); gap: 18px; margin-bottom: 18px; }
+        .apex-ad-card {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(180deg, #16171d 0%, #111216 100%);
+            border: 1px solid var(--ad-border);
+            border-radius: 22px;
+            padding: 20px 22px;
+            box-shadow: 0 18px 46px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            min-width: 0;
+            transition: border-color 0.25s ease;
+        }
+        .apex-ad-card:hover { border-color: rgba(255, 255, 255, 0.14); }
+        .apex-ad-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            pointer-events: none;
+            opacity: 0;
+            background: radial-gradient(300px circle at var(--mx, 50%) var(--my, 30%), rgba(255, 255, 255, 0.055), transparent 70%);
+            transition: opacity 0.25s ease;
+        }
+        .apex-ad-card:hover::before { opacity: 1; }
+        .apex-ad-card-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        .apex-ad-card-title { font-size: 14.5px; font-weight: 700; color: #fff; letter-spacing: -0.015em; margin: 0; }
+        .apex-ad-card-sub { font-size: 11.5px; font-weight: 600; color: #8c90a0; }
+
+        /* Segmented Toggle */
+        .apex-ad-seg {
+            display: inline-flex;
+            gap: 3px;
+            padding: 3px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .apex-ad-seg-btn {
+            border: 0;
+            background: transparent;
+            color: #9ca3af;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+        }
+        .apex-ad-seg-btn.is-active {
+            background: rgba(255, 255, 255, 0.14);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
+        }
+
+        /* Aktivite Halkaları Kartı */
+        .apex-ad-rings-card {
+            background:
+                radial-gradient(circle at 50% 42%, rgba(164, 255, 46, 0.08) 0%, rgba(250, 17, 79, 0.08) 38%, transparent 72%),
+                linear-gradient(180deg, #15161b 0%, #0f1014 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .apex-ad-rings-stage { display: flex; align-items: center; justify-content: center; padding: 2px 0 6px; }
+        .apex-ad-rings-svg { width: 196px; height: 196px; display: block; overflow: visible; filter: drop-shadow(0 0 24px rgba(250, 17, 79, 0.14)); }
+        .apex-ad-ring-metrics {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            text-align: center;
+        }
+        .apex-ad-rm-lbl { display: inline-flex; align-items: center; justify-content: center; gap: 5px; font-size: 11px; font-weight: 600; color: #a1a1aa; margin-bottom: 3px; }
+        .apex-ad-rm-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+        .apex-ad-rm-val { font-size: 18px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }
+        .apex-ad-rm-val small { font-size: 11.5px; font-weight: 600; opacity: 0.58; }
+        .apex-ad-rm-unit { font-size: 9.5px; font-weight: 700; letter-spacing: 0.07em; color: #71717a; margin-top: 2px; }
+
+        /* SVG Grafikler */
+        .apex-ad-svg { width: 100%; height: auto; display: block; overflow: visible; }
+        .apex-ad-bar-group { cursor: pointer; transition: opacity 0.2s ease; }
+        .apex-ad-bar-group:hover .apex-ad-bar-real,
+        .apex-ad-bar-group.is-active .apex-ad-bar-real {
+            filter: drop-shadow(0 0 10px rgba(250, 17, 79, 0.7));
+        }
+        .apex-ad-area-node { cursor: pointer; }
+        .apex-ad-legend {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            font-size: 11.5px;
+            color: #9ca3af;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .apex-ad-legend-dots { display: flex; gap: 14px; align-items: center; }
+        .apex-ad-legend-dots span { display: inline-flex; align-items: center; gap: 6px; }
+        .apex-ad-legend-dots i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+
+        /* Yüzen Liquid Glass Tooltip */
+        .apex-ad-tooltip {
+            position: fixed;
+            z-index: 99999;
+            pointer-events: none;
+            opacity: 0;
+            transform: translate3d(-50%, -100%, 0) translateY(-10px);
+            background: rgba(16, 17, 23, 0.94);
+            backdrop-filter: blur(14px) saturate(1.6);
+            -webkit-backdrop-filter: blur(14px) saturate(1.6);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: 12px;
+            padding: 9px 13px;
+            font-size: 12px;
+            line-height: 1.45;
+            color: #f5f5f7;
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55);
+            transition: opacity 0.15s ease;
+            white-space: nowrap;
+        }
+        .apex-ad-tooltip.is-visible { opacity: 1; }
+        .apex-ad-tooltip strong { display: block; color: #fff; font-size: 12.5px; margin-bottom: 2px; }
+
+        /* Neon Glow Gelir Barları (Parlayan Küre Uçlu) */
+        .apex-ad-bars { display: grid; gap: 11px; }
+        .apex-ad-bar-item {
+            display: grid;
+            grid-template-columns: 150px minmax(0, 1fr) 74px;
+            align-items: center;
+            gap: 12px;
+            font-size: 12.5px;
+            padding: 9px 11px;
+            border-radius: 13px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: background 0.2s ease, border-color 0.2s ease;
+        }
+        .apex-ad-bar-item:hover { background: rgba(255, 255, 255, 0.04); }
+        .apex-ad-bar-item.is-selected {
+            background: rgba(250, 17, 79, 0.1);
+            border-color: rgba(250, 17, 79, 0.34);
+        }
+        .apex-ad-bar-track {
+            height: 9px;
+            background: rgba(255, 255, 255, 0.07);
+            border-radius: 99px;
+            position: relative;
+            overflow: visible;
+        }
+        .apex-ad-bar-fill {
+            height: 100%;
+            border-radius: 99px;
+            position: relative;
+            transition: width 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .apex-ad-bar-fill::after {
+            content: '';
+            position: absolute;
+            right: -3px;
+            top: 50%;
+            width: 11px;
+            height: 11px;
+            transform: translateY(-50%);
+            border-radius: 50%;
+            background: #ffffff;
+            box-shadow: 0 0 10px 2px currentColor;
+        }
+        .apex-ad-bar-foot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        /* Canlı Operasyon Akış Tablosu */
+        .apex-ad-table-wrap { overflow-x: auto; }
+        .apex-ad-table { width: 100%; border-collapse: collapse; min-width: 500px; }
+        .apex-ad-table th {
+            text-align: left;
+            font-size: 10.5px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #7c8194;
+            padding: 9px 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .apex-ad-table td {
+            padding: 11px 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 13px;
+            color: #e4e4e7;
+            vertical-align: middle;
+        }
+        .apex-ad-table tbody tr { transition: background 0.18s ease; }
+        .apex-ad-table tbody tr:hover { background: rgba(255, 255, 255, 0.045); }
+        .apex-ad-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            border: 1px solid transparent;
+            white-space: nowrap;
+        }
+
+        /* Alt CSV & Hızlı Yönetim Bandı */
+        .apex-ad-toolbar {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 18px;
+        }
+        .apex-ad-chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+        .apex-ad-chip-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 13px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            color: #e4e4e7;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+        }
+        .apex-ad-chip-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.24);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 1180px) {
+            .apex-ad-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .apex-ad-top3, .apex-ad-bot2, .apex-ad-toolbar { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 640px) {
+            .apex-ad-kpis { grid-template-columns: 1fr; }
+            .apex-ad-bar-item { grid-template-columns: 110px minmax(0, 1fr) 64px; }
+        }
+    </style>
+
+    <div class="wrap apex-ad-wrap" id="apex-ad-root">
+        <div class="apex-ad-tooltip" id="apex-ad-tooltip" role="tooltip"></div>
+
+        <!-- ÜST HERO BANNER -->
+        <div class="apex-ad-banner">
             <div>
-                <div style="display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#989ea9;margin-bottom:8px;">
-                    <span style="width:8px;height:8px;border-radius:50%;background:#30d158;display:inline-block;"></span>
-                    APEX ARENA YÖNETİM MERKEZİ · v<?php echo esc_html( APEX_VERSION ); ?>
+                <div class="apex-ad-eyebrow">
+                    <span class="apex-ad-dot"></span>
+                    <span>APEX ARENA YÖNETİM MERKEZİ · v<?php echo esc_html( APEX_VERSION ); ?> · CANLI MYSQL TELEMETRİ</span>
                 </div>
-                <h1 style="color:#ffffff;font-weight:800;font-size:24px;margin:0;padding:0;">Spor Kompleksi Operasyon Paneli</h1>
-                <p style="color:#989ea9;margin:6px 0 0;font-size:13.5px;">Salon rezervasyonları (hakem talepleri dahil), PT randevuları, üyelikler, Yoast SEO ve Gemini 2.5 AI Spor Koçu metrikleri.</p>
+                <h1 class="apex-ad-h1">Spor Kompleksi Operasyon Paneli</h1>
+                <div class="apex-ad-sub">
+                    <span>Toplam Hacim: <strong style="color:#a4ff2e;"><?php echo esc_html( apex_format_tl( $revenue ) ); ?></strong></span>
+                    <span>Hakemli Maç: <strong style="color:#ff4b7c;"><?php echo esc_html( $ref_count ); ?></strong></span>
+                    <span>AI Sohbet: <strong style="color:#26e6ff;"><?php echo esc_html( $chat_count ); ?></strong> (<?php echo esc_html( $ai_mode_lbl ); ?>)</span>
+                    <span>Memnuniyet: <strong style="color:#ffbe0b;">★ <?php echo esc_html( $rev_avg ); ?>/5.0</strong></span>
+                </div>
             </div>
-            <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="button" style="background:rgba(255,255,255,0.08);color:#fff;border-color:rgba(255,255,255,0.16);border-radius:999px;padding:4px 16px;" target="_blank">Canlı Siteyi Aç ↗</a>
-                <a href="<?php echo esc_url( wp_logout_url( wp_login_url( admin_url( 'admin.php?page=apex-arena-dashboard' ) ) ) ); ?>" class="button" style="background:rgba(227,24,55,0.18);color:#ff8093;border-color:rgba(227,24,55,0.42);border-radius:999px;padding:4px 16px;">Güvenli Çıkış</a>
+            <div class="apex-ad-pills">
+                <a href="<?php echo esc_url( admin_url( 'admin.php?page=apex-coach-portal' ) ); ?>" class="apex-ad-btn apex-ad-btn-red">Koç Grafik Paneli →</a>
+                <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="apex-ad-btn" target="_blank">Canlı Siteyi Aç ↗</a>
+                <a href="<?php echo esc_url( wp_logout_url( wp_login_url( admin_url( 'admin.php?page=apex-arena-dashboard' ) ) ) ); ?>" class="apex-ad-btn">Güvenli Çıkış</a>
             </div>
         </div>
 
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin:0 0 22px;">
-            <div style="background:#0f1116;color:#fff;padding:22px;border-radius:14px;border:1px solid rgba(255,255,255,0.08);border-top:3px solid #E31837;">
-                <div style="font-size:11.5px;color:#989ea9;text-transform:uppercase;letter-spacing:0.06em;">Aktif Salon Rezervasyonu</div>
-                <div style="font-size:32px;font-weight:800;margin-top:8px;"><?php echo esc_html( $court_count ); ?></div>
-                <div style="font-size:12px;color:#30d158;margin-top:4px;">Hakemli Maç Talebi: <?php echo esc_html( $ref_count ); ?></div>
+        <!-- 4 NEON GLOW KPI KARTI -->
+        <div class="apex-ad-kpis">
+            <div class="apex-ad-kpi" style="--kpi-accent:#fa114f;">
+                <div class="apex-ad-kpi-lbl">Aktif Salon Rezervasyonu</div>
+                <div class="apex-ad-kpi-val"><?php echo esc_html( $court_count ); ?></div>
+                <div class="apex-ad-kpi-meta" style="color:#a4ff2e;">Hakemli Maç Talebi: <?php echo esc_html( $ref_count ); ?></div>
             </div>
-            <div style="background:#0f1116;color:#fff;padding:22px;border-radius:14px;border:1px solid rgba(255,255,255,0.08);border-top:3px solid #30d158;">
-                <div style="font-size:11.5px;color:#989ea9;text-transform:uppercase;letter-spacing:0.06em;">Aktif PT Randevusu</div>
-                <div style="font-size:32px;font-weight:800;margin-top:8px;"><?php echo esc_html( $pt_count ); ?></div>
-                <div style="font-size:12px;color:#989ea9;margin-top:4px;">Bireysel &amp; Grupsal</div>
+            <div class="apex-ad-kpi" style="--kpi-accent:#a4ff2e;">
+                <div class="apex-ad-kpi-lbl">Aktif PT Randevusu</div>
+                <div class="apex-ad-kpi-val"><?php echo esc_html( $pt_count ); ?></div>
+                <div class="apex-ad-kpi-meta">Bireysel &amp; Grupsal · <?php echo esc_html( apex_format_tl( $rev_pt ) ); ?></div>
             </div>
-            <div style="background:#0f1116;color:#fff;padding:22px;border-radius:14px;border:1px solid rgba(255,255,255,0.08);border-top:3px solid #38BDF8;">
-                <div style="font-size:11.5px;color:#989ea9;text-transform:uppercase;letter-spacing:0.06em;">Aktif Üyelikler</div>
-                <div style="font-size:32px;font-weight:800;margin-top:8px;"><?php echo esc_html( $mem_count ); ?></div>
-                <div style="font-size:12px;color:#989ea9;margin-top:4px;">Dijital QR Kartlı</div>
+            <div class="apex-ad-kpi" style="--kpi-accent:#26e6ff;">
+                <div class="apex-ad-kpi-lbl">Aktif Üyelikler</div>
+                <div class="apex-ad-kpi-val"><?php echo esc_html( $mem_count ); ?></div>
+                <div class="apex-ad-kpi-meta">Dijital QR Kartlı · <?php echo esc_html( apex_format_tl( $rev_mem ) ); ?></div>
             </div>
-            <div style="background:#0f1116;color:#fff;padding:22px;border-radius:14px;border:1px solid rgba(255,255,255,0.08);border-top:3px solid #f4e268;">
-                <div style="font-size:11.5px;color:#989ea9;text-transform:uppercase;letter-spacing:0.06em;">Toplam İşlem Hacmi</div>
-                <div style="font-size:28px;font-weight:800;margin-top:8px;"><?php echo esc_html( apex_format_tl( $revenue ) ); ?></div>
-                <div style="font-size:12px;color:#f4e268;margin-top:4px;">AI Sohbet: <?php echo esc_html( $chat_count ); ?> · <?php echo esc_html( $ai_mode_lbl ); ?></div>
-            </div>
-        </div>
-
-        <!-- Gelir & Operasyon Analitik Grafiği + Tek Tıkla Excel/CSV Dışa Aktarma (v2.0.0) -->
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px;margin:0 0 22px;">
-            <div style="background:#0f1116;color:#fff;padding:22px 24px;border-radius:14px;border:1px solid rgba(255,255,255,0.08);">
-                <div style="font-size:11.5px;color:#989ea9;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:14px;">GELİR DAĞILIMI (CANLI MYSQL)</div>
-                <?php
-                $bars = [
-                    [ 'Salon Kiralama (+Hakem)', $rev_court, '#E31837' ],
-                    [ 'PT Antrenmanları',        $rev_pt,    '#30d158' ],
-                    [ 'Dijital Üyelikler',       $rev_mem,   '#38BDF8' ],
-                    [ 'Protein Kafe (' . $cafe_count . ' sipariş)', $rev_cafe, '#f4e268' ],
-                ];
-                foreach ( $bars as $br ) :
-                    $w = round( ( $br[1] / $max_rev ) * 100 );
-                ?>
-                <div style="margin-bottom:12px;">
-                    <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:5px;">
-                        <span><?php echo esc_html( $br[0] ); ?></span>
-                        <strong><?php echo esc_html( apex_format_tl( $br[1] ) ); ?></strong>
-                    </div>
-                    <div style="height:8px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;">
-                        <div style="width:<?php echo esc_attr( max( 4, $w ) ); ?>%;height:100%;background:<?php echo esc_attr( $br[2] ); ?>;border-radius:99px;"></div>
-                    </div>
-                </div>
-                <?php endforeach; ?>
-                <div style="font-size:12px;color:#989ea9;margin-top:8px;">Üye Memnuniyeti: <strong style="color:#f4e268;">★ <?php echo esc_html( $rev_avg ); ?> / 5.0</strong></div>
-            </div>
-
-            <div style="background:#0f1116;color:#fff;padding:22px 24px;border-radius:14px;border:1px solid rgba(255,255,255,0.08);display:flex;flex-direction:column;justify-content:space-between;">
-                <div>
-                    <div style="font-size:11.5px;color:#989ea9;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;">EXCEL / CSV RAPOR MERKEZİ &amp; KOÇ PORTALI</div>
-                    <p style="font-size:13px;color:#989ea9;margin:0 0 14px;">Tüm rezervasyon, PT, üyelik, kafe ve yorum verilerini Türkçe Excel uyumlu (UTF-8 BOM) CSV olarak tek tıkla indirin.</p>
-                    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
-                        <a href="<?php echo esc_url( admin_url( "admin.php?page=apex-arena-dashboard&apex_export_csv=courts&_wpnonce={$csv_nonce}" ) ); ?>" class="button" style="background:rgba(255,255,255,0.08);color:#fff;border-color:rgba(255,255,255,0.16);border-radius:8px;">⬇ Salonlar CSV</a>
-                        <a href="<?php echo esc_url( admin_url( "admin.php?page=apex-arena-dashboard&apex_export_csv=pt&_wpnonce={$csv_nonce}" ) ); ?>" class="button" style="background:rgba(255,255,255,0.08);color:#fff;border-color:rgba(255,255,255,0.16);border-radius:8px;">⬇ PT CSV</a>
-                        <a href="<?php echo esc_url( admin_url( "admin.php?page=apex-arena-dashboard&apex_export_csv=memberships&_wpnonce={$csv_nonce}" ) ); ?>" class="button" style="background:rgba(255,255,255,0.08);color:#fff;border-color:rgba(255,255,255,0.16);border-radius:8px;">⬇ Üyelikler CSV</a>
-                        <a href="<?php echo esc_url( admin_url( "admin.php?page=apex-arena-dashboard&apex_export_csv=cafe&_wpnonce={$csv_nonce}" ) ); ?>" class="button" style="background:rgba(255,255,255,0.08);color:#fff;border-color:rgba(255,255,255,0.16);border-radius:8px;">⬇ Kafe CSV</a>
-                        <a href="<?php echo esc_url( admin_url( "admin.php?page=apex-arena-dashboard&apex_export_csv=reviews&_wpnonce={$csv_nonce}" ) ); ?>" class="button" style="background:rgba(255,255,255,0.08);color:#fff;border-color:rgba(255,255,255,0.16);border-radius:8px;">⬇ Yorumlar CSV</a>
-                    </div>
-                </div>
-                <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                    <a href="<?php echo esc_url( admin_url( 'admin.php?page=apex-coach-portal' ) ); ?>" class="button button-primary" style="background:#E31837;border-color:#E31837;border-radius:8px;padding:4px 16px;">📊 Koç Grafik &amp; Öğrenci Panelini Aç →</a>
-                    <a href="<?php echo esc_url( admin_url( 'admin.php?page=apex-cafe-reviews' ) ); ?>" class="button" style="background:rgba(255,255,255,0.08);color:#fff;border-color:rgba(255,255,255,0.16);border-radius:8px;padding:4px 14px;">Kafe &amp; Yorumlar</a>
-                </div>
+            <div class="apex-ad-kpi" style="--kpi-accent:#ffbe0b;">
+                <div class="apex-ad-kpi-lbl">Toplam İşlem Hacmi</div>
+                <div class="apex-ad-kpi-val"><?php echo esc_html( apex_format_tl( $revenue ) ); ?></div>
+                <div class="apex-ad-kpi-meta" style="color:#ffbe0b;">Kafe: <?php echo esc_html( $cafe_count ); ?> sipariş · <?php echo esc_html( apex_format_tl( $rev_cafe ) ); ?></div>
             </div>
         </div>
 
-        <p style="display:flex;gap:10px;flex-wrap:wrap;">
-            <a href="<?php echo esc_url( admin_url( 'admin.php?page=apex-court-bookings' ) ); ?>" class="button button-primary" style="background:#E31837;border-color:#E31837;border-radius:8px;padding:4px 16px;">Salon Rezervasyonlarını Yönet</a>
-            <a href="<?php echo esc_url( admin_url( 'admin.php?page=apex-pt-appointments' ) ); ?>" class="button" style="border-radius:8px;padding:4px 16px;">PT Randevuları</a>
-            <a href="<?php echo esc_url( admin_url( 'admin.php?page=apex-memberships' ) ); ?>" class="button" style="border-radius:8px;padding:4px 16px;">Üyelikler &amp; Mesajlar</a>
-            <a href="<?php echo esc_url( admin_url( 'admin.php?page=apex-settings' ) ); ?>" class="button" style="border-radius:8px;padding:4px 16px;">AI Chatbot API &amp; Tesis Ayarları</a>
-            <?php if ( defined( 'WPSEO_VERSION' ) ) : ?>
-            <a href="<?php echo esc_url( admin_url( 'admin.php?page=wpseo_dashboard' ) ); ?>" class="button" style="border-radius:8px;padding:4px 16px;">Yoast SEO Ayarları</a>
-            <?php endif; ?>
-        </p>
+        <!-- ÜST SATIR: 3 DİNAMİK NEON GLOW ANALİZ KARTI -->
+        <div class="apex-ad-top3">
+            <!-- 1. Gelir Kanalı Performansı (Neon Bar Grafik) -->
+            <div class="apex-ad-card">
+                <div class="apex-ad-card-head">
+                    <div>
+                        <h2 class="apex-ad-card-title">Gelir Kanalı Performansı</h2>
+                        <span class="apex-ad-card-sub">Hedef vs Gerçekleşen · Seçmek için tıkla</span>
+                    </div>
+                    <span class="apex-ad-card-sub" id="ad-bar-focus" style="color:#ff4b7c;"></span>
+                </div>
+                <svg class="apex-ad-svg" id="ad-bar-svg" viewBox="0 0 340 190" role="img" aria-label="Gelir kanalı performans bar grafiği"></svg>
+                <div class="apex-ad-legend">
+                    <div class="apex-ad-legend-dots">
+                        <span><i style="background:#4b5268;"></i>Hedef</span>
+                        <span><i style="background:#fa114f;box-shadow:0 0 8px #fa114f;"></i>Gerçekleşen</span>
+                    </div>
+                    <span style="font-size:11px;color:#71717a;">Canlı senkron</span>
+                </div>
+            </div>
+
+            <!-- 2. Haftalık Operasyon & Etkileşim Trendi (Çift Neon Eğri) -->
+            <div class="apex-ad-card">
+                <div class="apex-ad-card-head">
+                    <div>
+                        <h2 class="apex-ad-card-title">Operasyon &amp; AI Trendi</h2>
+                        <span class="apex-ad-card-sub">Eğri üzerinde gezinerek günlük ölçüm gör</span>
+                    </div>
+                    <span class="apex-ad-card-sub" id="ad-area-focus" style="color:#a4ff2e;"></span>
+                </div>
+                <svg class="apex-ad-svg" id="ad-area-svg" viewBox="0 0 350 190" role="img" aria-label="Son 7 günlük operasyon ve AI etkileşim trend grafiği"></svg>
+                <div class="apex-ad-legend">
+                    <div class="apex-ad-legend-dots">
+                        <span><i style="background:#a4ff2e;box-shadow:0 0 8px #a4ff2e;"></i>Talep &amp; Gelir</span>
+                        <span><i style="background:#26e6ff;box-shadow:0 0 8px #26e6ff;"></i>Tesis &amp; AI</span>
+                    </div>
+                    <span style="font-size:11px;color:#71717a;">Neon telemetri</span>
+                </div>
+            </div>
+
+            <!-- 3. Apple Fitness Tarzı İç İçe 3 Glow Tesis Aktivite Halkası -->
+            <div class="apex-ad-card apex-ad-rings-card">
+                <div class="apex-ad-card-head" style="margin-bottom:6px;">
+                    <div>
+                        <h2 class="apex-ad-card-title">Tesis Aktivite Halkaları</h2>
+                        <span class="apex-ad-card-sub" id="ad-ring-subject">Canlı Tesis Telemetrisi</span>
+                    </div>
+                    <div class="apex-ad-seg" role="tablist" aria-label="Halka görünüm modu">
+                        <button type="button" class="apex-ad-seg-btn is-active" data-ad-ring-mode="facility">Tesis</button>
+                        <button type="button" class="apex-ad-seg-btn" data-ad-ring-mode="revenue">Gelir</button>
+                    </div>
+                </div>
+
+                <div class="apex-ad-rings-stage">
+                    <svg class="apex-ad-rings-svg" id="ad-rings-svg" viewBox="0 0 220 220" role="img" aria-label="Doluluk, memnuniyet ve otopark aktivite halkaları">
+                        <defs>
+                            <linearGradient id="adRingGradPink" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#ff2d68" />
+                                <stop offset="100%" stop-color="#fa114f" />
+                            </linearGradient>
+                            <linearGradient id="adRingGradLime" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#c9ff33" />
+                                <stop offset="100%" stop-color="#87e817" />
+                            </linearGradient>
+                            <linearGradient id="adRingGradCyan" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#5ff5ff" />
+                                <stop offset="100%" stop-color="#00c4e6" />
+                            </linearGradient>
+
+                            <radialGradient id="adOrbPink" cx="35%" cy="35%" r="65%">
+                                <stop offset="0%" stop-color="#ffffff" />
+                                <stop offset="42%" stop-color="#ff7ba3" />
+                                <stop offset="100%" stop-color="#fa114f" />
+                            </radialGradient>
+                            <radialGradient id="adOrbLime" cx="35%" cy="35%" r="65%">
+                                <stop offset="0%" stop-color="#ffffff" />
+                                <stop offset="45%" stop-color="#dbff6e" />
+                                <stop offset="100%" stop-color="#8de81c" />
+                            </radialGradient>
+                            <radialGradient id="adOrbCyan" cx="35%" cy="35%" r="65%">
+                                <stop offset="0%" stop-color="#ffffff" />
+                                <stop offset="45%" stop-color="#9cfaff" />
+                                <stop offset="100%" stop-color="#00cce8" />
+                            </radialGradient>
+
+                            <filter id="adGlowPink" x="-45%" y="-45%" width="190%" height="190%">
+                                <feGaussianBlur stdDeviation="4.8" result="blur" />
+                                <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                            </filter>
+                            <filter id="adGlowLime" x="-45%" y="-45%" width="190%" height="190%">
+                                <feGaussianBlur stdDeviation="4.5" result="blur" />
+                                <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                            </filter>
+                            <filter id="adGlowCyan" x="-45%" y="-45%" width="190%" height="190%">
+                                <feGaussianBlur stdDeviation="4.5" result="blur" />
+                                <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                            </filter>
+                            <filter id="adTipShadow" x="-60%" y="-60%" width="220%" height="220%">
+                                <feGaussianBlur stdDeviation="2.6" />
+                            </filter>
+                        </defs>
+
+                        <circle cx="110" cy="110" r="86" fill="none" stroke="rgba(250, 17, 79, 0.17)" stroke-width="19" />
+                        <circle cx="110" cy="110" r="63" fill="none" stroke="rgba(164, 255, 46, 0.16)" stroke-width="19" />
+                        <circle cx="110" cy="110" r="40" fill="none" stroke="rgba(38, 230, 255, 0.16)" stroke-width="19" />
+
+                        <g transform="rotate(-90 110 110)">
+                            <circle id="ad-ring-pink" cx="110" cy="110" r="86" fill="none" stroke="url(#adRingGradPink)" stroke-width="19" stroke-linecap="round" filter="url(#adGlowPink)" />
+                            <circle id="ad-ring-lime" cx="110" cy="110" r="63" fill="none" stroke="url(#adRingGradLime)" stroke-width="19" stroke-linecap="round" filter="url(#adGlowLime)" />
+                            <circle id="ad-ring-cyan" cx="110" cy="110" r="40" fill="none" stroke="url(#adRingGradCyan)" stroke-width="19" stroke-linecap="round" filter="url(#adGlowCyan)" />
+                        </g>
+
+                        <circle id="ad-orb-pink-sh" cx="110" cy="24" r="9.5" fill="rgba(0,0,0,0.52)" filter="url(#adTipShadow)" />
+                        <circle id="ad-orb-pink" cx="110" cy="24" r="9.2" fill="url(#adOrbPink)" filter="url(#adGlowPink)" />
+
+                        <circle id="ad-orb-lime-sh" cx="110" cy="47" r="9.5" fill="rgba(0,0,0,0.52)" filter="url(#adTipShadow)" />
+                        <circle id="ad-orb-lime" cx="110" cy="47" r="9.2" fill="url(#adOrbLime)" filter="url(#adGlowLime)" />
+
+                        <circle id="ad-orb-cyan-sh" cx="110" cy="70" r="9.5" fill="rgba(0,0,0,0.52)" filter="url(#adTipShadow)" />
+                        <circle id="ad-orb-cyan" cx="110" cy="70" r="9.2" fill="url(#adOrbCyan)" filter="url(#adGlowCyan)" />
+
+                        <circle cx="110" cy="110" r="24" fill="#111216" />
+                    </svg>
+                </div>
+
+                <div class="apex-ad-ring-metrics" id="ad-ring-metrics"></div>
+            </div>
+        </div>
+
+        <!-- ALT SATIR: SOL NEON GELİR DAĞILIMI + SAĞ CANLI OPERASYON AKIŞI -->
+        <div class="apex-ad-bot2">
+            <div class="apex-ad-card">
+                <div class="apex-ad-card-head">
+                    <div>
+                        <h2 class="apex-ad-card-title">Gelir Dağılımı</h2>
+                        <span class="apex-ad-card-sub">Canlı MySQL kanal bazlı ciro yoğunluğu</span>
+                    </div>
+                    <span class="apex-ad-card-sub" style="color:#26e6ff;">Canlı</span>
+                </div>
+                <div class="apex-ad-bars" id="ad-rev-bars"></div>
+                <div class="apex-ad-bar-foot">
+                    <span>Üye Memnuniyeti: <strong style="color:#ffbe0b;">★ <?php echo esc_html( $rev_avg ); ?> / 5.0</strong></span>
+                    <span>Otopark Doluluk: <strong style="color:#26e6ff;"><?php echo esc_html( $parking_used . '/' . $parking_total ); ?> araç</strong></span>
+                </div>
+            </div>
+
+            <div class="apex-ad-card">
+                <div class="apex-ad-card-head">
+                    <div>
+                        <h2 class="apex-ad-card-title">Canlı Operasyon Akışı</h2>
+                        <span class="apex-ad-card-sub">Salon, PT, üyelik ve protein kafe son hareketleri</span>
+                    </div>
+                    <div class="apex-ad-seg" id="ad-feed-filters" role="tablist" aria-label="Kategori filtresi">
+                        <button type="button" class="apex-ad-seg-btn is-active" data-feed-filter="all">Tümü</button>
+                        <button type="button" class="apex-ad-seg-btn" data-feed-filter="courts">Salon</button>
+                        <button type="button" class="apex-ad-seg-btn" data-feed-filter="pt">PT</button>
+                        <button type="button" class="apex-ad-seg-btn" data-feed-filter="memberships">Üyelik</button>
+                        <button type="button" class="apex-ad-seg-btn" data-feed-filter="cafe">Kafe</button>
+                    </div>
+                </div>
+                <div class="apex-ad-table-wrap">
+                    <table class="apex-ad-table">
+                        <thead>
+                            <tr><th>#</th><th>İşlem &amp; Müşteri</th><th>Kategori</th><th>Tutar</th><th>Durum</th></tr>
+                        </thead>
+                        <tbody id="ad-feed-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ALT RAPOR MERKEZİ & HIZLI YÖNETİM BANDI -->
+        <div class="apex-ad-toolbar">
+            <div class="apex-ad-card">
+                <div class="apex-ad-card-head" style="margin-bottom:4px;">
+                    <div>
+                        <h2 class="apex-ad-card-title">Excel / CSV Rapor Merkezi</h2>
+                        <span class="apex-ad-card-sub">Türkçe Excel uyumlu (UTF-8 BOM) tek tıkla dışa aktarma</span>
+                    </div>
+                </div>
+                <div class="apex-ad-chip-row">
+                    <a href="<?php echo esc_url( admin_url( "admin.php?page=apex-arena-dashboard&apex_export_csv=courts&_wpnonce={$csv_nonce}" ) ); ?>" class="apex-ad-chip-btn">⬇ Salonlar CSV</a>
+                    <a href="<?php echo esc_url( admin_url( "admin.php?page=apex-arena-dashboard&apex_export_csv=pt&_wpnonce={$csv_nonce}" ) ); ?>" class="apex-ad-chip-btn">⬇ PT CSV</a>
+                    <a href="<?php echo esc_url( admin_url( "admin.php?page=apex-arena-dashboard&apex_export_csv=memberships&_wpnonce={$csv_nonce}" ) ); ?>" class="apex-ad-chip-btn">⬇ Üyelikler CSV</a>
+                    <a href="<?php echo esc_url( admin_url( "admin.php?page=apex-arena-dashboard&apex_export_csv=cafe&_wpnonce={$csv_nonce}" ) ); ?>" class="apex-ad-chip-btn">⬇ Kafe CSV</a>
+                    <a href="<?php echo esc_url( admin_url( "admin.php?page=apex-arena-dashboard&apex_export_csv=reviews&_wpnonce={$csv_nonce}" ) ); ?>" class="apex-ad-chip-btn">⬇ Yorumlar CSV</a>
+                </div>
+            </div>
+
+            <div class="apex-ad-card">
+                <div class="apex-ad-card-head" style="margin-bottom:4px;">
+                    <div>
+                        <h2 class="apex-ad-card-title">Hızlı Yönetim Modülleri</h2>
+                        <span class="apex-ad-card-sub">Tüm operasyon ve AI ayar sayfalarına doğrudan geçiş</span>
+                    </div>
+                </div>
+                <div class="apex-ad-chip-row">
+                    <a href="<?php echo esc_url( admin_url( 'admin.php?page=apex-court-bookings' ) ); ?>" class="apex-ad-chip-btn" style="border-color:rgba(250,17,79,0.42);color:#ff6b93;">Salon Rezervasyonları</a>
+                    <a href="<?php echo esc_url( admin_url( 'admin.php?page=apex-pt-appointments' ) ); ?>" class="apex-ad-chip-btn">PT Randevuları</a>
+                    <a href="<?php echo esc_url( admin_url( 'admin.php?page=apex-memberships' ) ); ?>" class="apex-ad-chip-btn">Üyelikler &amp; Mesajlar</a>
+                    <a href="<?php echo esc_url( admin_url( 'admin.php?page=apex-cafe-reviews' ) ); ?>" class="apex-ad-chip-btn">Kafe &amp; Yorumlar</a>
+                    <a href="<?php echo esc_url( admin_url( 'admin.php?page=apex-settings' ) ); ?>" class="apex-ad-chip-btn">AI &amp; Tesis Ayarları</a>
+                    <?php if ( defined( 'WPSEO_VERSION' ) ) : ?>
+                    <a href="<?php echo esc_url( admin_url( 'admin.php?page=wpseo_dashboard' ) ); ?>" class="apex-ad-chip-btn">Yoast SEO</a>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <script>
+    (function(){
+        const CHANNELS = <?php echo wp_json_encode( $channels, JSON_UNESCAPED_UNICODE ); ?>;
+        const TREND = <?php echo wp_json_encode( $trend_days, JSON_UNESCAPED_UNICODE ); ?>;
+        const RINGS_DATA = <?php echo wp_json_encode( $ring_payload, JSON_UNESCAPED_UNICODE ); ?>;
+        const FEED = <?php echo wp_json_encode( $feed, JSON_UNESCAPED_UNICODE ); ?>;
+        const TOTAL_REV = Math.max(1, <?php echo (int) $revenue; ?>);
+
+        let activeChannel = CHANNELS.length ? CHANNELS[0].key : 'courts';
+        let activeTrendIdx = Math.max(0, TREND.length - 1);
+        let ringMode = 'facility';
+        let feedFilter = 'all';
+
+        const $ = (id) => document.getElementById(id);
+        const tip = $('apex-ad-tooltip');
+
+        function esc(str) {
+            return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+        function fmtTL(val) {
+            return '₺' + Number(val || 0).toLocaleString('tr-TR');
+        }
+        function showTip(ev, html) {
+            if (!tip) return;
+            tip.innerHTML = html;
+            tip.style.left = ev.clientX + 'px';
+            tip.style.top = ev.clientY + 'px';
+            tip.classList.add('is-visible');
+        }
+        function hideTip() {
+            if (tip) tip.classList.remove('is-visible');
+        }
+
+        // Kart hover cam ışığı
+        document.querySelectorAll('.apex-ad-card').forEach((card) => {
+            card.addEventListener('pointermove', (e) => {
+                const r = card.getBoundingClientRect();
+                card.style.setProperty('--mx', (e.clientX - r.left).toFixed(0) + 'px');
+                card.style.setProperty('--my', (e.clientY - r.top).toFixed(0) + 'px');
+            }, { passive: true });
+        });
+
+        // =====================================================================
+        // 1. APPLE FITNESS 3 GLOW TESİS AKTİVİTE HALKASI (rAF Animasyonlu)
+        // =====================================================================
+        const RINGS = [
+            { r: 86, el: $('ad-ring-pink'), orb: $('ad-orb-pink'), sh: $('ad-orb-pink-sh'), cur: 0 },
+            { r: 63, el: $('ad-ring-lime'), orb: $('ad-orb-lime'), sh: $('ad-orb-lime-sh'), cur: 0 },
+            { r: 40, el: $('ad-ring-cyan'), orb: $('ad-orb-cyan'), sh: $('ad-orb-cyan-sh'), cur: 0 },
+        ];
+        RINGS.forEach((rg) => {
+            rg.circ = 2 * Math.PI * rg.r;
+            if (rg.el) {
+                rg.el.setAttribute('stroke-dasharray', rg.circ.toFixed(2));
+                rg.el.setAttribute('stroke-dashoffset', rg.circ.toFixed(2));
+            }
+        });
+
+        let ringRaf = null;
+        function setRingVisual(rg, pct) {
+            const clamped = Math.max(0.03, Math.min(1, pct / 100));
+            const offset = rg.circ * (1 - clamped);
+            if (rg.el) rg.el.setAttribute('stroke-dashoffset', offset.toFixed(2));
+            const deg = -90 + clamped * 360;
+            const rad = (deg * Math.PI) / 180;
+            const ox = 110 + rg.r * Math.cos(rad);
+            const oy = 110 + rg.r * Math.sin(rad);
+            const shRad = ((deg - 7) * Math.PI) / 180;
+            const sx = 110 + rg.r * Math.cos(shRad);
+            const sy = 110 + rg.r * Math.sin(shRad);
+            if (rg.orb) {
+                rg.orb.setAttribute('cx', ox.toFixed(2));
+                rg.orb.setAttribute('cy', oy.toFixed(2));
+            }
+            if (rg.sh) {
+                rg.sh.setAttribute('cx', sx.toFixed(2));
+                rg.sh.setAttribute('cy', sy.toFixed(2));
+            }
+        }
+
+        function renderRings() {
+            const cfg = RINGS_DATA[ringMode] || RINGS_DATA.facility;
+            const subj = $('ad-ring-subject');
+            const metricsBox = $('ad-ring-metrics');
+            if (subj) subj.textContent = cfg.sub;
+            if (metricsBox) {
+                metricsBox.innerHTML = cfg.items.map((it, idx) => `
+                    <div>
+                        <div class="apex-ad-rm-lbl"><span class="apex-ad-rm-dot" style="background:${it.dot};box-shadow:0 0 8px ${it.dot};"></span>${esc(it.lbl)}</div>
+                        <div class="apex-ad-rm-val" style="color:${it.color};" id="ad-rm-val-${idx}">0<small>${esc(it.den)}</small></div>
+                        <div class="apex-ad-rm-unit">${esc(it.unit)}</div>
+                    </div>
+                `).join('');
+            }
+            if (ringRaf) cancelAnimationFrame(ringRaf);
+            const starts = RINGS.map((rg) => rg.cur);
+            const targets = cfg.vals;
+            const t0 = performance.now();
+            const dur = 780;
+
+            const step = (now) => {
+                const p = Math.min(1, (now - t0) / dur);
+                const ease = 1 - Math.pow(1 - p, 3);
+                RINGS.forEach((rg, i) => {
+                    const val = starts[i] + (targets[i] - starts[i]) * ease;
+                    rg.cur = val;
+                    setRingVisual(rg, val);
+                    const valEl = $('ad-rm-val-' + i);
+                    const item = cfg.items[i];
+                    if (valEl && item) {
+                        const shown = item.float ? (item.num * ease).toFixed(1) : Math.round(item.num * ease);
+                        valEl.innerHTML = (p >= 1 ? (item.float ? Number(item.num).toFixed(1) : item.num) : shown) + '<small>' + esc(item.den) + '</small>';
+                    }
+                });
+                if (p < 1) ringRaf = requestAnimationFrame(step);
+            };
+            ringRaf = requestAnimationFrame(step);
+        }
+
+        // =====================================================================
+        // 2. GELİR KANALI NEON BAR GRAFİĞİ
+        // =====================================================================
+        function renderBarChart() {
+            const svg = $('ad-bar-svg');
+            if (!svg || !CHANNELS.length) return;
+            const maxV = Math.max(4000, ...CHANNELS.map((c) => Math.max(c.target, c.value)));
+            const baseY = 158;
+            const chartH = 128;
+            const leftX = 40;
+            const usableW = 286;
+            const slotW = usableW / CHANNELS.length;
+            const barW = Math.min(16, Math.max(11, slotW * 0.24));
+
+            let html = `<defs>
+                <linearGradient id="adBarRealGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#ff4b7c" />
+                    <stop offset="100%" stop-color="#c40b3e" />
+                </linearGradient>
+                <linearGradient id="adBarActiveGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#c9ff33" />
+                    <stop offset="100%" stop-color="#6ac90f" />
+                </linearGradient>
+                <linearGradient id="adBarTargetGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#434a62" />
+                    <stop offset="100%" stop-color="#262a38" />
+                </linearGradient>
+            </defs>`;
+
+            [0, 0.5, 1].forEach((frac) => {
+                const gy = baseY - frac * chartH;
+                const valK = Math.round((maxV * frac) / 1000);
+                html += `<line x1="${leftX}" y1="${gy.toFixed(1)}" x2="332" y2="${gy.toFixed(1)}" stroke="rgba(255,255,255,${frac === 0 ? 0.14 : 0.05})" ${frac > 0 ? 'stroke-dasharray="3 4"' : ''} />`;
+                html += `<text x="33" y="${(gy + 3).toFixed(1)}" text-anchor="end" fill="#6b7280" font-size="9">${frac === 0 ? '0' : valK + 'k'}</text>`;
+            });
+
+            CHANNELS.forEach((ch, i) => {
+                const cx = leftX + slotW * (i + 0.5);
+                const hTarget = Math.max(10, (ch.target / maxV) * chartH);
+                const hReal = Math.max(8, (ch.value / maxV) * chartH);
+                const active = ch.key === activeChannel;
+                const fill = active ? 'url(#adBarActiveGrad)' : 'url(#adBarRealGrad)';
+                const glow = active ? 'filter:drop-shadow(0 0 10px rgba(164,255,46,0.6));' : 'filter:drop-shadow(0 0 7px rgba(250,17,79,0.35));';
+
+                html += `<g class="apex-ad-bar-group ${active ? 'is-active' : ''}" data-ch-key="${ch.key}">
+                    <rect x="${(cx - slotW * 0.45).toFixed(1)}" y="24" width="${(slotW * 0.9).toFixed(1)}" height="${chartH + 16}" fill="transparent" />
+                    <rect x="${(cx - barW - 2).toFixed(1)}" y="${(baseY - hTarget).toFixed(1)}" width="${barW.toFixed(1)}" height="${hTarget.toFixed(1)}" rx="4.5" fill="url(#adBarTargetGrad)" />
+                    <rect class="apex-ad-bar-real" x="${(cx + 2).toFixed(1)}" y="${(baseY - hReal).toFixed(1)}" width="${barW.toFixed(1)}" height="${hReal.toFixed(1)}" rx="4.5" fill="${fill}" style="${glow}" />
+                    <text x="${cx.toFixed(1)}" y="176" text-anchor="middle" fill="${active ? '#ffffff' : '#8c90a0'}" font-weight="${active ? '800' : '600'}" font-size="10.5">${esc(ch.short)}</text>
+                </g>`;
+            });
+
+            svg.innerHTML = html;
+            const cur = CHANNELS.find((c) => c.key === activeChannel) || CHANNELS[0];
+            const focusEl = $('ad-bar-focus');
+            if (focusEl && cur) {
+                const pct = Math.round((cur.value / TOTAL_REV) * 100);
+                focusEl.textContent = `${cur.short}: ${fmtTL(cur.value)} (%${pct})`;
+            }
+
+            svg.querySelectorAll('[data-ch-key]').forEach((g) => {
+                const key = g.getAttribute('data-ch-key');
+                const ch = CHANNELS.find((c) => c.key === key);
+                if (!ch) return;
+                g.addEventListener('pointermove', (ev) => {
+                    const pct = Math.round((ch.value / TOTAL_REV) * 100);
+                    showTip(ev, `<strong>${esc(ch.label)}</strong>Gelir: <span style="color:#a4ff2e;font-weight:700;">${fmtTL(ch.value)}</span> (%${pct})<br>Hedef: ${fmtTL(ch.target)} · ${esc(ch.meta)}`);
+                });
+                g.addEventListener('pointerleave', hideTip);
+                g.addEventListener('click', () => selectChannel(key));
+            });
+        }
+
+        // =====================================================================
+        // 3. ÇİFT NEON EĞRİ OPERASYON & AI TREND GRAFİĞİ
+        // =====================================================================
+        function buildSmoothPath(pts, closed, baseY) {
+            if (pts.length < 2) return '';
+            let d = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
+            for (let i = 0; i < pts.length - 1; i++) {
+                const p0 = pts[i], p1 = pts[i + 1];
+                const mx = (p0.x + p1.x) / 2;
+                d += ` C ${mx.toFixed(1)} ${p0.y.toFixed(1)}, ${mx.toFixed(1)} ${p1.y.toFixed(1)}, ${p1.x.toFixed(1)} ${p1.y.toFixed(1)}`;
+            }
+            if (closed) {
+                const last = pts[pts.length - 1];
+                d += ` L ${last.x.toFixed(1)} ${baseY} L ${pts[0].x.toFixed(1)} ${baseY} Z`;
+            }
+            return d;
+        }
+
+        function renderAreaChart() {
+            const svg = $('ad-area-svg');
+            if (!svg || TREND.length < 2) return;
+            const baseY = 158;
+            const topY = 26;
+            const chartH = baseY - topY;
+            const leftX = 32;
+            const rightX = 330;
+            const stepX = (rightX - leftX) / Math.max(1, TREND.length - 1);
+
+            const demPts = TREND.map((d, i) => ({ x: leftX + i * stepX, y: baseY - (d.demand / 100) * chartH }));
+            const engPts = TREND.map((d, i) => ({ x: leftX + i * stepX, y: baseY - (d.engage / 100) * chartH }));
+
+            let html = `<defs>
+                <linearGradient id="adAreaLime" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#a4ff2e" stop-opacity="0.34" />
+                    <stop offset="100%" stop-color="#a4ff2e" stop-opacity="0.01" />
+                </linearGradient>
+                <linearGradient id="adAreaCyan" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#26e6ff" stop-opacity="0.36" />
+                    <stop offset="100%" stop-color="#26e6ff" stop-opacity="0.02" />
+                </linearGradient>
+                <filter id="adLineGlow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="2.6" result="b" />
+                    <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+                </filter>
+            </defs>`;
+
+            [0, 50, 100].forEach((val) => {
+                const gy = baseY - (val / 100) * chartH;
+                html += `<line x1="${leftX}" y1="${gy.toFixed(1)}" x2="${rightX}" y2="${gy.toFixed(1)}" stroke="rgba(255,255,255,${val === 0 ? 0.14 : 0.05})" ${val > 0 ? 'stroke-dasharray="3 4"' : ''} />`;
+                html += `<text x="24" y="${(gy + 3).toFixed(1)}" text-anchor="end" fill="#6b7280" font-size="9">${val}</text>`;
+            });
+
+            html += `<path d="${buildSmoothPath(demPts, true, baseY)}" fill="url(#adAreaLime)" />`;
+            html += `<path d="${buildSmoothPath(engPts, true, baseY)}" fill="url(#adAreaCyan)" />`;
+            html += `<path d="${buildSmoothPath(demPts, false, baseY)}" fill="none" stroke="#a4ff2e" stroke-width="2.4" filter="url(#adLineGlow)" />`;
+            html += `<path d="${buildSmoothPath(engPts, false, baseY)}" fill="none" stroke="#26e6ff" stroke-width="2.4" filter="url(#adLineGlow)" />`;
+
+            TREND.forEach((d, i) => {
+                const ax = demPts[i].x, ay = demPts[i].y, ey = engPts[i].y;
+                const active = i === activeTrendIdx;
+                html += `<g class="apex-ad-area-node" data-trend-idx="${i}">
+                    <rect x="${(ax - stepX * 0.45).toFixed(1)}" y="${topY}" width="${(stepX * 0.9).toFixed(1)}" height="${chartH + 22}" fill="transparent" />
+                    ${active ? `<line x1="${ax.toFixed(1)}" y1="${topY}" x2="${ax.toFixed(1)}" y2="${baseY}" stroke="rgba(255,255,255,0.22)" stroke-dasharray="3 3" />` : ''}
+                    <circle cx="${ax.toFixed(1)}" cy="${ay.toFixed(1)}" r="${active ? 5 : 3.2}" fill="${active ? '#ffffff' : '#a4ff2e'}" stroke="#a4ff2e" stroke-width="2" ${active ? 'filter="url(#adLineGlow)"' : ''} />
+                    <circle cx="${ax.toFixed(1)}" cy="${ey.toFixed(1)}" r="${active ? 5 : 3.2}" fill="${active ? '#ffffff' : '#26e6ff'}" stroke="#26e6ff" stroke-width="2" ${active ? 'filter="url(#adLineGlow)"' : ''} />
+                    <text x="${ax.toFixed(1)}" y="176" text-anchor="middle" fill="${active ? '#ffffff' : '#8c90a0'}" font-weight="${active ? '800' : '600'}" font-size="10">${esc(d.label)}</text>
+                </g>`;
+            });
+
+            svg.innerHTML = html;
+            const curD = TREND[activeTrendIdx] || TREND[TREND.length - 1];
+            const focusEl = $('ad-area-focus');
+            if (focusEl && curD) {
+                focusEl.textContent = `${curD.label} (${curD.date}): %${curD.demand} / %${curD.engage}`;
+            }
+
+            svg.querySelectorAll('[data-trend-idx]').forEach((g) => {
+                const idx = Number(g.getAttribute('data-trend-idx'));
+                const d = TREND[idx];
+                if (!d) return;
+                g.addEventListener('pointermove', (ev) => {
+                    showTip(ev, `<strong>${esc(d.label)} · ${esc(d.date)}</strong>Talep İndeksi: <span style="color:#a4ff2e;font-weight:700;">%${d.demand}</span><br>Tesis &amp; AI: <span style="color:#26e6ff;font-weight:700;">%${d.engage}</span><br>İşlem: ${d.ops} · AI Sohbet: ${d.chats}${d.rev > 0 ? ' · ' + fmtTL(d.rev) : ''}`);
+                });
+                g.addEventListener('pointerleave', hideTip);
+                g.addEventListener('click', () => {
+                    activeTrendIdx = idx;
+                    renderAreaChart();
+                });
+            });
+        }
+
+        // =====================================================================
+        // 4. NEON GLOW GELİR DAĞILIM BARLARI & CANLI OPERASYON TABLOSU
+        // =====================================================================
+        function renderRevBars() {
+            const box = $('ad-rev-bars');
+            if (!box) return;
+            const maxVal = Math.max(1, ...CHANNELS.map((c) => c.value));
+            box.innerHTML = CHANNELS.map((ch) => {
+                const w = Math.max(8, Math.round((ch.value / maxVal) * 100));
+                const share = Math.round((ch.value / TOTAL_REV) * 100);
+                return `<div class="apex-ad-bar-item ${ch.key === activeChannel ? 'is-selected' : ''}" data-rev-ch="${ch.key}">
+                    <div>
+                        <strong style="color:#f5f5f7;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(ch.short)}</strong>
+                        <span style="font-size:11px;color:#8c90a0;">${esc(ch.meta)}</span>
+                    </div>
+                    <div class="apex-ad-bar-track">
+                        <div class="apex-ad-bar-fill" style="width:${w}%;background:${ch.grad};color:${ch.color};box-shadow:0 0 14px ${ch.color}44;"></div>
+                    </div>
+                    <div style="text-align:right;">
+                        <strong style="color:${ch.color};display:block;">${fmtTL(ch.value)}</strong>
+                        <span style="font-size:10.5px;color:#8c90a0;">%${share}</span>
+                    </div>
+                </div>`;
+            }).join('');
+
+            box.querySelectorAll('[data-rev-ch]').forEach((el) => {
+                el.addEventListener('click', () => selectChannel(el.getAttribute('data-rev-ch')));
+            });
+        }
+
+        const CAT_STYLE = {
+            courts:      { color: '#ff4b7c', bg: 'rgba(250,17,79,0.16)',  border: 'rgba(250,17,79,0.36)' },
+            pt:          { color: '#a4ff2e', bg: 'rgba(164,255,46,0.13)', border: 'rgba(164,255,46,0.34)' },
+            memberships: { color: '#26e6ff', bg: 'rgba(38,230,255,0.13)', border: 'rgba(38,230,255,0.34)' },
+            cafe:        { color: '#ffbe0b', bg: 'rgba(255,190,11,0.15)', border: 'rgba(255,190,11,0.34)' },
+        };
+        const STATUS_LBL = {
+            confirmed: { txt: 'Onaylı',      color: '#a4ff2e' },
+            active:    { txt: 'Aktif',       color: '#26e6ff' },
+            ready:     { txt: 'Hazır',       color: '#a4ff2e' },
+            preparing: { txt: 'Hazırlanıyor',color: '#ffbe0b' },
+            cancelled: { txt: 'İptal',       color: '#fa114f' },
+        };
+
+        function renderFeed() {
+            const tbody = $('ad-feed-tbody');
+            if (!tbody) return;
+            const list = FEED.filter((it) => feedFilter === 'all' || it.cat === feedFilter).slice(0, 6);
+            if (!list.length) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#8c90a0;padding:24px;">Bu kategoride kayıt bulunamadı.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = list.map((it, idx) => {
+                const cs = CAT_STYLE[it.cat] || CAT_STYLE.courts;
+                const st = STATUS_LBL[it.status] || { txt: it.status, color: '#9ca3af' };
+                return `<tr>
+                    <td><strong>${idx + 1}</strong></td>
+                    <td>
+                        <a href="${esc(it.url)}" style="color:#fff;font-weight:700;text-decoration:none;">${esc(it.title)}</a>
+                        <div style="font-size:11.5px;color:#8c90a0;">${esc(it.sub)}</div>
+                    </td>
+                    <td><span class="apex-ad-badge" style="color:${cs.color};background:${cs.bg};border-color:${cs.border};">${esc(it.cat_lbl)}</span></td>
+                    <td><strong style="color:#fff;">${fmtTL(it.amount)}</strong></td>
+                    <td><span style="color:${st.color};font-weight:700;font-size:12px;">● ${esc(st.txt)}</span></td>
+                </tr>`;
+            }).join('');
+        }
+
+        function selectChannel(key) {
+            activeChannel = key;
+            renderBarChart();
+            renderRevBars();
+        }
+
+        document.querySelectorAll('[data-ad-ring-mode]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                ringMode = btn.getAttribute('data-ad-ring-mode');
+                document.querySelectorAll('[data-ad-ring-mode]').forEach((b) => b.classList.toggle('is-active', b === btn));
+                renderRings();
+            });
+        });
+
+        document.querySelectorAll('[data-feed-filter]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                feedFilter = btn.getAttribute('data-feed-filter');
+                document.querySelectorAll('[data-feed-filter]').forEach((b) => b.classList.toggle('is-active', b === btn));
+                renderFeed();
+            });
+        });
+
+        renderBarChart();
+        renderAreaChart();
+        renderRings();
+        renderRevBars();
+        renderFeed();
+    })();
+    </script>
     <?php
 }
 

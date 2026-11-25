@@ -59,8 +59,37 @@ $cu     = $logged ? wp_get_current_user() : null;
                 </div>
             </div>
             <div style="text-align:center;">
-                <?php echo apex_generate_member_qr_svg( $m_code ); ?>
-                <div style="font-size:0.75rem;color:var(--apex-volt);font-weight:800;margin-top:6px;">TURNİKE & OTOPARK QR</div>
+                <button type="button" class="apex-qr-trigger" id="apex-qr-open" title="QR kodu büyüt" aria-label="Dijital QR kartını büyüt" aria-controls="apex-qr-modal">
+                    <?php echo apex_generate_member_qr_svg( $m_code ); ?>
+                    <span class="apex-qr-trigger-lbl">TURNİKE &amp; OTOPARK QR</span>
+                    <span class="apex-qr-trigger-hint">Büyütmek için tıkla ↗</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Dijital QR Kart Büyütme Pop-up Modalı -->
+        <div class="apex-modal-backdrop apex-qr-backdrop" id="apex-qr-modal" role="dialog" aria-modal="true" aria-labelledby="apex-qr-modal-title" hidden>
+            <div class="apex-modal apex-qr-modal">
+                <div class="apex-qr-modal-head">
+                    <span class="apex-live-pill" style="font-size:0.72rem;padding:4px 11px;">
+                        <span class="apex-live-dot" aria-hidden="true"></span>
+                        AKTİF GEÇİŞ KARTI · <?php echo esc_html( $m_plan ); ?>
+                    </span>
+                    <button type="button" class="apex-mobile-close" data-close-modal="apex-qr-modal" aria-label="Kapat" style="padding:5px 11px;">✕</button>
+                </div>
+                <h3 id="apex-qr-modal-title" class="apex-h3" style="margin:10px 0 4px;text-align:center;"><?php echo esc_html( $cu->display_name ); ?></h3>
+                <p class="apex-muted" style="margin:0 0 18px;text-align:center;font-size:0.84rem;">Turnike veya kapalı otopark okuyucusuna yaklaştırın.</p>
+                <div class="apex-qr-stage">
+                    <span class="apex-qr-scanline" aria-hidden="true"></span>
+                    <?php echo apex_generate_member_qr_svg( $m_code ); ?>
+                </div>
+                <div class="apex-qr-code-pill">
+                    <span>Üye Kodu</span>
+                    <strong><?php echo esc_html( $m_code ); ?></strong>
+                </div>
+                <div class="apex-muted" style="font-size:0.78rem;text-align:center;margin-top:10px;">
+                    Geçerlilik: <strong style="color:var(--apex-text);"><?php echo esc_html( date( 'd.m.Y', strtotime( $m_end ) ) ); ?></strong>
+                </div>
             </div>
         </div>
 
@@ -158,7 +187,7 @@ $cu     = $logged ? wp_get_current_user() : null;
         <?php if ( $my_coach_rec ) :
             $sm = function_exists( 'apex_coach_status_meta' ) ? apex_coach_status_meta( $my_coach_rec->status ) : [ 'label' => 'Hedefte', 'color' => '#30d158', 'bg' => 'rgba(48,209,88,0.16)' ];
         ?>
-        <div class="apex-grid-2" style="align-items:start;" id="koc-takip">
+        <div class="apex-grid-2" style="align-items:stretch;" id="koc-takip">
             <div class="apex-panel">
                 <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:14px;">
                     <div>
@@ -210,16 +239,23 @@ $cu     = $logged ? wp_get_current_user() : null;
                 <?php endif; ?>
             </div>
 
-            <div class="apex-panel">
+            <div class="apex-panel apex-member-chat-panel">
                 <span class="apex-eyebrow" style="margin-bottom:4px;">BİREBİR CANLI İLETİŞİM</span>
                 <h3 class="apex-h3" style="margin:0 0 14px;">💬 Koçumla Mesajlaş (<?php echo esc_html( $my_coach_rec->coach_name ); ?>)</h3>
-                <div class="apex-member-chat-box" id="apex-member-chat-box" aria-live="polite">
-                    <?php foreach ( $my_cmsgs as $cm ) : ?>
-                    <div class="apex-mchat-bubble <?php echo $cm->sender_role === 'student' ? 'is-me' : 'is-coach'; ?>">
-                        <?php echo esc_html( $cm->message ); ?>
-                        <small><?php echo esc_html( $cm->sender_name . ' · ' . $cm->time ); ?></small>
+                <div class="apex-member-chat-wrap">
+                    <div class="apex-member-chat-box" id="apex-member-chat-box" aria-live="polite">
+                        <?php foreach ( $my_cmsgs as $cm ) : ?>
+                        <div class="apex-mchat-bubble <?php echo $cm->sender_role === 'student' ? 'is-me' : 'is-coach'; ?>">
+                            <?php echo esc_html( $cm->message ); ?>
+                            <small><?php echo esc_html( $cm->sender_name . ' · ' . $cm->time ); ?></small>
+                        </div>
+                        <?php endforeach; ?>
                     </div>
-                    <?php endforeach; ?>
+                    <div class="apex-ai-scrollbar is-hidden" id="apex-member-chat-scrollbar" role="scrollbar" aria-controls="apex-member-chat-box" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" aria-label="Koç sohbeti kaydırma çubuğu">
+                        <div class="apex-ai-scrollbar-track">
+                            <div class="apex-ai-scrollbar-thumb" id="apex-member-chat-thumb"></div>
+                        </div>
+                    </div>
                 </div>
                 <form id="apex-member-coach-chat-form" style="display:flex;gap:8px;margin-top:12px;" novalidate>
                     <input type="text" id="member-coach-msg-input" placeholder="Koçuna beslenme veya antrenman hakkında mesaj yaz..." style="flex:1;background:var(--apex-bg);border:1px solid var(--apex-border-strong);border-radius:999px;padding:10px 16px;color:var(--apex-text);font-size:0.88rem;" required>
@@ -243,7 +279,13 @@ $cu     = $logged ? wp_get_current_user() : null;
                 </div>
             </div>
 
-            <div class="apex-grid-2" style="align-items:start;">
+            <?php
+            $wk_goal_kcal = 3500;
+            $wk_goal_pct  = min( 100, (int) round( ( $total_wk_kcal / $wk_goal_kcal ) * 100 ) );
+            $wk_avg_min   = count( $my_workouts ) > 0 ? (int) round( $total_wk_min / count( $my_workouts ) ) : 0;
+            $wk_avg_kcal  = count( $my_workouts ) > 0 ? (int) round( $total_wk_kcal / count( $my_workouts ) ) : 0;
+            ?>
+            <div class="apex-grid-2" style="align-items:stretch;">
                 <div>
                     <div class="apex-wk-bars" id="apex-wk-list">
                         <?php foreach ( $my_workouts as $wk ) :
@@ -261,22 +303,47 @@ $cu     = $logged ? wp_get_current_user() : null;
                         <?php endforeach; ?>
                     </div>
                 </div>
-                <form id="apex-workout-log-form" class="apex-form-grid" novalidate>
-                    <div class="apex-field">
-                        <label for="wk-type">Antrenman Türü</label>
-                        <select id="wk-type" name="workout_type">
-                            <option value="Kuvvet & Hipertrofi">Kuvvet &amp; Hipertrofi</option>
-                            <option value="Basketbol / Voleybol Maç">Basketbol / Voleybol Maç</option>
-                            <option value="HIIT & Kardiyo">HIIT &amp; Kardiyo</option>
-                            <option value="Reformer Pilates & Mobilite">Reformer Pilates &amp; Mobilite</option>
-                        </select>
+                <form id="apex-workout-log-form" class="apex-wk-form-card" novalidate>
+                    <div class="apex-wk-form-head">
+                        <span class="apex-wk-form-title">Yeni Antrenman Kaydı</span>
+                        <div class="apex-wk-presets" aria-label="Hızlı antrenman şablonları">
+                            <button type="button" class="apex-wk-preset" data-wk-preset="Kuvvet & Hipertrofi|60|520">Kuvvet</button>
+                            <button type="button" class="apex-wk-preset" data-wk-preset="HIIT & Kardiyo|45|480">HIIT</button>
+                            <button type="button" class="apex-wk-preset" data-wk-preset="Basketbol / Voleybol Maç|60|620">Maç</button>
+                            <button type="button" class="apex-wk-preset" data-wk-preset="Reformer Pilates & Mobilite|50|340">Pilates</button>
+                        </div>
                     </div>
-                    <div class="apex-field"><label for="wk-dur">Süre (dk)</label><input type="number" id="wk-dur" name="duration_min" value="60" min="15" max="240"></div>
-                    <div class="apex-field"><label for="wk-kcal">Yakılan Kalori</label><input type="number" id="wk-kcal" name="calories" value="520" min="50" max="2000"></div>
-                    <div class="apex-field"><label for="wk-note">Kısa Not</label><input type="text" id="wk-note" name="notes" placeholder="Örn. Yeni PR!"></div>
-                    <div class="apex-field apex-field-full">
-                        <button type="submit" class="apex-btn apex-btn-primary apex-btn-sm">+ Bugünkü Antrenmanı Kaydet</button>
+
+                    <div class="apex-form-grid">
+                        <div class="apex-field">
+                            <label for="wk-type">Antrenman Türü</label>
+                            <select id="wk-type" name="workout_type">
+                                <option value="Kuvvet & Hipertrofi">Kuvvet &amp; Hipertrofi</option>
+                                <option value="Basketbol / Voleybol Maç">Basketbol / Voleybol Maç</option>
+                                <option value="HIIT & Kardiyo">HIIT &amp; Kardiyo</option>
+                                <option value="Reformer Pilates & Mobilite">Reformer Pilates &amp; Mobilite</option>
+                            </select>
+                        </div>
+                        <div class="apex-field"><label for="wk-dur">Süre (dk)</label><input type="number" id="wk-dur" name="duration_min" value="60" min="15" max="240"></div>
+                        <div class="apex-field"><label for="wk-kcal">Yakılan Kalori</label><input type="number" id="wk-kcal" name="calories" value="520" min="50" max="2000"></div>
+                        <div class="apex-field"><label for="wk-note">Kısa Not</label><input type="text" id="wk-note" name="notes" placeholder="Örn. Yeni PR!"></div>
                     </div>
+
+                    <div class="apex-wk-goal-box">
+                        <div class="apex-wk-goal-top">
+                            <span>Haftalık Kalori Hedefi</span>
+                            <strong id="apex-wk-goal-txt"><?php echo esc_html( number_format( $total_wk_kcal, 0, ',', '.' ) ); ?> / 3.500 kcal (%<?php echo esc_html( $wk_goal_pct ); ?>)</strong>
+                        </div>
+                        <div class="apex-wk-goal-track">
+                            <div class="apex-wk-goal-fill" id="apex-wk-goal-fill" style="width:<?php echo esc_attr( max( 6, $wk_goal_pct ) ); ?>%;"></div>
+                        </div>
+                        <div class="apex-wk-goal-meta">
+                            <span>Ort. Süre: <strong id="apex-wk-avg-min"><?php echo esc_html( $wk_avg_min ); ?> dk</strong></span>
+                            <span>Ort. Yakım: <strong id="apex-wk-avg-kcal"><?php echo esc_html( $wk_avg_kcal ); ?> kcal</strong></span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="apex-btn apex-btn-primary apex-btn-block">+ Bugünkü Antrenmanı Kaydet</button>
                 </form>
             </div>
         </div>
@@ -388,18 +455,18 @@ $cu     = $logged ? wp_get_current_user() : null;
     </div>
 </section>
 
-<!-- 2. Çift Yönlü Kavisli Kayar Üye Girişi & Online Kayıt Kartı (APEX Koyu + Kırmızı Estetiği) -->
-<section class="apex-section" id="kayit" aria-label="Üyelik kaydı ve üye girişi">
+<!-- 2. Üye Girişi & Online Kayıt Kartı (Yalnızca Giriş Yapmamış Ziyaretçilere) / Giriş Yapmışsa Paket Yükseltme -->
+<section class="apex-section" id="kayit" aria-label="<?php echo $logged ? 'Üyelik paketi değiştirme' : 'Üyelik kaydı ve üye girişi'; ?>">
     <span id="giris" class="apex-anchor-target" aria-hidden="true"></span>
     <div class="apex-container">
-        <?php
-        $start_register = isset( $_GET['plan'] ) && ! empty( $_GET['plan'] );
+        <?php if ( ! $logged ) :
+            $start_register = isset( $_GET['plan'] ) && ! empty( $_GET['plan'] );
         ?>
         <div class="apex-auth-stage <?php echo $start_register ? 'is-register' : ''; ?>" id="apex-auth-stage">
             <!-- Mobil Hızlı Geçiş Sekmesi (<= 900px) -->
             <div class="apex-auth-mobile-switch" role="tablist" aria-label="Giriş veya kayıt seçimi">
                 <button type="button" class="apex-auth-m-btn <?php echo $start_register ? '' : 'is-active'; ?>" data-auth-mode="login" role="tab" aria-selected="<?php echo $start_register ? 'false' : 'true'; ?>">Üye Girişi</button>
-                <button type="button" class="apex-auth-m-btn <?php echo $start_register ? 'is-active' : ''; ?>" data-auth-mode="register" role="tab" aria-selected="<?php echo $start_register ? 'true' : 'false'; ?>"><?php echo $logged ? 'Paket Yükselt' : 'Kayıt Ol'; ?></button>
+                <button type="button" class="apex-auth-m-btn <?php echo $start_register ? 'is-active' : ''; ?>" data-auth-mode="register" role="tab" aria-selected="<?php echo $start_register ? 'true' : 'false'; ?>">Kayıt Ol</button>
             </div>
 
             <!-- SOL PANEL: ÜYE GİRİŞİ -->
@@ -442,11 +509,11 @@ $cu     = $logged ? wp_get_current_user() : null;
                 </div>
             </div>
 
-            <!-- SAĞ PANEL: ONLINE ÜYELİK KAYDI / PAKET DEĞİŞTİR -->
+            <!-- SAĞ PANEL: ONLINE ÜYELİK KAYDI -->
             <div class="apex-auth-pane apex-auth-pane-register">
                 <div class="apex-auth-pane-inner apex-auth-pane-wide">
                     <span class="apex-eyebrow" style="margin-bottom:4px;">1 DAKİKADA DİJİTAL ÜYELİK</span>
-                    <h2 class="apex-auth-title" style="font-size:clamp(1.5rem,2.4vw,2rem);margin-bottom:14px;"><?php echo $logged ? 'Paket Değiştir / Yükselt' : 'Online Üyelik Kaydı'; ?></h2>
+                    <h2 class="apex-auth-title" style="font-size:clamp(1.5rem,2.4vw,2rem);margin-bottom:14px;">Online Üyelik Kaydı</h2>
 
                     <form id="apex-membership-register-form" class="apex-form-grid apex-auth-reg-grid" novalidate>
                         <div class="apex-field">
@@ -468,22 +535,20 @@ $cu     = $logged ? wp_get_current_user() : null;
                         </div>
                         <div class="apex-field">
                             <label for="mem-fullname">Ad Soyad *</label>
-                            <input type="text" id="mem-fullname" name="full_name" value="<?php echo esc_attr( $cu ? $cu->display_name : '' ); ?>" placeholder="Ahmet Yılmaz" required>
+                            <input type="text" id="mem-fullname" name="full_name" value="" placeholder="Ahmet Yılmaz" required>
                         </div>
                         <div class="apex-field">
                             <label for="mem-phone">Telefon *</label>
-                            <input type="tel" id="mem-phone" name="phone" value="<?php echo esc_attr( $cu ? get_user_meta( $cu->ID, 'apex_member_phone', true ) : '' ); ?>" placeholder="0532 000 00 00" required>
+                            <input type="tel" id="mem-phone" name="phone" value="" placeholder="0532 000 00 00" required>
                         </div>
                         <div class="apex-field">
                             <label for="mem-email">E-posta *</label>
-                            <input type="email" id="mem-email" name="email" value="<?php echo esc_attr( $cu ? $cu->user_email : '' ); ?>" placeholder="ornek@eposta.com" required>
+                            <input type="email" id="mem-email" name="email" value="" placeholder="ornek@eposta.com" required>
                         </div>
-                        <?php if ( ! $logged ) : ?>
                         <div class="apex-field">
                             <label for="mem-password">Hesap Şifresi * (Min. 6)</label>
                             <input type="password" id="mem-password" name="password" minlength="6" placeholder="••••••••" required>
                         </div>
-                        <?php endif; ?>
                         <div class="apex-field">
                             <label for="mem-goal">Birincil Hedefiniz</label>
                             <select id="mem-goal" name="goal">
@@ -515,7 +580,7 @@ $cu     = $logged ? wp_get_current_user() : null;
                 </div>
             </div>
 
-            <!-- KAYAR KAVİSLİ APEX KIRMIZI ÖRTÜ PANELİ (Fotoğraf 2 İkonik Kavis + Fotoğraf 1 Kırmızı Palet) -->
+            <!-- KAYAR KAVİSLİ APEX KIRMIZI ÖRTÜ PANELİ -->
             <div class="apex-auth-overlay-wrap" aria-hidden="false">
                 <div class="apex-auth-overlay">
                     <div class="apex-auth-overlay-panel apex-auth-overlay-left">
@@ -525,14 +590,81 @@ $cu     = $logged ? wp_get_current_user() : null;
                         <button type="button" class="apex-auth-ov-btn" data-auth-mode="login">GİRİŞ YAP</button>
                     </div>
                     <div class="apex-auth-overlay-panel apex-auth-overlay-right">
-                        <span class="apex-auth-ov-eyebrow">YENİ ÜYELİK &amp; PAKET YÜKSELTME</span>
-                        <h3 class="apex-auth-ov-title">Merhaba, Değerli Üye!</h3>
+                        <span class="apex-auth-ov-eyebrow">YENİ ÜYELİK</span>
+                        <h3 class="apex-auth-ov-title">Merhaba, Sporcu!</h3>
                         <p class="apex-auth-ov-text">Sitenin tüm özelliklerini kullanmak, dijital QR kartını oluşturmak ve salon/PT rezervasyonu yapmak için hemen kayıt ol.</p>
-                        <button type="button" class="apex-auth-ov-btn" data-auth-mode="register"><?php echo $logged ? 'PAKET DEĞİŞTİR' : 'KAYIT OL'; ?></button>
+                        <button type="button" class="apex-auth-ov-btn" data-auth-mode="register">KAYIT OL</button>
                     </div>
                 </div>
             </div>
         </div>
+        <?php else : ?>
+        <!-- GİRİŞ YAPMIŞ ÜYE İÇİN SADECE PAKET DEĞİŞTİRME / YÜKSELTME PANELİ (GİRİŞ KARTI GİZLİ) -->
+        <div class="apex-panel" style="max-width:1080px;margin:0 auto;">
+            <span class="apex-eyebrow" style="margin-bottom:4px;">MEVCUT HESABINLA ANINDA GÜNCELLE</span>
+            <h2 class="apex-h3" style="margin:0 0 6px;">Paket Değiştir / Yükselt</h2>
+            <p class="apex-muted" style="margin:0 0 18px;font-size:0.9rem;">Giriş yapmış hesabın (<strong><?php echo esc_html( $cu->display_name ); ?></strong>) üzerinden yeni paket veya ödeme periyodu seçebilirsin.</p>
+
+            <form id="apex-membership-register-form" class="apex-form-grid" novalidate>
+                <div class="apex-field">
+                    <label for="mem-plan-select">Üyelik Paketi *</label>
+                    <select id="mem-plan-select" name="plan_slug" required>
+                        <?php foreach ( $plans as $pl ) : ?>
+                            <option value="<?php echo esc_attr( $pl['slug'] ); ?>" <?php selected( $pl['slug'], $pre_plan ); ?>>
+                                <?php echo esc_html( $pl['name'] . ' — ' . apex_format_tl( $pl['monthly_price'] ) . '/ay' ); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="apex-field">
+                    <label for="mem-billing-select">Ödeme Periyodu *</label>
+                    <select id="mem-billing-select" name="billing_cycle">
+                        <option value="monthly">Aylık Standart</option>
+                        <option value="annual">Yıllık (%20 İndirimli)</option>
+                    </select>
+                </div>
+                <div class="apex-field">
+                    <label for="mem-fullname">Ad Soyad *</label>
+                    <input type="text" id="mem-fullname" name="full_name" value="<?php echo esc_attr( $cu->display_name ); ?>" required>
+                </div>
+                <div class="apex-field">
+                    <label for="mem-phone">Telefon *</label>
+                    <input type="tel" id="mem-phone" name="phone" value="<?php echo esc_attr( get_user_meta( $cu->ID, 'apex_member_phone', true ) ); ?>" placeholder="0532 000 00 00" required>
+                </div>
+                <div class="apex-field">
+                    <label for="mem-email">E-posta *</label>
+                    <input type="email" id="mem-email" name="email" value="<?php echo esc_attr( $cu->user_email ); ?>" required>
+                </div>
+                <div class="apex-field">
+                    <label for="mem-goal">Birincil Hedefiniz</label>
+                    <select id="mem-goal" name="goal">
+                        <option value="Genel Fitness & Kondisyon">Genel Fitness &amp; Kondisyon</option>
+                        <option value="Yağ Yakımı & Kilo Kontrolü">Yağ Yakımı &amp; Kilo Kontrolü</option>
+                        <option value="Kas Kazanımı & Kuvvet">Kas Kazanımı &amp; Kuvvet</option>
+                        <option value="Basketbol / Voleybol Performansı">Basketbol / Voleybol Performansı</option>
+                    </select>
+                </div>
+                <div class="apex-field apex-field-full">
+                    <label for="mem-emergency">Acil Durum Yakını</label>
+                    <input type="text" id="mem-emergency" name="emergency_contact" placeholder="Örn. Ayşe Yılmaz · 0533...">
+                </div>
+                <div class="apex-field apex-field-full apex-auth-consents">
+                    <label>
+                        <input type="checkbox" name="kvkk_consent" value="1" required>
+                        <span><a href="<?php echo esc_url( home_url( '/kvkk-aydinlatma-metni/' ) ); ?>" target="_blank">KVKK Aydınlatma Metni</a>’ni okudum, onaylıyorum. *</span>
+                    </label>
+                    <label>
+                        <input type="checkbox" name="terms_consent" value="1" required>
+                        <span><a href="<?php echo esc_url( home_url( '/uyelik-sozlesmesi/' ) ); ?>" target="_blank">Üyelik ve Mesafeli Satış Sözleşmesi</a>’ni kabul ediyorum. *</span>
+                    </label>
+                </div>
+                <div class="apex-field apex-field-full">
+                    <button type="submit" class="apex-btn apex-btn-primary apex-btn-block">PAKETİMİ GÜNCELLE</button>
+                </div>
+            </form>
+            <div id="mem-register-result" role="status" aria-live="polite" style="margin-top:10px;"></div>
+        </div>
+        <?php endif; ?>
 
         <!-- 3. Geniş Yatay VKİ & Günlük Kalori Hesaplayıcı Barı -->
         <div class="apex-panel apex-bmi-bar" id="vki">

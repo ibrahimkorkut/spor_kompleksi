@@ -26,18 +26,178 @@
   if (mobileOpen) mobileOpen.addEventListener('click', () => toggleMobileDrawer(true));
   if (mobileClose) mobileClose.addEventListener('click', () => toggleMobileDrawer(false));
 
-  // 2. Site İçi Arama Çubuğu
+  // 1b. Üst Menü Liquid Glass Shape Morph Geçiş Kapsülü (Hover + Sayfalar Arası Akış)
+  const navList = document.getElementById('apex-nav-list');
+  const navMorph = document.getElementById('apex-nav-morph');
+  if (navList && navMorph) {
+    const navLinks = Array.from(navList.querySelectorAll('.apex-nav-link'));
+    const activeLink = navList.querySelector('.apex-nav-link.is-active');
+    let morphTimer = null;
+    let currentTarget = activeLink || null;
+
+    navList.classList.add('has-morph');
+
+    function measureLink(el) {
+      const listRect = navList.getBoundingClientRect();
+      const r = el.getBoundingClientRect();
+      return {
+        left: r.left - listRect.left,
+        top: r.top - listRect.top,
+        width: r.width,
+        height: r.height,
+      };
+    }
+
+    function applyMorphRect(rect, opts) {
+      const instant = opts && opts.instant;
+      const animateStretch = opts && opts.stretch;
+      if (instant) {
+        navMorph.classList.add('is-instant');
+      } else {
+        navMorph.classList.remove('is-instant');
+      }
+      navMorph.style.width = rect.width.toFixed(1) + 'px';
+      navMorph.style.height = rect.height.toFixed(1) + 'px';
+      navMorph.style.transform = `translate3d(${rect.left.toFixed(1)}px, ${rect.top.toFixed(1)}px, 0) scaleY(${animateStretch ? 0.91 : 1})`;
+      navMorph.classList.add('is-visible');
+
+      if (animateStretch && !instant) {
+        navMorph.classList.add('is-morphing');
+        clearTimeout(morphTimer);
+        morphTimer = setTimeout(() => {
+          navMorph.classList.remove('is-morphing');
+          navMorph.style.transform = `translate3d(${rect.left.toFixed(1)}px, ${rect.top.toFixed(1)}px, 0) scaleY(1)`;
+        }, 170);
+      }
+      if (instant) {
+        void navMorph.offsetWidth;
+        navMorph.classList.remove('is-instant');
+      }
+    }
+
+    function morphTo(el, instant) {
+      if (!el) {
+        navMorph.classList.remove('is-visible', 'is-morphing');
+        currentTarget = null;
+        return;
+      }
+      const changed = currentTarget && currentTarget !== el;
+      currentTarget = el;
+      applyMorphRect(measureLink(el), { instant: Boolean(instant), stretch: Boolean(changed && !instant) });
+    }
+
+    // Sayfa geçişi sonrası önceki menü öğesinden yeni aktif öğeye shape morph!
+    let prevRect = null;
+    try {
+      const raw = sessionStorage.getItem('apex_nav_morph_from');
+      sessionStorage.removeItem('apex_nav_morph_from');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && Date.now() - parsed.ts < 2500) prevRect = parsed;
+      }
+    } catch (_) {}
+
+    const initNavMorph = () => {
+      if (activeLink) {
+        if (prevRect && typeof prevRect.left === 'number') {
+          applyMorphRect(prevRect, { instant: true });
+          currentTarget = null;
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              const dest = measureLink(activeLink);
+              currentTarget = activeLink;
+              applyMorphRect(dest, { instant: false, stretch: true });
+            });
+          });
+        } else {
+          morphTo(activeLink, true);
+        }
+      }
+    };
+
+    initNavMorph();
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => {
+        if (currentTarget && !navMorph.classList.contains('is-morphing')) {
+          morphTo(currentTarget, true);
+        }
+      });
+    }
+
+    navLinks.forEach((link) => {
+      link.addEventListener('pointerenter', () => morphTo(link, false));
+      link.addEventListener('focus', () => morphTo(link, false));
+      link.addEventListener('click', () => {
+        try {
+          const fromEl = activeLink || link;
+          const rect = measureLink(fromEl);
+          sessionStorage.setItem('apex_nav_morph_from', JSON.stringify({ ...rect, ts: Date.now() }));
+        } catch (_) {}
+      });
+    });
+
+    navList.addEventListener('pointerleave', () => {
+      if (activeLink) morphTo(activeLink, false);
+      else morphTo(null, false);
+    });
+
+    window.addEventListener('resize', () => {
+      if (currentTarget) morphTo(currentTarget, true);
+    }, { passive: true });
+    if (typeof ResizeObserver !== 'undefined') {
+      new ResizeObserver(() => {
+        if (currentTarget && !navMorph.classList.contains('is-morphing')) {
+          morphTo(currentTarget, true);
+        }
+      }).observe(navList);
+    }
+  }
+
+  // 2. Site İçi Satır İçi Açılır Arama Çubuğu
+  const siteHeader = document.querySelector('.apex-header');
   const searchToggle = document.getElementById('apex-search-toggle');
   const searchBar = document.getElementById('apex-search-bar');
   const searchInput = document.getElementById('apex-global-search');
+  const searchClose = document.getElementById('apex-search-close');
+  const searchForm = searchBar ? searchBar.querySelector('form') : null;
+
+  function setSearchOpen(open, selectText) {
+    if (!searchBar) return;
+    searchBar.classList.toggle('is-open', open);
+    if (siteHeader) siteHeader.classList.toggle('is-search-open', open);
+    if (searchToggle) searchToggle.setAttribute('aria-expanded', String(open));
+    if (searchInput) searchInput.tabIndex = open ? 0 : -1;
+    if (searchClose) searchClose.tabIndex = open ? 0 : -1;
+    if (open && searchInput) {
+      setTimeout(() => {
+        searchInput.focus();
+        if (selectText) searchInput.select();
+      }, 60);
+    }
+  }
+
   if (searchToggle && searchBar) {
     searchToggle.addEventListener('click', () => {
-      const opening = searchBar.hidden;
-      searchBar.hidden = !opening;
-      searchToggle.setAttribute('aria-expanded', String(opening));
-      if (opening && searchInput) searchInput.focus();
+      const isOpen = searchBar.classList.contains('is-open');
+      if (isOpen && searchInput && searchInput.value.trim() && searchForm) {
+        searchForm.submit();
+        return;
+      }
+      setSearchOpen(!isOpen);
     });
   }
+  if (searchClose) {
+    searchClose.addEventListener('click', () => {
+      if (searchInput) searchInput.value = '';
+      setSearchOpen(false);
+      if (searchToggle) searchToggle.focus();
+    });
+  }
+  document.addEventListener('click', (e) => {
+    if (searchBar && searchBar.classList.contains('is-open') && !searchBar.contains(e.target)) {
+      setSearchOpen(false);
+    }
+  });
 
   // 3. Genel Sekme / Kategori Filtreleri (PT, Kafe, Duyurular)
   document.querySelectorAll('[data-filter-group]').forEach((btn) => {
@@ -122,6 +282,17 @@
       if (e.target === bg) bg.hidden = true;
     });
   });
+
+  // 5b. Dijital QR Kart Büyütme Pop-up
+  const qrOpenBtn = document.getElementById('apex-qr-open');
+  const qrModal = document.getElementById('apex-qr-modal');
+  if (qrOpenBtn && qrModal) {
+    qrOpenBtn.addEventListener('click', () => {
+      qrModal.hidden = false;
+      const closeBtn = qrModal.querySelector('[data-close-modal]');
+      if (closeBtn) closeBtn.focus();
+    });
+  }
 
   document.querySelectorAll('[data-cert-modal]').forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -234,32 +405,23 @@
 
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
       e.preventDefault();
-      if (searchBar) {
-        searchBar.hidden = false;
-        if (searchToggle) searchToggle.setAttribute('aria-expanded', 'true');
-        if (searchInput) {
-          searchInput.focus();
-          searchInput.select();
-        }
-      }
+      setSearchOpen(true, true);
       return;
     }
 
     if (!inInput && e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey) {
       if (searchBar) {
         e.preventDefault();
-        searchBar.hidden = false;
-        if (searchToggle) searchToggle.setAttribute('aria-expanded', 'true');
-        if (searchInput) searchInput.focus();
+        setSearchOpen(true);
       }
       return;
     }
 
     if (e.key !== 'Escape') return;
     toggleMobileDrawer(false);
-    if (searchBar && !searchBar.hidden) {
-      searchBar.hidden = true;
-      if (searchToggle) searchToggle.setAttribute('aria-expanded', 'false');
+    if (searchBar && searchBar.classList.contains('is-open')) {
+      setSearchOpen(false);
+      if (searchToggle) searchToggle.focus();
     }
     document.querySelectorAll('.apex-modal-backdrop').forEach((m) => { m.hidden = true; });
     const a11yP = document.getElementById('apex-a11y-panel');
@@ -1011,12 +1173,34 @@
           if (eS) eS.textContent = `${ns} Seans`;
           if (eM) eM.textContent = `⏱ ${nm} dk`;
           if (eK) eK.textContent = `🔥 ${nk.toLocaleString('tr-TR')} kcal`;
+          const gTxt = document.getElementById('apex-wk-goal-txt');
+          const gFill = document.getElementById('apex-wk-goal-fill');
+          const avgM = document.getElementById('apex-wk-avg-min');
+          const avgK = document.getElementById('apex-wk-avg-kcal');
+          const gPct = Math.min(100, Math.round((nk / 3500) * 100));
+          if (gTxt) gTxt.textContent = `${nk.toLocaleString('tr-TR')} / 3.500 kcal (%${gPct})`;
+          if (gFill) gFill.style.width = Math.max(6, gPct) + '%';
+          if (avgM) avgM.textContent = `${Math.round(nm / Math.max(1, ns))} dk`;
+          if (avgK) avgK.textContent = `${Math.round(nk / Math.max(1, ns))} kcal`;
         }
         wkForm.reset();
         showToast('🔥 ' + data.message);
       } else {
         showToast('⚠️ ' + (data.message || 'Antrenman kaydedilemedi.'));
       }
+    });
+
+    wkForm.querySelectorAll('[data-wk-preset]').forEach((pb) => {
+      pb.addEventListener('click', () => {
+        const [t, d, k] = (pb.getAttribute('data-wk-preset') || '').split('|');
+        const sel = document.getElementById('wk-type');
+        const dur = document.getElementById('wk-dur');
+        const kcal = document.getElementById('wk-kcal');
+        if (sel && t) sel.value = t;
+        if (dur && d) dur.value = d;
+        if (kcal && k) kcal.value = k;
+        wkForm.querySelectorAll('[data-wk-preset]').forEach((x) => x.classList.toggle('is-active', x === pb));
+      });
     });
   }
 
@@ -1026,8 +1210,92 @@
   const memberChatForm = document.getElementById('apex-member-coach-chat-form');
   if (memberChatForm) {
     const chatBox = document.getElementById('apex-member-chat-box');
+    const chatRail = document.getElementById('apex-member-chat-scrollbar');
+    const chatThumb = document.getElementById('apex-member-chat-thumb');
     const chatInput = document.getElementById('member-coach-msg-input');
-    if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+
+    // Özel Kırmızı Neon Glow Kaydırma Çubuğu (sürükle & tıkla destekli)
+    function syncMemberChatScroll() {
+      if (!chatBox || !chatRail || !chatThumb) return;
+      const viewH = chatBox.clientHeight;
+      const totalH = chatBox.scrollHeight;
+      const maxScroll = totalH - viewH;
+      if (maxScroll <= 2 || viewH <= 0) {
+        chatRail.classList.add('is-hidden');
+        return;
+      }
+      chatRail.classList.remove('is-hidden');
+      const track = chatThumb.parentElement;
+      const trackH = track ? track.clientHeight : Math.max(0, viewH - 20);
+      if (trackH <= 0) return;
+      const thumbH = Math.max(36, Math.round((viewH / totalH) * trackH));
+      const maxThumbTop = Math.max(0, trackH - thumbH);
+      const ratio = Math.min(1, Math.max(0, chatBox.scrollTop / maxScroll));
+      chatThumb.style.height = thumbH + 'px';
+      chatThumb.style.transform = `translate3d(0, ${(ratio * maxThumbTop).toFixed(1)}px, 0)`;
+      chatRail.setAttribute('aria-valuenow', String(Math.round(ratio * 100)));
+    }
+
+    if (chatBox) {
+      let mcRaf = null;
+      const scheduleMcSync = () => {
+        if (mcRaf) return;
+        mcRaf = requestAnimationFrame(() => {
+          mcRaf = null;
+          syncMemberChatScroll();
+        });
+      };
+      chatBox.scrollTop = chatBox.scrollHeight;
+      scheduleMcSync();
+      chatBox.addEventListener('scroll', scheduleMcSync, { passive: true });
+      window.addEventListener('resize', scheduleMcSync, { passive: true });
+      if (typeof ResizeObserver !== 'undefined') new ResizeObserver(scheduleMcSync).observe(chatBox);
+      if (typeof MutationObserver !== 'undefined') new MutationObserver(scheduleMcSync).observe(chatBox, { childList: true, subtree: true });
+
+      if (chatRail && chatThumb) {
+        let dragging = false;
+        let dragStartY = 0;
+        let dragStartScroll = 0;
+        chatThumb.addEventListener('pointerdown', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dragging = true;
+          dragStartY = e.clientY;
+          dragStartScroll = chatBox.scrollTop;
+          chatRail.classList.add('is-dragging');
+          if (chatThumb.setPointerCapture) chatThumb.setPointerCapture(e.pointerId);
+        });
+        chatThumb.addEventListener('pointermove', (e) => {
+          if (!dragging) return;
+          const track = chatThumb.parentElement;
+          const trackH = track ? track.clientHeight : 0;
+          const maxThumbTop = Math.max(1, trackH - chatThumb.offsetHeight);
+          const maxScroll = Math.max(0, chatBox.scrollHeight - chatBox.clientHeight);
+          chatBox.scrollTop = dragStartScroll + ((e.clientY - dragStartY) / maxThumbTop) * maxScroll;
+        });
+        const endDrag = (e) => {
+          if (!dragging) return;
+          dragging = false;
+          chatRail.classList.remove('is-dragging');
+          if (e && chatThumb.releasePointerCapture && chatThumb.hasPointerCapture && chatThumb.hasPointerCapture(e.pointerId)) {
+            chatThumb.releasePointerCapture(e.pointerId);
+          }
+        };
+        chatThumb.addEventListener('pointerup', endDrag);
+        chatThumb.addEventListener('pointercancel', endDrag);
+        chatRail.addEventListener('pointerdown', (e) => {
+          if (e.target === chatThumb) return;
+          const track = chatThumb.parentElement;
+          if (!track) return;
+          const rect = track.getBoundingClientRect();
+          const thumbH = chatThumb.offsetHeight;
+          const maxThumbTop = Math.max(1, rect.height - thumbH);
+          const clickPos = Math.min(maxThumbTop, Math.max(0, e.clientY - rect.top - thumbH / 2));
+          const maxScroll = Math.max(0, chatBox.scrollHeight - chatBox.clientHeight);
+          chatBox.scrollTo({ top: (clickPos / maxThumbTop) * maxScroll, behavior: 'smooth' });
+        });
+      }
+    }
 
     memberChatForm.addEventListener('submit', async (e) => {
       e.preventDefault();

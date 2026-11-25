@@ -78,6 +78,19 @@ function apex_render_coach_portal_page() {
     // Koç rolündeki kullanıcı SADECE kendi öğrencilerini görür; Admin tüm koçlar arasında geçiş yapabilir
     $coach_filter = $is_admin ? absint( $_GET['coach_id'] ?? 0 ) : (int) $cu->ID;
     $coaches      = $is_admin ? get_users( [ 'role' => 'apex_coach', 'orderby' => 'display_name' ] ) : [];
+    if ( $is_admin && count( $coaches ) < 7 && function_exists( 'apex_setup_coach_roles_and_seed' ) ) {
+        apex_setup_coach_roles_and_seed();
+        $coaches = get_users( [ 'role' => 'apex_coach', 'orderby' => 'display_name' ] );
+    }
+    $coach_student_counts = [];
+    $total_all_students   = 0;
+    if ( $is_admin ) {
+        $cnt_rows = $wpdb->get_results( "SELECT coach_user_id, COUNT(*) AS cnt FROM {$t_st} GROUP BY coach_user_id" );
+        foreach ( (array) $cnt_rows as $cr ) {
+            $coach_student_counts[ (int) $cr->coach_user_id ] = (int) $cr->cnt;
+            $total_all_students += (int) $cr->cnt;
+        }
+    }
 
     if ( $coach_filter > 0 ) {
         $students = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$t_st} WHERE coach_user_id = %d ORDER BY id ASC", $coach_filter ) );
@@ -601,9 +614,11 @@ function apex_render_coach_portal_page() {
                 <form method="get" style="display:inline-flex;gap:8px;align-items:center;">
                     <input type="hidden" name="page" value="apex-coach-portal">
                     <select name="coach_id" class="apex-cp-select" onchange="this.form.submit()">
-                        <option value="0" <?php selected( $coach_filter, 0 ); ?>>Tüm Koçlar (<?php echo count( $students ); ?>)</option>
-                        <?php foreach ( $coaches as $co ) : ?>
-                            <option value="<?php echo esc_attr( $co->ID ); ?>" <?php selected( $coach_filter, (int) $co->ID ); ?>>Koç: <?php echo esc_html( $co->display_name ); ?></option>
+                        <option value="0" <?php selected( $coach_filter, 0 ); ?>>Tüm Koçlar (<?php echo count( $coaches ); ?> Koç · <?php echo (int) $total_all_students; ?> Öğrenci)</option>
+                        <?php foreach ( $coaches as $co ) :
+                            $co_cnt = (int) ( $coach_student_counts[ (int) $co->ID ] ?? 0 );
+                        ?>
+                            <option value="<?php echo esc_attr( $co->ID ); ?>" <?php selected( $coach_filter, (int) $co->ID ); ?>>Koç: <?php echo esc_html( $co->display_name ); ?> (<?php echo $co_cnt; ?>)</option>
                         <?php endforeach; ?>
                     </select>
                 </form>

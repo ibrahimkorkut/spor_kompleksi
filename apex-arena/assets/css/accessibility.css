@@ -256,7 +256,10 @@ html.a11y-reduce-motion *::after {
   scroll-behavior: auto !important;
 }
 @media (prefers-reduced-motion: reduce) {
-  * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  *:not(.apex-auth-pane):not(.apex-auth-overlay-wrap):not(.apex-auth-overlay):not(.apex-auth-overlay-panel):not(.apex-nav-morph) {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
 }
 
 /* 6. Gri Tonlama */

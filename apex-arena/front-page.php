@@ -43,7 +43,7 @@ $hero_sub   = get_theme_mod( 'apex_hero_subtitle', 'İki FIBA basketbol salonu, 
                     <div class="apex-hero-content">
                         <span class="apex-live-pill">
                             <span class="apex-live-dot" aria-hidden="true"></span>
-                            Canlı Yoğunluk %<?php echo esc_html( $settings['live_occupancy'] ); ?> · Otopark <?php echo esc_html( $settings['parking_free'] ); ?>/<?php echo esc_html( $settings['parking_total'] ); ?> Boş · 60 FPS Mimari Tur
+                            Canlı Yoğunluk %<?php echo esc_html( $settings['live_occupancy'] ); ?> · Otopark <?php echo esc_html( $settings['parking_free'] ); ?>/<?php echo esc_html( $settings['parking_total'] ); ?> Boş
                         </span>
                         <h1 id="hero-title" class="apex-h1" style="margin-top:18px;">
                             <?php echo esc_html( $hero_title ); ?>

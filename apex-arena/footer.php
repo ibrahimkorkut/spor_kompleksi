@@ -91,7 +91,7 @@ $settings = apex_get_settings();
                     <li><?php echo esc_html( $settings['address'] ); ?></li>
                     <li><a href="tel:<?php echo esc_attr( preg_replace( '/\s+/', '', $settings['phone'] ) ); ?>"><?php echo esc_html( $settings['phone'] ); ?></a></li>
                     <li><a href="mailto:<?php echo esc_attr( $settings['email'] ); ?>"><?php echo esc_html( $settings['email'] ); ?></a></li>
-                    <li>Hafta İçi: <?php echo esc_html( $settings['weekday_hours'] ); ?> <span class="apex-open-badge" data-live-open-badge></span></li>
+                    <li>Hafta İçi: <?php echo esc_html( $settings['weekday_hours'] ); ?></li>
                     <li><a href="<?php echo esc_url( $settings['github_url'] ); ?>" target="_blank" rel="noopener noreferrer">GitHub Tema Deposu ↗</a></li>
                     <li><a href="<?php echo esc_url( $settings['envato_url'] ); ?>" target="_blank" rel="noopener noreferrer">Envato Market Profili ↗</a></li>
                 </ul>
@@ -100,6 +100,7 @@ $settings = apex_get_settings();
 
         <div class="apex-footer-bottom">
             <p>© <?php echo esc_html( date( 'Y' ) ); ?> <strong>APEX ARENA Spor ve Performans Kompleksi</strong>. Tüm hakları saklıdır. Özel WordPress Teması (v<?php echo esc_html( APEX_VERSION ); ?>).</p>
+            <span class="apex-open-badge" data-live-open-badge></span>
             <div class="apex-footer-bottom-links">
                 <?php
                 $apex_admin_target = admin_url( 'admin.php?page=apex-arena-dashboard' );

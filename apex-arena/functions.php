@@ -106,13 +106,13 @@ function apex_enqueue_assets() {
         null
     );
 
-    wp_enqueue_style( 'apex-main', APEX_URI . '/assets/css/main.css', [ 'apex-google-fonts' ], APEX_VERSION );
-    wp_enqueue_style( 'apex-accessibility', APEX_URI . '/assets/css/accessibility.css', [ 'apex-main' ], APEX_VERSION );
+    wp_enqueue_style( 'apex-main', APEX_URI . '/assets/css/main.css', [ 'apex-google-fonts' ], APEX_VERSION . '.' . filemtime( APEX_DIR . '/assets/css/main.css' ) );
+    wp_enqueue_style( 'apex-accessibility', APEX_URI . '/assets/css/accessibility.css', [ 'apex-main' ], APEX_VERSION . '.' . filemtime( APEX_DIR . '/assets/css/accessibility.css' ) );
 
-    wp_enqueue_script( 'apex-main', APEX_URI . '/assets/js/main.js', [], APEX_VERSION, true );
+    wp_enqueue_script( 'apex-main', APEX_URI . '/assets/js/main.js', [], APEX_VERSION . '.' . filemtime( APEX_DIR . '/assets/js/main.js' ), true );
     wp_enqueue_script( 'apex-booking', APEX_URI . '/assets/js/booking.js', [ 'apex-main' ], APEX_VERSION, true );
     wp_enqueue_script( 'apex-accessibility', APEX_URI . '/assets/js/accessibility.js', [ 'apex-main' ], APEX_VERSION, true );
-    wp_enqueue_script( 'apex-chatbot', APEX_URI . '/assets/js/chatbot.js', [ 'apex-main' ], APEX_VERSION, true );
+    wp_enqueue_script( 'apex-chatbot', APEX_URI . '/assets/js/chatbot.js', [ 'apex-main' ], APEX_VERSION . '.' . filemtime( APEX_DIR . '/assets/js/chatbot.js' ), true );
     if ( is_front_page() ) {
         wp_enqueue_script( 'apex-scroll-cinema', APEX_URI . '/assets/js/scroll-cinema.js', [], APEX_VERSION, true );
         wp_enqueue_script( 'apex-motion-3d', APEX_URI . '/assets/js/motion-3d.js', [], APEX_VERSION, true );

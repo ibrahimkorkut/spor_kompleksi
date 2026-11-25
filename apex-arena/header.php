@@ -46,7 +46,8 @@ $nav_items = [
             </a>
 
             <nav class="apex-nav" aria-label="Ana menü">
-                <ul class="apex-nav-list">
+                <ul class="apex-nav-list" id="apex-nav-list">
+                    <li class="apex-nav-morph-slot" aria-hidden="true"><span class="apex-nav-morph" id="apex-nav-morph"></span></li>
                     <?php foreach ( $nav_items as $item ) :
                         $is_active = is_page( $item['slug'] ) || ( $item['slug'] === 'antrenorler' && is_singular( 'apex_trainer' ) ) || ( $item['slug'] === 'duyurular' && is_singular( 'apex_announcement' ) );
                     ?>
@@ -60,20 +61,30 @@ $nav_items = [
             </nav>
 
             <div class="apex-header-actions">
-                <button type="button" class="apex-icon-btn" id="apex-search-toggle" title="Site içi arama (Ctrl+K)" aria-label="Site içi arama (Ctrl+K)" aria-expanded="false">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7.5"/><path d="m20.5 20.5-4-4"/></svg>
-                </button>
+                <div class="apex-search-inline" id="apex-search-bar">
+                    <form role="search" method="get" action="<?php echo esc_url( home_url( '/' ) ); ?>" class="apex-search-inline-form">
+                        <button type="button" class="apex-search-trigger" id="apex-search-toggle" title="Site içi arama (Ctrl+K)" aria-label="Site içi arama (Ctrl+K)" aria-expanded="false" aria-controls="apex-global-search">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7.5"/><path d="m20.5 20.5-4-4"/></svg>
+                        </button>
+                        <label for="apex-global-search" class="sr-only">Sitede ara</label>
+                        <input type="search" id="apex-global-search" name="s" class="apex-search-inline-input" placeholder="Salon, PT, antrenör, kafe ara..." value="<?php echo esc_attr( get_search_query() ); ?>" autocomplete="off" tabindex="-1">
+                        <button type="button" class="apex-search-inline-close" id="apex-search-close" aria-label="Aramayı kapat" tabindex="-1">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                        </button>
+                    </form>
+                </div>
                 <?php if ( is_user_logged_in() ) :
                     $cu = wp_get_current_user();
                 ?>
-                    <a href="<?php echo esc_url( home_url( '/uyelik/?panel=1' ) ); ?>" class="apex-nav-util">
+                    <a href="<?php echo esc_url( home_url( '/uyelik/#uye-paneli' ) ); ?>" class="apex-nav-util">
                         <span class="apex-avatar-dot" aria-hidden="true"><?php echo esc_html( mb_strtoupper( mb_substr( $cu->display_name, 0, 1 ) ) ); ?></span>
                         Üye Panelim
                     </a>
+                    <a href="<?php echo esc_url( home_url( '/uyelik/#paketler' ) ); ?>" class="apex-btn apex-btn-primary apex-btn-sm">Paketler</a>
                 <?php else : ?>
                     <a href="<?php echo esc_url( home_url( '/uyelik/#giris' ) ); ?>" class="apex-nav-util">Üye Girişi</a>
+                    <a href="<?php echo esc_url( home_url( '/uyelik/#kayit' ) ); ?>" class="apex-btn apex-btn-primary apex-btn-sm">Bize Katıl</a>
                 <?php endif; ?>
-                <a href="<?php echo esc_url( home_url( '/uyelik/#paketler' ) ); ?>" class="apex-btn apex-btn-primary apex-btn-sm">Bize Katıl</a>
                 <button type="button" class="apex-mobile-toggle" id="apex-mobile-open" aria-label="Menüyü aç" aria-controls="apex-mobile-drawer" aria-expanded="false">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
                     <span>Menü</span>
@@ -81,16 +92,6 @@ $nav_items = [
             </div>
         </div>
     </header>
-
-    <!-- Açılır Liquid Glass Arama Kutusu -->
-    <div class="apex-search-bar" id="apex-search-bar" hidden>
-        <form role="search" method="get" action="<?php echo esc_url( home_url( '/' ) ); ?>" class="apex-search-form">
-            <label for="apex-global-search" class="sr-only">Sitede ara</label>
-            <input type="search" id="apex-global-search" name="s" placeholder="Antrenör, basketbol salonu, PT paketi, kafe veya duyuru ara..." value="<?php echo esc_attr( get_search_query() ); ?>">
-            <kbd class="apex-kbd" aria-hidden="true">ESC</kbd>
-            <button type="submit" class="apex-btn apex-btn-primary apex-btn-sm">Ara</button>
-        </form>
-    </div>
 </div>
 
 <!-- Tam Ekran Mobil Liquid Glass Çekmece -->
@@ -114,8 +115,13 @@ $nav_items = [
         </ul>
     </nav>
     <div class="apex-mobile-drawer-actions">
-        <a href="<?php echo esc_url( home_url( '/uyelik/#paketler' ) ); ?>" class="apex-btn apex-btn-primary apex-btn-block">Bize Katıl</a>
-        <a href="<?php echo esc_url( home_url( '/uyelik/#giris' ) ); ?>" class="apex-btn apex-btn-outline apex-btn-block"><?php echo is_user_logged_in() ? 'Üye Panelim' : 'Üye Girişi'; ?></a>
+        <?php if ( is_user_logged_in() ) : ?>
+            <a href="<?php echo esc_url( home_url( '/uyelik/#uye-paneli' ) ); ?>" class="apex-btn apex-btn-primary apex-btn-block">Üye Panelim</a>
+            <a href="<?php echo esc_url( home_url( '/uyelik/#paketler' ) ); ?>" class="apex-btn apex-btn-outline apex-btn-block">Üyelik Paketleri</a>
+        <?php else : ?>
+            <a href="<?php echo esc_url( home_url( '/uyelik/#kayit' ) ); ?>" class="apex-btn apex-btn-primary apex-btn-block">Bize Katıl</a>
+            <a href="<?php echo esc_url( home_url( '/uyelik/#giris' ) ); ?>" class="apex-btn apex-btn-outline apex-btn-block">Üye Girişi</a>
+        <?php endif; ?>
         <button type="button" class="apex-btn apex-btn-ghost apex-btn-block" data-open-ai>Apex AI Koç’a Sor</button>
     </div>
 </div>
