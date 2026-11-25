@@ -1583,16 +1583,20 @@ function apex_admin_email_center_page() {
 
     // 1. Gmail SMTP & Hatırlatma Ayarlarını Kaydet
     if ( isset( $_POST['apex_save_mail_settings'] ) && check_admin_referer( 'apex_mail_center_nonce' ) ) {
-        $cur      = apex_get_settings();
-        $raw_pass = isset( $_POST['smtp_pass'] ) ? trim( (string) wp_unslash( $_POST['smtp_pass'] ) ) : '';
-        $new_pass = ! empty( $_POST['clear_smtp_pass'] ) ? '' : ( $raw_pass !== '' ? $raw_pass : ( $cur['smtp_pass'] ?? '' ) );
+        $cur       = apex_get_settings();
+        $raw_pass  = isset( $_POST['smtp_pass'] ) ? preg_replace( '/\s+/', '', (string) wp_unslash( $_POST['smtp_pass'] ) ) : '';
+        $new_pass  = ! empty( $_POST['clear_smtp_pass'] ) ? '' : ( $raw_pass !== '' ? $raw_pass : ( $cur['smtp_pass'] ?? '' ) );
+        $new_user  = sanitize_email( wp_unslash( $_POST['smtp_user'] ?? '' ) );
+        // Yeni Gmail + Uygulama Şifresi ilk kez girildiyse canlı SMTP'yi otomatik etkinleştir
+        $auto_enable = ( $raw_pass !== '' && is_email( $new_user ) );
+        $smtp_on     = ( ! empty( $_POST['smtp_enabled'] ) || $auto_enable ) ? 1 : 0;
 
         $updated = array_merge( $cur, [
-            'smtp_enabled'          => ! empty( $_POST['smtp_enabled'] ) ? 1 : 0,
+            'smtp_enabled'          => $smtp_on,
             'smtp_host'             => sanitize_text_field( wp_unslash( $_POST['smtp_host'] ?? 'smtp.gmail.com' ) ),
             'smtp_port'             => max( 1, absint( $_POST['smtp_port'] ?? 587 ) ),
             'smtp_encryption'       => in_array( $_POST['smtp_encryption'] ?? 'tls', [ 'tls', 'ssl', '' ], true ) ? $_POST['smtp_encryption'] : 'tls',
-            'smtp_user'             => sanitize_email( wp_unslash( $_POST['smtp_user'] ?? '' ) ),
+            'smtp_user'             => $new_user,
             'smtp_pass'             => $new_pass,
             'smtp_from_name'        => sanitize_text_field( wp_unslash( $_POST['smtp_from_name'] ?? 'APEX ARENA Spor Kompleksi' ) ),
             'mail_on_register'      => ! empty( $_POST['mail_on_register'] ) ? 1 : 0,
@@ -1601,7 +1605,9 @@ function apex_admin_email_center_page() {
             'reminder_hours_before' => max( 1, min( 168, absint( $_POST['reminder_hours_before'] ?? 24 ) ) ),
         ] );
         update_option( 'apex_arena_settings', $updated );
-        $notice = '<div class="notice notice-success"><p><strong>Gmail SMTP &amp; Otomatik Hatırlatma ayarları kaydedildi!</strong></p></div>';
+        $notice = '<div class="notice notice-success"><p><strong>Gmail SMTP &amp; Otomatik Hatırlatma ayarları kaydedildi!</strong>'
+            . ( $smtp_on && $new_user && $new_pass ? ' Canlı Gmail SMTP aktif.' : '' )
+            . '</p></div>';
     }
 
     // 2. Test Maili Gönder

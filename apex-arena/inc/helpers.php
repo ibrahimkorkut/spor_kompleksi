@@ -31,7 +31,7 @@ function apex_get_settings() {
         'github_url'           => 'https://github.com/ibrahimkorkut/spor_kompleksi',
         'envato_url'           => 'https://themeforest.net/',
         // v2.1.0 — Gmail SMTP & Otomatik E-posta Hatırlatma Ayarları
-        'smtp_enabled'         => 0,
+        'smtp_enabled'         => 1,
         'smtp_host'            => 'smtp.gmail.com',
         'smtp_port'            => 587,
         'smtp_encryption'      => 'tls',

@@ -25,6 +25,29 @@ add_action( 'wp_mail_failed', function( $wp_error ) {
 } );
 
 /**
+ * Gmail SMTP aktifken WordPress'in varsayılan wordpress@localhost gönderen adresini Gmail ile değiştir
+ */
+add_filter( 'wp_mail_from', function( $from ) {
+    if ( function_exists( 'apex_is_gmail_smtp_ready' ) && apex_is_gmail_smtp_ready() ) {
+        $s = apex_get_settings();
+        if ( ! empty( $s['smtp_user'] ) && is_email( $s['smtp_user'] ) ) {
+            return trim( (string) $s['smtp_user'] );
+        }
+    }
+    return $from;
+}, 20 );
+
+add_filter( 'wp_mail_from_name', function( $name ) {
+    if ( function_exists( 'apex_is_gmail_smtp_ready' ) && apex_is_gmail_smtp_ready() ) {
+        $s = apex_get_settings();
+        if ( ! empty( $s['smtp_from_name'] ) ) {
+            return (string) $s['smtp_from_name'];
+        }
+    }
+    return $name;
+}, 20 );
+
+/**
  * Gmail SMTP Aktifse WordPress PHPMailer'ı Gmail'e Yönlendir
  */
 add_action( 'phpmailer_init', function( $phpmailer ) {
@@ -38,19 +61,21 @@ add_action( 'phpmailer_init', function( $phpmailer ) {
     $enc  = in_array( $s['smtp_encryption'] ?? 'tls', [ 'tls', 'ssl', '' ], true ) ? $s['smtp_encryption'] : 'tls';
 
     $phpmailer->isSMTP();
-    $phpmailer->Host       = $host;
-    $phpmailer->SMTPAuth   = true;
-    $phpmailer->Port       = $port;
-    $phpmailer->Username   = trim( (string) $s['smtp_user'] );
-    $phpmailer->Password   = preg_replace( '/\s+/', '', (string) $s['smtp_pass'] );
-    $phpmailer->SMTPSecure = $enc;
-    $phpmailer->CharSet    = 'UTF-8';
-    $phpmailer->Timeout    = 15;
+    $phpmailer->Host        = $host;
+    $phpmailer->SMTPAuth    = true;
+    $phpmailer->SMTPAutoTLS = true;
+    $phpmailer->Port        = $port;
+    $phpmailer->Username    = trim( (string) $s['smtp_user'] );
+    $phpmailer->Password    = preg_replace( '/\s+/', '', (string) $s['smtp_pass'] );
+    $phpmailer->SMTPSecure  = $enc;
+    $phpmailer->CharSet     = 'UTF-8';
+    $phpmailer->Timeout     = 15;
 
     $from_email = trim( (string) $s['smtp_user'] );
     $from_name  = ! empty( $s['smtp_from_name'] ) ? $s['smtp_from_name'] : 'APEX ARENA Spor Kompleksi';
     try {
         $phpmailer->setFrom( $from_email, $from_name, false );
+        $phpmailer->Sender = $from_email;
     } catch ( Exception $e ) {
         // PHPMailer varsayılan adresle devam eder
     }
