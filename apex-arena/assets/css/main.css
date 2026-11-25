@@ -4511,3 +4511,152 @@ html.a11y-reduce-motion .apex-reveal {
     aspect-ratio: 4 / 5;
   }
 }
+
+/* 11. v2.2.2 — Mimari Editoryal Tesis Olanakları Bento Galerisi */
+.apex-fac-bento {
+  display: grid;
+  grid-template-columns: minmax(0, 1.18fr) minmax(0, 1fr);
+  grid-template-rows: repeat(2, minmax(285px, 1fr));
+  gap: 20px;
+}
+
+.apex-fac-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 290px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #090a0d;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  text-decoration: none;
+  color: #ffffff;
+  isolation: isolate;
+  transition:
+    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.4s ease,
+    opacity 0.4s ease,
+    box-shadow 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.apex-fac-tile-tall {
+  grid-row: span 2;
+  min-height: 600px;
+}
+
+@media (min-width: 961px) {
+  .apex-fac-bento:hover .apex-fac-tile:not(:hover) {
+    opacity: 0.72;
+  }
+}
+
+.apex-fac-tile:hover {
+  transform: translateY(-5px);
+  border-color: rgba(255, 255, 255, 0.24);
+  box-shadow: 0 28px 60px -20px rgba(0, 0, 0, 0.85);
+}
+
+.apex-fac-media {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.apex-fac-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  filter: saturate(0.84) contrast(1.08) brightness(0.86);
+  transform: scale(1.01);
+  transition:
+    transform 0.85s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.apex-fac-tile:hover .apex-fac-media img {
+  filter: saturate(1.04) contrast(1.06) brightness(0.95);
+  transform: scale(1.055);
+}
+
+.apex-fac-scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(7, 8, 11, 0.56) 0%, rgba(7, 8, 11, 0.08) 28%, rgba(7, 8, 11, 0.34) 52%, rgba(7, 8, 11, 0.88) 80%, #07080b 100%);
+  pointer-events: none;
+}
+
+.apex-fac-top {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.apex-fac-body {
+  position: relative;
+  padding: 22px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.apex-fac-tile:hover .apex-coach-idx {
+  color: #ffffff;
+}
+
+.apex-fac-tile:hover .apex-coach-rule {
+  width: 52px;
+}
+
+.apex-fac-tile:hover .apex-coach-link {
+  color: #ffffff;
+  border-top-color: rgba(227, 24, 55, 0.55);
+}
+
+.apex-fac-tile:hover .apex-coach-link-arrow {
+  transform: translate(4px, -3px);
+  color: var(--apex-crimson);
+}
+
+.apex-fac-title {
+  margin: 0;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(1.75rem, 2.5vw, 2.35rem);
+  font-weight: 800;
+  letter-spacing: 0.015em;
+  text-transform: uppercase;
+  line-height: 1.02;
+  color: #ffffff;
+}
+
+.apex-fac-tile-tall .apex-fac-title {
+  font-size: clamp(2.1rem, 3vw, 2.85rem);
+}
+
+.apex-fac-desc {
+  margin: 2px 0 10px;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: rgba(212, 212, 216, 0.82);
+  max-width: 46ch;
+}
+
+@media (max-width: 960px) {
+  .apex-fac-bento {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto;
+  }
+  .apex-fac-tile-tall {
+    grid-row: auto;
+    min-height: 360px;
+  }
+  .apex-fac-tile {
+    min-height: 310px;
+  }
+}

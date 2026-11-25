@@ -313,50 +313,83 @@ $hero_sub   = get_theme_mod( 'apex_hero_subtitle', 'İki FIBA basketbol salonu, 
     </div>
 </section>
 
-<!-- 5. TESİS OLANAKLARI -->
-<section class="apex-section apex-section-alt" aria-labelledby="home-fac-title">
+<!-- 5. TESİS OLANAKLARI — MİMARİ EDİTORYAL BENTO GALERİSİ (v2.2.2) -->
+<section class="apex-section apex-section-alt apex-fac-section" aria-labelledby="home-fac-title">
     <div class="apex-container">
         <div class="apex-section-head">
             <div>
-                <span class="apex-eyebrow">Tesis Olanakları</span>
+                <span class="apex-eyebrow">Tesis Olanakları · Mimari Konfor</span>
                 <h2 id="home-fac-title" class="apex-h2">Soyunma Odası, Otopark ve Protein Kafe</h2>
             </div>
-            <a href="<?php echo esc_url( home_url( '/tesis-olanaklari/' ) ); ?>" class="apex-btn apex-btn-outline apex-btn-sm">Olanaklar &amp; Menü →</a>
+            <a href="<?php echo esc_url( home_url( '/tesis-olanaklari/' ) ); ?>" class="apex-editorial-all-link">
+                <span>Olanaklar &amp; Menü</span>
+                <span class="apex-editorial-arrow" aria-hidden="true">↗</span>
+            </a>
         </div>
 
-        <div class="apex-grid-3">
-            <article class="apex-card">
-                <div class="apex-card-media">
-                    <img src="<?php echo esc_url( apex_img_url( 'facility-locker.jpg' ) ); ?>" alt="APEX ARENA Soyunma Odası, Yağmur Duş ve Sauna" loading="lazy">
-                    <span class="apex-card-badge">240 Akıllı Dolap · Sauna</span>
+        <div class="apex-fac-bento">
+            <a href="<?php echo esc_url( home_url( '/tesis-olanaklari/' ) ); ?>" class="apex-fac-tile apex-fac-tile-tall">
+                <div class="apex-fac-media">
+                    <img src="<?php echo esc_url( apex_img_url( 'facility-locker.jpg' ) ); ?>" alt="APEX ARENA Soyunma Odası, Yağmur Duş ve Sedir Fin Saunası" loading="lazy">
+                    <span class="apex-fac-scrim" aria-hidden="true"></span>
                 </div>
-                <div class="apex-card-body">
-                    <h3 class="apex-h3">Soyunma Odası &amp; Duş</h3>
-                    <p class="apex-muted" style="margin:0;font-size:0.9rem;">RFID kilitli dolaplar, yüksek basınçlı yağmur duşları, Fin saunası, hijyenik havlu servisi ve engelsiz erişimli özel soyunma odası.</p>
+                <div class="apex-fac-top">
+                    <span class="apex-coach-idx">01</span>
+                    <span class="apex-coach-stat">240 RFID DOLAP <i>/</i> 85°C SAUNA</span>
                 </div>
-            </article>
+                <div class="apex-fac-body">
+                    <span class="apex-coach-rule" aria-hidden="true"></span>
+                    <span class="apex-coach-role">TOPARLANMA &amp; SPA KONFORU</span>
+                    <h3 class="apex-fac-title">Soyunma Odası &amp; Fin Saunası</h3>
+                    <p class="apex-fac-desc">Temassız RFID akıllı dolaplar, yüksek basınçlı yağmur duş kabinleri, sedir ağacı Fin saunası, hijyenik havlu servisi ve engelsiz erişimli özel kabinler.</p>
+                    <span class="apex-coach-link">
+                        <span>Tesis Detayları</span>
+                        <span class="apex-coach-link-arrow" aria-hidden="true">↗</span>
+                    </span>
+                </div>
+            </a>
 
-            <article class="apex-card">
-                <div class="apex-card-media">
-                    <img src="<?php echo esc_url( apex_img_url( 'facility-parking.jpg' ) ); ?>" alt="APEX ARENA Kapalı Otopark ve EV Şarj İstasyonları" loading="lazy">
-                    <span class="apex-card-badge"><?php echo esc_html( $settings['parking_free'] ); ?> Boş Yer · 6 EV Şarj</span>
+            <a href="<?php echo esc_url( home_url( '/tesis-olanaklari/#otopark' ) ); ?>" class="apex-fac-tile">
+                <div class="apex-fac-media">
+                    <img src="<?php echo esc_url( apex_img_url( 'facility-parking.jpg' ) ); ?>" alt="APEX ARENA Kapalı Otopark ve 22 kW EV Şarj İstasyonları" loading="lazy">
+                    <span class="apex-fac-scrim" aria-hidden="true"></span>
                 </div>
-                <div class="apex-card-body">
-                    <h3 class="apex-h3">Kapalı Otopark</h3>
-                    <p class="apex-muted" style="margin:0;font-size:0.9rem;">180 araçlık plaka tanımalı kapalı otopark, üyelere ilk 3 saat ücretsiz kullanım, 6 adet 22 kW EV şarj istasyonu ve asansörlü direkt erişim.</p>
+                <div class="apex-fac-top">
+                    <span class="apex-coach-idx">02</span>
+                    <span class="apex-coach-stat"><?php echo esc_html( $settings['parking_free'] ); ?> BOŞ YER <i>/</i> 6× 22 KW EV</span>
                 </div>
-            </article>
+                <div class="apex-fac-body">
+                    <span class="apex-coach-rule" aria-hidden="true"></span>
+                    <span class="apex-coach-role">PLAKA TANIMALI · DİREKT ASANSÖR</span>
+                    <h3 class="apex-fac-title">Akıllı Kapalı Otopark</h3>
+                    <p class="apex-fac-desc">180 araçlık kapalı otopark, üyelere ilk 3 saat ücretsiz park ayrıcalığı ve 6 adet hızlı elektrikli araç şarj noktası.</p>
+                    <span class="apex-coach-link">
+                        <span>Canlı EV &amp; Doluluk</span>
+                        <span class="apex-coach-link-arrow" aria-hidden="true">↗</span>
+                    </span>
+                </div>
+            </a>
 
-            <article class="apex-card">
-                <div class="apex-card-media">
+            <a href="<?php echo esc_url( home_url( '/tesis-olanaklari/#kafe' ) ); ?>" class="apex-fac-tile">
+                <div class="apex-fac-media">
                     <img src="<?php echo esc_url( apex_img_url( 'facility-cafe.jpg' ) ); ?>" alt="Apex Protein Kafe ve Lounge Bar" loading="lazy">
-                    <span class="apex-card-badge apex-card-badge-crimson">PRO Üyelere %15 İndirim</span>
+                    <span class="apex-fac-scrim" aria-hidden="true"></span>
                 </div>
-                <div class="apex-card-body">
-                    <h3 class="apex-h3">Apex Protein Kafe</h3>
-                    <p class="apex-muted" style="margin:0;font-size:0.9rem;">Taze izole whey shake’ler, diyetisyen onaylı makro hesaplı fit bowl tabakları, 3. dalga cold brew kahveler ve dinlenme lounge alanı.</p>
+                <div class="apex-fac-top">
+                    <span class="apex-coach-idx">03</span>
+                    <span class="apex-coach-stat">MAKRO MENÜ <i>/</i> PRO %15</span>
                 </div>
-            </article>
+                <div class="apex-fac-body">
+                    <span class="apex-coach-rule" aria-hidden="true"></span>
+                    <span class="apex-coach-role">BESLENME &amp; 3. DALGA KAHVE BARI</span>
+                    <h3 class="apex-fac-title">Apex Protein Kafe</h3>
+                    <p class="apex-fac-desc">İzole whey shake’ler, diyetisyen onaylı makro hesaplı fit bowl tabakları, cold brew bar ve antrenman çıkışı hızlı ön sipariş.</p>
+                    <span class="apex-coach-link">
+                        <span>Menü &amp; Ön Sipariş</span>
+                        <span class="apex-coach-link-arrow" aria-hidden="true">↗</span>
+                    </span>
+                </div>
+            </a>
         </div>
     </div>
 </section>

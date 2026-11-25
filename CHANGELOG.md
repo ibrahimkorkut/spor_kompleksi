@@ -1,5 +1,8 @@
 # Changelog — APEX ARENA WordPress Theme
 
+## [2.2.2] — 2026-11-25
+- **Mimari Editoryal Tesis Olanakları Bento Galerisi (`front-page.php`, `assets/css/main.css`, `inc/helpers.php`, `assets/images/facility-*.jpg`):** Ana sayfadaki "Soyunma Odası, Otopark ve Protein Kafe" bölümü klasik 3'lü kutu kartlarından çıkarılarak asimetrik 1+2 tam çerçeve mimari bento galerisine dönüştürüldü. Başlıklarla birebir örtüşen 3 yeni doğal mimari fotoğraf (koyu meşe RFID dolap & sedir Fin saunası, brüt beton kapalı EV otoparkı, koyu mermer Protein Kafe & espresso bar) eklendi ve `apex_img_url()` fonksiyonuna otomatik `?v=filemtime` önbellek yenileme eklendi.
+
 ## [2.2.1] — 2026-11-25
 - **Editoryal Antrenör Portre Galerisi (`front-page.php`, `assets/css/main.css`, `assets/images/trainer-mert.jpg`):** Ana sayfadaki "Antrenörlerimizle Tanış" bölümü klasik şablon kutu kartlarından çıkarılarak asimetrik dergi/lookbook ritmine sahip tam çerçeve (full-bleed) editoryal portre galerisine dönüştürüldü; üst indeks numaraları (`01`–`04`), hover ile renklenen sinematik film tonlaması, genişleyen kırmızı editoryal çizgi, `Profil & Takvim ↗` alt bağlantısı ve Mert Demir için voleybol salonunda doğal 35mm portre fotoğrafı eklendi.
 

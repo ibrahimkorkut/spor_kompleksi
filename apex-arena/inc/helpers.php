@@ -70,11 +70,13 @@ function apex_get_effective_ai_mode() {
  */
 function apex_img_url( $filename, $fallback = 'hero-arena.jpg' ) {
     $filename = ltrim( (string) $filename, '/' );
-    if ( $filename && file_exists( APEX_DIR . '/assets/images/' . $filename ) ) {
-        return APEX_URI . '/assets/images/' . $filename;
+    $path     = APEX_DIR . '/assets/images/' . $filename;
+    if ( $filename && file_exists( $path ) ) {
+        return APEX_URI . '/assets/images/' . $filename . '?v=' . filemtime( $path );
     }
-    if ( file_exists( APEX_DIR . '/assets/images/' . $fallback ) ) {
-        return APEX_URI . '/assets/images/' . $fallback;
+    $fb_path = APEX_DIR . '/assets/images/' . $fallback;
+    if ( file_exists( $fb_path ) ) {
+        return APEX_URI . '/assets/images/' . $fallback . '?v=' . filemtime( $fb_path );
     }
     return APEX_URI . '/assets/images/hero-arena.svg';
 }
