@@ -836,7 +836,7 @@ function apex_setup_coach_roles_and_seed() {
             'badge'     => 'HOŞ GELDİNİZ · DİJİTAL ÜYELİK AKTİF',
             'title'     => "APEX ARENA Ailesine Hoş Geldin, {$demo_name}!",
             'intro'     => 'Üyeliğin başarıyla oluşturuldu ve <strong>Dijital QR Geçiş Kartın</strong> aktif edildi. Turnikelerden ve kapalı otoparktan QR kodunla saniyeler içinde geçiş yapabilirsin.',
-            'highlight' => "<div style=\"font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:#F4E268;font-weight:800;margin-bottom:4px;\">DİJİTAL QR ÜYE KODUN</div><div style=\"font-size:24px;font-weight:900;letter-spacing:2px;color:#FFFFFF;\">{$demo_code}</div>",
+            'highlight' => "<div style=\"font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:#E31837;font-weight:800;margin-bottom:4px;\">DİJİTAL QR ÜYE KODUN</div><div style=\"font-size:24px;font-weight:900;letter-spacing:2px;color:#111827;\">{$demo_code}</div>",
             'rows'      => [
                 'Üye Adı Soyadı' => $demo_name,
                 'Seçilen Paket'  => 'APEX PRO',

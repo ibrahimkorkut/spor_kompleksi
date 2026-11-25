@@ -1722,7 +1722,7 @@ function apex_admin_email_center_page() {
         .apex-mc-modal-bg[hidden] { display: none; }
         .apex-mc-modal { width: min(760px, 100%); max-height: 90vh; background: #111319; border: 1px solid rgba(255,255,255,0.16); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; }
         .apex-mc-modal-head { padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .apex-mc-modal iframe { width: 100%; height: 72vh; border: 0; background: #090a0d; }
+        .apex-mc-modal iframe { width: 100%; height: 72vh; border: 0; background: #F4F5F7; }
         @media (max-width: 1080px) { .apex-mc-kpis { grid-template-columns: repeat(2, 1fr); } .apex-mc-grid, .apex-mc-field-grid { grid-template-columns: 1fr; } }
     </style>
 

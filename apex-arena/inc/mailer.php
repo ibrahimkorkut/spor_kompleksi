@@ -90,7 +90,7 @@ function apex_is_gmail_smtp_ready() {
 }
 
 /**
- * E-posta şablon sarmalayıcı (Gmail, Apple Mail ve Outlook uyumlu karanlık APEX tasarımı)
+ * E-posta şablon sarmalayıcı (Gmail, Apple Mail ve Outlook uyumlu beyaz editoryal APEX tasarımı)
  */
 function apex_render_email_template( array $args ) {
     $s        = apex_get_settings();
@@ -107,14 +107,14 @@ function apex_render_email_template( array $args ) {
     $rows_html = '';
     foreach ( $rows as $lbl => $val ) {
         $rows_html .= '<tr>'
-            . '<td style="padding:10px 14px;border-bottom:1px solid #222530;color:#9CA3AF;font-size:13px;width:42%;">' . esc_html( $lbl ) . '</td>'
-            . '<td style="padding:10px 14px;border-bottom:1px solid #222530;color:#FFFFFF;font-size:13.5px;font-weight:700;text-align:right;">' . esc_html( (string) $val ) . '</td>'
+            . '<td style="padding:11px 16px;border-bottom:1px solid #EAECEF;color:#6B7280;font-size:13px;width:42%;">' . esc_html( $lbl ) . '</td>'
+            . '<td style="padding:11px 16px;border-bottom:1px solid #EAECEF;color:#111827;font-size:13.5px;font-weight:700;text-align:right;">' . esc_html( (string) $val ) . '</td>'
             . '</tr>';
     }
 
     $highlight_html = '';
     if ( $highlight ) {
-        $highlight_html = '<div style="margin:20px 0;padding:16px 18px;border-radius:12px;background:#1A1419;border:1px solid #E31837;color:#F8FAFC;font-size:14px;line-height:1.55;">'
+        $highlight_html = '<div style="margin:20px 0;padding:18px 20px;border-radius:12px;background:#FFF5F6;border:1px solid #FECDD3;border-left:4px solid #E31837;color:#1F2937;font-size:14px;line-height:1.55;">'
             . wp_kses_post( $highlight )
             . '</div>';
     }
@@ -123,48 +123,48 @@ function apex_render_email_template( array $args ) {
     if ( ! empty( $tips ) ) {
         $items = '';
         foreach ( $tips as $t ) {
-            $items .= '<li style="margin:6px 0;color:#D1D5DB;font-size:13.5px;line-height:1.5;">' . esc_html( $t ) . '</li>';
+            $items .= '<li style="margin:6px 0;color:#4B5563;font-size:13.5px;line-height:1.55;">' . esc_html( $t ) . '</li>';
         }
-        $tips_html = '<div style="margin:20px 0 6px;padding:16px 18px;border-radius:12px;background:#141720;border:1px solid #242938;">'
-            . '<div style="font-size:11px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:#F4E268;margin-bottom:8px;">TESİS HATIRLATMALARI</div>'
+        $tips_html = '<div style="margin:22px 0 8px;padding:16px 20px;border-radius:12px;background:#F9FAFB;border:1px solid #E5E7EB;">'
+            . '<div style="font-size:11px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:#E31837;margin-bottom:8px;">TESİS HATIRLATMALARI</div>'
             . '<ul style="margin:0;padding-left:18px;">' . $items . '</ul>'
             . '</div>';
     }
 
     $cta_html = '';
     if ( $cta_text && $cta_url ) {
-        $cta_html = '<div style="text-align:center;margin:26px 0 8px;">'
-            . '<a href="' . esc_url( $cta_url ) . '" style="display:inline-block;padding:13px 28px;border-radius:999px;background:#E31837;color:#FFFFFF;text-decoration:none;font-weight:800;font-size:13.5px;letter-spacing:0.6px;">'
+        $cta_html = '<div style="text-align:center;margin:28px 0 8px;">'
+            . '<a href="' . esc_url( $cta_url ) . '" style="display:inline-block;padding:13px 30px;border-radius:999px;background:#E31837;color:#FFFFFF;text-decoration:none;font-weight:700;font-size:14px;letter-spacing:0.3px;">'
             . esc_html( $cta_text ) . ' →</a>'
             . '</div>';
     }
 
     return '<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">'
         . '<title>' . esc_html( $title ) . '</title></head>'
-        . '<body style="margin:0;padding:0;background-color:#090A0D;font-family:\'Segoe UI\',Roboto,Helvetica,Arial,sans-serif;color:#F3F4F6;">'
-        . '<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#090A0D;padding:28px 12px;">'
+        . '<body style="margin:0;padding:0;background-color:#F4F5F7;font-family:\'Segoe UI\',-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;color:#1F2937;">'
+        . '<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#F4F5F7;padding:32px 12px;">'
         . '<tr><td align="center">'
-        . '<table role="presentation" width="600" cellspacing="0" cellpadding="0" style="max-width:600px;width:100%;background-color:#111319;border:1px solid #222633;border-radius:18px;overflow:hidden;">'
-        // Header
-        . '<tr><td style="padding:26px 30px;background:linear-gradient(135deg,#190A10 0%,#111319 65%,#141A24 100%);border-bottom:2px solid #E31837;">'
-        . '<div style="font-size:11px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:#F4E268;margin-bottom:8px;">▲ ' . esc_html( $badge ) . '</div>'
-        . '<div style="font-size:24px;font-weight:900;letter-spacing:0.4px;color:#FFFFFF;line-height:1.2;">APEX <span style="color:#E31837;">ARENA</span></div>'
-        . '<div style="font-size:17px;font-weight:700;color:#E5E7EB;margin-top:10px;">' . esc_html( $title ) . '</div>'
+        . '<table role="presentation" width="600" cellspacing="0" cellpadding="0" style="max-width:600px;width:100%;background-color:#FFFFFF;border:1px solid #E5E7EB;border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(17,24,39,0.06);">'
+        // Header (Beyaz temiz editoryal başlık + üst kırmızı şerit)
+        . '<tr><td style="padding:28px 32px 22px;background:#FFFFFF;border-top:4px solid #E31837;border-bottom:1px solid #F0F1F5;">'
+        . '<div style="font-size:11px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:#E31837;margin-bottom:8px;">▲ ' . esc_html( $badge ) . '</div>'
+        . '<div style="font-size:24px;font-weight:900;letter-spacing:0.4px;color:#111827;line-height:1.2;">APEX <span style="color:#E31837;">ARENA</span></div>'
+        . '<div style="font-size:18px;font-weight:700;color:#1F2937;margin-top:10px;line-height:1.35;">' . esc_html( $title ) . '</div>'
         . '</td></tr>'
         // Body
-        . '<tr><td style="padding:26px 30px;">'
-        . '<p style="margin:0 0 18px;font-size:14.5px;line-height:1.65;color:#D1D5DB;">' . wp_kses_post( $intro ) . '</p>'
+        . '<tr><td style="padding:26px 32px;background:#FFFFFF;">'
+        . '<p style="margin:0 0 18px;font-size:14.5px;line-height:1.68;color:#374151;">' . wp_kses_post( $intro ) . '</p>'
         . $highlight_html
-        . ( $rows_html ? '<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#0D0F14;border:1px solid #222530;border-radius:12px;overflow:hidden;margin:16px 0;">' . $rows_html . '</table>' : '' )
+        . ( $rows_html ? '<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#FAFAFB;border:1px solid #E5E7EB;border-radius:12px;overflow:hidden;margin:18px 0;">' . $rows_html . '</table>' : '' )
         . $tips_html
         . $cta_html
         . '</td></tr>'
         // Footer
-        . '<tr><td style="padding:20px 30px;background:#0C0D12;border-top:1px solid #1E222D;font-size:12px;line-height:1.6;color:#9CA3AF;">'
-        . '<div style="font-weight:700;color:#E5E7EB;margin-bottom:4px;">APEX ARENA Spor ve Performans Kompleksi</div>'
+        . '<tr><td style="padding:22px 32px;background:#F9FAFB;border-top:1px solid #E5E7EB;font-size:12px;line-height:1.65;color:#6B7280;">'
+        . '<div style="font-weight:700;color:#111827;margin-bottom:4px;">APEX ARENA Spor ve Performans Kompleksi</div>'
         . '<div>' . esc_html( $s['address'] ) . '</div>'
         . '<div>Tel: ' . esc_html( $s['phone'] ) . ' · Hafta İçi: ' . esc_html( $s['weekday_hours'] ) . ' · Hafta Sonu: ' . esc_html( $s['weekend_hours'] ) . '</div>'
-        . '<div style="margin-top:10px;font-size:11px;color:#6B7280;">' . esc_html( $footer_n ) . '</div>'
+        . '<div style="margin-top:10px;font-size:11px;color:#9CA3AF;">' . esc_html( $footer_n ) . '</div>'
         . '</td></tr>'
         . '</table>'
         . '</td></tr></table></body></html>';
@@ -300,9 +300,9 @@ function apex_send_welcome_email( array $data, $force = false ) {
         'badge'       => 'HOŞ GELDİNİZ · DİJİTAL ÜYELİK AKTİF',
         'title'       => "APEX ARENA Ailesine Hoş Geldin, {$name}!",
         'intro'       => "Üyeliğin başarıyla oluşturuldu ve <strong>Dijital QR Geçiş Kartın</strong> aktif edildi. Artık turnikelerden ve kapalı otoparktan telefonundaki QR kod ile saniyeler içinde geçiş yapabilir, salon kiralayabilir ve PT randevusu alabilirsin.",
-        'highlight'   => "<div style=\"font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:#F4E268;font-weight:800;margin-bottom:4px;\">DİJİTAL QR ÜYE KODUN</div>"
-                       . "<div style=\"font-size:24px;font-weight:900;letter-spacing:2px;color:#FFFFFF;\">" . esc_html( $code ) . "</div>"
-                       . "<div style=\"font-size:12.5px;color:#D1D5DB;margin-top:6px;\">Üye paneline giriş yaparak QR kodunu tam ekran büyütebilirsin.</div>",
+        'highlight'   => "<div style=\"font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:#E31837;font-weight:800;margin-bottom:4px;\">DİJİTAL QR ÜYE KODUN</div>"
+                       . "<div style=\"font-size:24px;font-weight:900;letter-spacing:2px;color:#111827;\">" . esc_html( $code ) . "</div>"
+                       . "<div style=\"font-size:12.5px;color:#4B5563;margin-top:6px;\">Üye paneline giriş yaparak QR kodunu tam ekran büyütebilirsin.</div>",
         'rows'        => [
             'Üye Adı Soyadı'    => $name,
             'Seçilen Paket'     => $plan,
@@ -355,7 +355,7 @@ function apex_send_court_booking_email( array $data ) {
         'badge'     => 'SALON REZERVASYONU ONAYLANDI',
         'title'     => "{$court} Rezervasyonun Hazır!",
         'intro'     => "Merhaba <strong>" . esc_html( $name ) . "</strong>, salon rezervasyonun onaylandı. Maç saatinden 24 saat önce sana otomatik bir hatırlatma e-postası daha göndereceğiz.",
-        'highlight' => "<strong>Rezervasyon Kodu:</strong> <span style=\"color:#F4E268;font-weight:900;letter-spacing:1px;\">" . esc_html( $code ) . "</span><br>"
+        'highlight' => "<strong>Rezervasyon Kodu:</strong> <span style=\"color:#E31837;font-weight:900;letter-spacing:1px;\">" . esc_html( $code ) . "</span><br>"
                      . "📅 " . esc_html( "{$date_lbl} · {$slot} ({$dur} Saat)" ),
         'rows'      => [
             'Salon'            => $court,
@@ -407,7 +407,7 @@ function apex_send_pt_booking_email( array $data ) {
         'badge'     => 'PT RANDEVUSU ONAYLANDI',
         'title'     => "{$trainer} ile Antrenman Randevun Onaylandı!",
         'intro'     => "Merhaba <strong>" . esc_html( $name ) . "</strong>, kişisel antrenörlük randevun takvime işlendi. Seansından önce otomatik hatırlatma e-postası da alacaksın.",
-        'highlight' => "<strong>Randevu Kodu:</strong> <span style=\"color:#F4E268;font-weight:900;letter-spacing:1px;\">" . esc_html( $code ) . "</span><br>"
+        'highlight' => "<strong>Randevu Kodu:</strong> <span style=\"color:#E31837;font-weight:900;letter-spacing:1px;\">" . esc_html( $code ) . "</span><br>"
                      . "🏋️ " . esc_html( "{$trainer} · {$date_lbl} · {$slot}" ),
         'rows'      => [
             'Antrenör'       => $trainer,
