@@ -1,0 +1,276 @@
+/* ==========================================================================
+   WCAG 2.2 AA / AAA Erişilebilirlik Merkezi — Apple Liquid Glass Functional Sheet
+   ========================================================================== */
+
+.apex-a11y-launcher {
+  position: fixed;
+  left: 20px;
+  bottom: 20px;
+  z-index: 9100;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--glass-bg-regular);
+  -webkit-backdrop-filter: blur(14px) saturate(1.65);
+  backdrop-filter: blur(14px) saturate(1.65);
+  color: var(--apex-text);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--apex-radius-pill);
+  padding: 11px 18px;
+  min-height: 46px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--glass-shadow), var(--glass-specular);
+  transition: transform var(--apex-transition), background var(--apex-transition);
+}
+.apex-a11y-launcher:hover {
+  transform: translateY(-2px);
+  background: rgba(38, 38, 44, 0.8);
+}
+
+.apex-a11y-panel {
+  position: fixed;
+  left: 20px;
+  bottom: 78px;
+  z-index: 9300;
+  width: min(364px, calc(100vw - 24px));
+  max-height: calc(100vh - 104px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  background: var(--glass-bg-regular);
+  -webkit-backdrop-filter: blur(36px) saturate(1.85);
+  backdrop-filter: blur(36px) saturate(1.85);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--apex-radius-lg);
+  padding: 20px;
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.6), var(--glass-specular);
+}
+.apex-a11y-panel::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+.apex-a11y-panel[hidden] { display: none !important; }
+
+.apex-a11y-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 12px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--apex-border);
+}
+.apex-a11y-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.apex-a11y-opt {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--apex-text);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 11px 12px;
+  min-height: 52px;
+  font-size: 0.81rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+.apex-a11y-opt:hover { background: rgba(255, 255, 255, 0.12); }
+.apex-a11y-opt.is-active {
+  background: rgba(227, 24, 55, 0.22);
+  border-color: rgba(227, 24, 55, 0.7);
+  color: #ffffff;
+}
+.apex-a11y-font-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin-bottom: 14px;
+}
+.apex-a11y-font-btns { display: flex; gap: 6px; }
+.apex-a11y-font-btns button {
+  min-width: 36px;
+  min-height: 34px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--apex-text);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Okuma Kılavuzu */
+.apex-reading-guide {
+  display: none;
+  position: fixed;
+  left: 0;
+  right: 0;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.1);
+  border-top: 2px solid var(--apex-crimson);
+  border-bottom: 2px solid var(--apex-crimson);
+  pointer-events: none;
+  z-index: 9999;
+  transform: translateY(-50%);
+}
+html.a11y-reading-guide .apex-reading-guide { display: block; }
+
+/* 1. Yüksek Kontrast Modu (WCAG AAA — Opaque Fallback per liquid-glass.md) */
+html.a11y-high-contrast {
+  --apex-bg: #000000;
+  --apex-bg-elevated: #000000;
+  --apex-surface: #000000;
+  --apex-surface-2: #111111;
+  --apex-text: #ffffff;
+  --apex-text-muted: #ffe600;
+  --apex-crimson: #ffe600;
+  --apex-crimson-hover: #fff266;
+  --apex-volt: #00ffff;
+  --apex-border: #ffe600;
+  --apex-border-strong: #ffffff;
+  --glass-bg-regular: #000000;
+  --glass-bg-clear: #000000;
+  --glass-border: #ffe600;
+}
+html.a11y-high-contrast .apex-btn-primary { color: #000000 !important; }
+html.a11y-high-contrast .apex-header,
+html.a11y-high-contrast .apex-a11y-launcher,
+html.a11y-high-contrast .apex-a11y-panel,
+html.a11y-high-contrast .apex-ai-launcher,
+html.a11y-high-contrast .apex-ai-panel,
+html.a11y-high-contrast .apex-cinema-hud {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  border-width: 2px;
+}
+
+/* 2. Aydınlık Okuma Modu (Apple Light Mode + Light Liquid Glass) */
+html.a11y-light-mode {
+  --apex-bg: #f5f5f7;
+  --apex-bg-elevated: #ffffff;
+  --apex-surface: #ffffff;
+  --apex-surface-2: #ededf0;
+  --apex-surface-3: #e2e2e7;
+  --apex-text: #1d1d1f;
+  --apex-text-muted: #515154;
+  --apex-text-tertiary: #6e6e73;
+  --apex-volt: #1d1d1f;
+  --apex-border: rgba(0, 0, 0, 0.09);
+  --apex-border-strong: rgba(0, 0, 0, 0.18);
+  --glass-bg-regular: rgba(255, 255, 255, 0.72);
+  --glass-bg-clear: rgba(255, 255, 255, 0.56);
+  --glass-border: rgba(0, 0, 0, 0.12);
+  --glass-specular: inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 -1px 0 rgba(0, 0, 0, 0.04);
+  --glass-shadow: 0 12px 34px rgba(0, 0, 0, 0.12);
+}
+html.a11y-light-mode .apex-header-wrap::before {
+  background: linear-gradient(180deg, rgba(245, 245, 247, 0.85) 0%, rgba(245, 245, 247, 0) 100%);
+}
+html.a11y-light-mode .apex-nav-link { color: #3a3a3c; }
+html.a11y-light-mode .apex-nav-link.is-active { background: rgba(0, 0, 0, 0.08); color: #000000; }
+html.a11y-light-mode .apex-nav-util { color: #1d1d1f; }
+html.a11y-light-mode .apex-avatar-dot { background: #1d1d1f; color: #ffffff; }
+html.a11y-light-mode .apex-icon-btn,
+html.a11y-light-mode .apex-mobile-toggle { background: rgba(0, 0, 0, 0.06); border-color: rgba(0, 0, 0, 0.12); color: #1d1d1f; }
+html.a11y-light-mode .apex-hero,
+html.a11y-light-mode .apex-cinema-stage,
+html.a11y-light-mode .apex-prefooter,
+html.a11y-light-mode .apex-page-hero { color: #f5f5f7; }
+html.a11y-light-mode .apex-hero .apex-h1,
+html.a11y-light-mode .apex-cinema-stage .apex-h1,
+html.a11y-light-mode .apex-cinema-stage .apex-h2,
+html.a11y-light-mode .apex-page-hero .apex-h1,
+html.a11y-light-mode .apex-prefooter .apex-h2 { color: #ffffff; }
+html.a11y-light-mode .apex-hero .apex-lead,
+html.a11y-light-mode .apex-cinema-stage .apex-lead,
+html.a11y-light-mode .apex-prefooter .apex-lead,
+html.a11y-light-mode .apex-page-hero .apex-lead { color: rgba(245, 245, 247, 0.86); }
+html.a11y-light-mode .apex-hero .apex-btn-outline,
+html.a11y-light-mode .apex-cinema-stage .apex-btn-outline,
+html.a11y-light-mode .apex-prefooter .apex-btn-outline { color: #ffffff; border-color: rgba(255, 255, 255, 0.45); background: rgba(0, 0, 0, 0.35); }
+html.a11y-light-mode .apex-cinema-hud { background: rgba(20, 20, 24, 0.72); border-color: rgba(255, 255, 255, 0.22); color: #ffffff; }
+html.a11y-light-mode .apex-cinema-stage .apex-live-pill { background: rgba(20, 20, 24, 0.62); color: #ffffff; border-color: rgba(255, 255, 255, 0.24); }
+html.a11y-light-mode .apex-3d-monolith { color: #f4e268; }
+html.a11y-high-contrast .apex-3d-runway { background: #000000; }
+html.a11y-high-contrast .apex-3d-monolith { background: #000000; border: 2px solid #ffe600; }
+html.a11y-light-mode .apex-kpi-card { background: rgba(18, 18, 22, 0.72); }
+html.a11y-light-mode .apex-a11y-launcher,
+html.a11y-light-mode .apex-ai-launcher,
+html.a11y-light-mode .apex-a11y-panel,
+html.a11y-light-mode .apex-ai-panel,
+html.a11y-light-mode .apex-cookie-banner { color: #1d1d1f; }
+html.a11y-light-mode .apex-a11y-opt,
+html.a11y-light-mode .apex-a11y-font-row,
+html.a11y-light-mode .apex-chip { background: rgba(0, 0, 0, 0.05); border-color: rgba(0, 0, 0, 0.1); color: #1d1d1f; }
+html.a11y-light-mode .apex-a11y-opt.is-active { background: var(--apex-crimson); color: #ffffff; }
+html.a11y-light-mode .apex-msg-bot { background: rgba(0, 0, 0, 0.06); color: #1d1d1f; }
+html.a11y-light-mode .apex-footer { background: #ebebef; }
+html.a11y-light-mode .apex-card-featured { background: #ffffff; border-color: var(--apex-crimson); }
+html.a11y-light-mode .apex-member-card { color: #ffffff; }
+html.a11y-light-mode .apex-btn-volt { background: #1d1d1f; color: #ffffff; }
+
+/* 3. Disleksi Dostu Yazı Tipi */
+html.a11y-dyslexia body,
+html.a11y-dyslexia h1,
+html.a11y-dyslexia h2,
+html.a11y-dyslexia h3,
+html.a11y-dyslexia p,
+html.a11y-dyslexia a,
+html.a11y-dyslexia button {
+  font-family: 'Lexend', system-ui, sans-serif !important;
+  letter-spacing: 0.045em !important;
+  word-spacing: 0.12em !important;
+  line-height: 1.75 !important;
+}
+
+/* 4. Bağlantıları Vurgula */
+html.a11y-highlight-links a,
+html.a11y-highlight-links button {
+  text-decoration: underline !important;
+  text-underline-offset: 4px !important;
+}
+
+/* 5. Animasyonları Durdur */
+html.a11y-reduce-motion *,
+html.a11y-reduce-motion *::before,
+html.a11y-reduce-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  *:not(.apex-auth-pane):not(.apex-auth-overlay-wrap):not(.apex-auth-overlay):not(.apex-auth-overlay-panel):not(.apex-nav-morph) {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* 6. Gri Tonlama */
+html.a11y-grayscale { filter: grayscale(100%); }
+
+/* 7. Büyük İmleç */
+html.a11y-large-cursor, html.a11y-large-cursor * {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 36 36'%3E%3Cpath d='M4 2 L4 30 L11 23 L17 34 L22 31 L16 20 L27 20 Z' fill='%23FFFFFF' stroke='%23000000' stroke-width='2.5'/%3E%3C/svg%3E") 4 2, auto !important;
+}
+
+@media (max-width: 768px) {
+  .apex-a11y-launcher { left: 12px; bottom: 12px; padding: 10px 14px; font-size: 0.82rem; }
+  .apex-a11y-panel { left: 12px; bottom: 68px; }
+}

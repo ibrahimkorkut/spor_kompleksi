@@ -2,8 +2,8 @@
 
 ![APEX ARENA Ana Sayfa — Liquid Glass Shape Morph Menü, Obsidian Neon WhatsApp & Kırmızı Glow AI Koç](teslim_belgeleri/ekran_goruntuleri/16_whatsapp_hero_v170.png)
 
-> **Modern spor kompleksleri için sıfırdan geliştirilmiş, tam entegre özel WordPress teması ve çok rollü yönetim ekosistemi (`v2.3.0`).**  
-> 60/120 FPS kaydırmayla oynayan mimari tur videosu, Three.js prosedürel 3D dambıl sahnesi, **Mouse Hover ile Oda İçine Yaklaşan 3D Mimari Kesit Spor Kompleksi Maketi**, **Tam Kapsamlı 5 Sekmeli Admin Site İçerik CMS Stüdyosu** (marka, renk, 7 menü etiketi, ana sayfa bölüm anahtarları, üyelik paket fiyatları, Protein Kafe menü CRUD, 7 iç sayfa hero metinleri), **Bütünleşik Mimari Editoryal İç Sayfa Tasarım Sistemi**, **Gmail SMTP Hoş Geldin & Otomatik Hatırlatma E-posta Motoru**, **Obsidian Neon Glow Operasyon Yönetim Paneli**, **7 Uzman Koçluk Apple Fitness Neon Glow Koç Performans Stüdyosu**, **Liquid Glass Shape Morph üst menü**, dönen zümrüt neon **WhatsApp Destek Hattı**, kırmızı glow **Gemini 2.5 Flash AI Spor Koçu**, büyütülebilir **Dijital QR Kart Pop-up**, makro hesaplı Protein Kafe ön sipariş sepeti, lisanslı hakem + `.ics` takvimli salon kiralama, **Excel/CSV Rapor Merkezi**, gerçek **Google Maps** ve **WCAG 2.2 AA/AAA** erişilebilirlik merkezini tek çatı altında sunar.
+> **Modern spor kompleksleri için sıfırdan geliştirilmiş, tam entegre özel WordPress teması ve çok rollü yönetim ekosistemi (`v2.4.0`).**  
+> 60/120 FPS kaydırmayla oynayan mimari tur videosu, Three.js prosedürel 3D dambıl sahnesi, **Mouse Hover ile Oda İçine Yaklaşan 3D Mimari Kesit Spor Kompleksi Maketi**, **Tam Modüler 6 Sekmeli Ana Sayfa Parça & Site İçerik CMS Stüdyosu** (ana sayfa bölüm sıralama, özel blok oluşturucu, Hero rozet/CTA/KPI/sahne ekle-çıkar, Salon/PT/Antrenör/Duyuru ekle-çıkar, dinamik üst menü, sınırsız üyelik paketi & tesis kartları, Protein Kafe CRUD, 7 iç sayfa hero metinleri), **Bütünleşik Mimari Editoryal İç Sayfa Tasarım Sistemi**, **Gmail SMTP Hoş Geldin & Otomatik Hatırlatma E-posta Motoru**, **Obsidian Neon Glow Operasyon Yönetim Paneli**, **7 Uzman Koçluk Apple Fitness Neon Glow Koç Performans Stüdyosu**, **Liquid Glass Shape Morph üst menü**, dönen zümrüt neon **WhatsApp Destek Hattı**, kırmızı glow **Gemini 2.5 Flash AI Spor Koçu**, büyütülebilir **Dijital QR Kart Pop-up**, makro hesaplı Protein Kafe ön sipariş sepeti, lisanslı hakem + `.ics` takvimli salon kiralama, **Excel/CSV Rapor Merkezi**, gerçek **Google Maps** ve **WCAG 2.2 AA/AAA** erişilebilirlik merkezini tek çatı altında sunar.
 
 ---
 
@@ -16,11 +16,15 @@
 
 ---
 
-## v2.3.0 Yeni Modüller & Güncel Ekran Görüntüleri
+## v2.4.0 Yeni Modüller & Güncel Ekran Görüntüleri
 
-### 0. Tam Kapsamlı Admin Site İçerik CMS Stüdyosu & Bütünleşik Editoryal İç Sayfalar (`inc/site-cms.php`, `page-*.php`)
-- **Tek Panelden Tüm Siteyi Yönet (`WP Admin → APEX ARENA → Site İçerik CMS`):** 5 sekmeli Obsidian Neon yönetim arayüzüyle kod yazmadan site logosu/marka metinleri, canlı tema vurgu rengi (`--apex-crimson`), 7 üst menü etiketi, ana sayfa 10 bölümünün Göster/Gizle anahtarları ve tüm başlıkları, Classic/Pro/Elite üyelik paket fiyatları & kapsamları, Protein Kafe menüsü (ekle/düzenle/sil), 7 iç sayfa hero metinleri, WhatsApp hattı, Google Harita konumu ve Footer içerikleri anlık düzenlenebilir.
-- **Tüm 7 Navigasyon Sayfasında Bütünleşik Mimari Editoryal Tasarım:** `PT Eğitmenler`, `Antrenörler`, `Salon Kiralama`, `Tesis`, `Üyelik`, `Duyurular` ve `İletişim` sayfaları kırmızı sol şeritli editoryal hero, `1px` ince ayırıcılı İsviçre tablo ızgaraları, tam çerçeve poster galerileri ve alt çizgili filtre sekmeleriyle bütünleşik mimari görünüme kavuşturuldu.
+### 0. Tam Modüler Ana Sayfa Parça & Site İçerik CMS Stüdyosu (`inc/site-cms.php`, `front-page.php`, `header.php`, `footer.php`)
+- **Ana Sayfadaki Her Parçayı Ekle, Çıkar, Gizle & Sırala (`WP Admin → APEX ARENA → Site İçerik CMS`):** 6 sekmeli Obsidian Neon CMS Stüdyosu ile ana sayfanın 10 yerleşik bölümü yukarı/aşağı sıralanabilir, gizlenebilir, araya 3 farklı şablonda (`cta_banner`, `feature_cards`, `split_media`) **Özel Bölüm** eklenebilir; Hero rozet/butonları/KPI kartları ve kaydırma sinema sahneleri tek tek açılıp kapatılabilir.
+- **Canlı Salon / PT / Antrenör / Duyuru, Üst Menü, Paket & Tesis CRUD (`tab=items`, `brand`, `plans`, `facilities`, `pages`):** Tüm CPT kayıtları inline formlarla eklenip tek tıkla çöpe taşınabilir veya ana sayfadan gizlenebilir; üst menü linkleri, yüzen bileşenler (WhatsApp/AI/WCAG), üyelik paketleri, tesis kartları ve Protein Kafe menüsü tam kontrollüdür.
+
+| Ana Sayfa Parça Sıralama & Özel Bloklar (`tab=home`) | Inline Salon / PT / Antrenör / Duyuru Ekle-Çıkar (`tab=items`) |
+| :---: | :---: |
+| ![Ana Sayfa Parça CMS](teslim_belgeleri/ekran_goruntuleri/38_anasayfa_parca_cms_v240.png) | ![CPT Ekle-Çıkar CMS](teslim_belgeleri/ekran_goruntuleri/39_cpt_ekle_cikar_cms_v240.png) |
 
 | Editoryal PT Eğitmenler (`/pt-egitmenler/`) | Editoryal Salon Kiralama (`/salon-kiralama/`) |
 | :---: | :---: |

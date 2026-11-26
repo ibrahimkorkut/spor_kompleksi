@@ -1,5 +1,14 @@
 # Changelog — APEX ARENA WordPress Theme
 
+## [2.4.0] — 2026-11-26
+- **Tam Modüler Ana Sayfa İnşa Edicisi & Parça Bazlı CMS Stüdyosu (`inc/site-cms.php`, `front-page.php`, `header.php`, `footer.php`, `template-parts/chatbot-widget.php`, `inc/helpers.php`, `assets/css/main.css`):** Ana sayfadaki her bir bölüm ve alt parça WP Admin'den (`WP Admin → APEX ARENA → Site İçerik CMS`, 6 sekme) kod yazmadan eklenip çıkarılabilir, gizlenebilir ve yeniden sıralanabilir hale getirildi:
+  - **1. Ana Sayfa Parçaları & Sıralama (`tab=home`):** Tüm 10 yerleşik ana sayfa bölümü için yukarı/aşağı (`↑`/`↓`) yeniden sıralama, görünürlük anahtarları, sınırsız **Özel Bölüm Ekleme** (`Tanıtım Bandı / cta_banner`, `Çoklu Özellik Kartları / feature_cards`, `Görsel + Metin / split_media`), Hero alt parça anahtarları (canlı yoğunluk rozeti, CTA 1/2, AI koç butonu), dinamik Hero KPI kartları (ekle/sil/sırala), dinamik 60/120 FPS Scroll Cinema sahneleri (`01..N` ekle/sil/sırala/aç-kapa), bölüm öğe sayısı limitleri ve yorum formu aç/kapa anahtarı.
+  - **2. Salon / PT / Antrenör / Duyuru Ekle-Çıkar (`tab=items`):** Tek ekrandan tüm CPT kayıtları için anlık ana sayfa görünürlük seçimi, hızlı inline ekleme formları ve doğrudan tek tıkla çöpe taşıma (`🗑 Çıkar`, `apex_cms_trash_post_id`).
+  - **3. Marka, Dinamik Üst Menü & Yüzen Bileşenler (`tab=brand`):** Üst menü linklerini sınırsız ekleme/silme/sıralama/gizleme, Pre-Footer, WhatsApp, AI Spor Koçu ve WCAG Erişilebilirlik yüzen bileşenlerini tek tek aç/kapa.
+  - **4. Dinamik Üyelik Paketleri (`tab=plans`):** Sınırsız paket ekleme/silme, öne çıkan paket seçimi (`apex_get_membership_plans()` ve kayıt API tam senkron).
+  - **5. Tesis Bento Kartları & Protein Kafe (`tab=facilities`):** Dinamik tesis kartları (`fac1_*..fac3_*` ile `page-tesis-olanaklari.php` uyumlu) ve Protein Kafe menü CRUD.
+  - **6. Tüm 7 İç Sayfa Hero Başlıkları (`tab=pages`):** 7 navigasyon sayfasının üst başlık/açıklama metinleri ve tek tıkla Fabrika Varsayılanlarına Sıfırla.
+
 ## [2.3.0] — 2026-11-25
 - **Tam Kapsamlı Admin CMS Stüdyosu (`inc/site-cms.php`, `WP Admin → APEX ARENA → Site İçerik CMS`):** Yöneticilerin sitenin her bir parçasını kod yazmadan tek panelden düzenleyebilmesi için 5 sekmeli Obsidian Neon CMS Stüdyosu eklendi:
   - **1. Marka, Renk & Menü:** Logo metinleri, canlı tema vurgu rengi seçici (`--apex-crimson`), 7 üst menü etiketi, giriş/kayıt buton adları, iletişim bilgileri, Google Harita konumu, WhatsApp numarası & hazır mesajı (yüzen buton + `/iletisim/` senkron), Pre-Footer ve Footer metinleri.
